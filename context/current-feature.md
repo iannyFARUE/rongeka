@@ -1,18 +1,25 @@
 # Current Feature
 
-<!-- Feature name and short description -->
+Dashboard UI Phase 2 — Collapsible sidebar with item type links, favorite/recent collections, user avatar, and mobile drawer support.
 
 ## Status
 
-<!-- Not started | In Progress | Completed -->
+In Progress
 
 ## Goals
 
-<!-- Goals and requirements -->
+- Collapsible sidebar with drawer icon to open/close
+- Item type links to `/items/TYPE` (e.g. `/items/snippets`)
+- Favorite collections section in sidebar
+- Most recent collections section in sidebar
+- User avatar area at the bottom of the sidebar
+- Always a drawer on mobile view
 
 ## Notes
 
-<!-- Any extra notes -->
+- Use mock data from `src/lib/mock-data.ts` (import directly)
+- Reference screenshot: `context/screenshots/dashboard-ui-main.png`
+- See phase 3 spec: `context/features/dashboard-phase-3-spec.md`
 
 ## History
 
