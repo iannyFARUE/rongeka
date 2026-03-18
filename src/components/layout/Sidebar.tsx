@@ -13,7 +13,7 @@ import {
   Star,
   ChevronRight,
   ChevronDown,
-  X,
+  PanelLeft,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -49,7 +49,7 @@ const PRO_TYPES = new Set(["file", "image"]);
 
 interface SidebarProps {
   isOpen: boolean;
-  onClose: () => void;
+  onToggle: () => void;
 }
 
 function SectionHeader({
@@ -78,7 +78,7 @@ function SectionHeader({
   );
 }
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const [typesOpen, setTypesOpen] = useState(true);
   const [collectionsOpen, setCollectionsOpen] = useState(true);
   const [recentOpen, setRecentOpen] = useState(true);
@@ -100,7 +100,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={onClose}
+          onClick={onToggle}
         />
       )}
 
@@ -124,7 +124,15 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             isOpen ? "hidden" : "hidden md:flex"
           )}
         >
-          <div className="h-12 w-full border-b border-border shrink-0" />
+          <div className="h-12 w-full border-b border-border flex items-center justify-center shrink-0">
+            <button
+              onClick={onToggle}
+              className="p-1.5 rounded-md hover:bg-accent text-muted-foreground transition-colors"
+              aria-label="Expand sidebar"
+            >
+              <PanelLeft className="h-4 w-4" />
+            </button>
+          </div>
           <div className="flex-1 overflow-y-auto py-3 flex flex-col items-center gap-0.5 w-full">
             {mockItemTypes.map((type) => {
               const Icon = ICON_MAP[type.icon];
@@ -161,11 +169,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               Navigation
             </span>
             <button
-              onClick={onClose}
+              onClick={onToggle}
               className="p-1.5 rounded-md hover:bg-accent text-muted-foreground transition-colors"
               aria-label="Close sidebar"
             >
-              <X className="h-4 w-4" />
+              <PanelLeft className="h-4 w-4" />
             </button>
           </div>
 

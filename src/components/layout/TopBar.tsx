@@ -2,13 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, PanelLeft } from "lucide-react";
+import { Search, Plus } from "lucide-react";
 
-interface TopBarProps {
-  onToggleSidebar: () => void;
-}
-
-export default function TopBar({ onToggleSidebar }: TopBarProps) {
+export default function TopBar() {
   return (
     <header className="flex items-center justify-between gap-4 px-4 h-12 border-b border-border bg-background shrink-0">
       <div className="flex items-center gap-2 font-semibold text-foreground shrink-0">
@@ -17,13 +13,6 @@ export default function TopBar({ onToggleSidebar }: TopBarProps) {
         </div>
         <span className="text-base">Rongeka</span>
       </div>
-      <button
-        onClick={onToggleSidebar}
-        className="p-1.5 rounded-md hover:bg-accent text-muted-foreground transition-colors shrink-0"
-        aria-label="Toggle sidebar"
-      >
-        <PanelLeft className="h-4 w-4" />
-      </button>
       <div className="relative flex-1 max-w-lg">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         <Input

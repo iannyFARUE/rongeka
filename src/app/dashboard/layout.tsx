@@ -13,11 +13,11 @@ export default function DashboardLayout({
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
-      <TopBar onToggleSidebar={() => setSidebarOpen((prev) => !prev)} />
+      <TopBar />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
+          onToggle={() => setSidebarOpen((prev) => !prev)}
         />
         <main className="flex-1 overflow-y-auto">
           {children}
