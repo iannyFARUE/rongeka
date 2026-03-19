@@ -19,7 +19,7 @@ async function main() {
   console.log("Connected! Tables found:");
   tableNames.forEach((t) => console.log(`  - ${t.tablename}`));
 
-  // Test each model
+  // Row counts
   const [userCount, itemTypeCount, itemCount, collectionCount, tagCount] =
     await Promise.all([
       prisma.user.count(),
@@ -35,6 +35,59 @@ async function main() {
   console.log(`  items:       ${itemCount}`);
   console.log(`  collections: ${collectionCount}`);
   console.log(`  tags:        ${tagCount}`);
+
+  // Demo user
+  const demoUser = await prisma.user.findUnique({
+    where: { email: "demo@rongeka.io" },
+    select: { id: true, name: true, email: true, isPro: true, emailVerified: true },
+  });
+
+  if (demoUser) {
+    console.log("\nDemo user:");
+    console.log(`  name:          ${demoUser.name}`);
+    console.log(`  email:         ${demoUser.email}`);
+    console.log(`  isPro:         ${demoUser.isPro}`);
+    console.log(`  emailVerified: ${demoUser.emailVerified}`);
+  }
+
+  // System item types
+  const systemTypes = await prisma.itemType.findMany({
+    where: { isSystem: true },
+    orderBy: { name: "asc" },
+    select: { name: true, icon: true, color: true },
+  });
+
+  console.log("\nSystem item types:");
+  systemTypes.forEach((t) =>
+    console.log(`  ${t.name.padEnd(8)} icon=${t.icon.padEnd(12)} color=${t.color}`)
+  );
+
+  // Collections with item counts
+  const collections = await prisma.collection.findMany({
+    where: { user: { email: "demo@rongeka.io" } },
+    orderBy: { name: "asc" },
+    include: { _count: { select: { itemCollections: true } } },
+  });
+
+  console.log("\nCollections:");
+  collections.forEach((c) =>
+    console.log(`  ${c.name.padEnd(22)} items=${c._count.itemCollections} favorite=${c.isFavorite}`)
+  );
+
+  // All items with type
+  const items = await prisma.item.findMany({
+    where: { user: { email: "demo@rongeka.io" } },
+    orderBy: { createdAt: "asc" },
+    include: { itemType: { select: { name: true } }, tags: { select: { name: true } } },
+  });
+
+  console.log("\nItems:");
+  items.forEach((item) => {
+    const tags = item.tags.map((t) => `#${t.name}`).join(" ");
+    console.log(
+      `  [${item.itemType.name.padEnd(8)}] ${item.title.padEnd(45)} ${tags}`
+    );
+  });
 
   console.log("\nDatabase is healthy.");
 }
