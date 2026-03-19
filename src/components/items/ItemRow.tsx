@@ -8,7 +8,7 @@ import {
   Image,
   Link,
 } from "lucide-react";
-import { mockItemTypes } from "@/lib/mock-data";
+import type { ItemWithMeta } from "@/lib/db/items";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Code,
@@ -20,8 +20,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Link,
 };
 
-function timeAgo(isoString: string): string {
-  const diff = Date.now() - new Date(isoString).getTime();
+function timeAgo(date: Date): string {
+  const diff = Date.now() - date.getTime();
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
@@ -33,33 +33,22 @@ function timeAgo(isoString: string): string {
   return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
 }
 
-interface Item {
-  id: string;
-  title: string;
-  description: string | null;
-  isFavorite: boolean;
-  isPinned: boolean;
-  itemTypeId: string;
-  tags: string[];
-  lastUsedAt: string | null;
-}
-
-export default function ItemRow({ item }: { item: Item }) {
-  const itemType = mockItemTypes.find((t) => t.id === item.itemTypeId);
-  const Icon = itemType ? ICON_MAP[itemType.icon] : null;
+export default function ItemRow({ item }: { item: ItemWithMeta }) {
+  const Icon = ICON_MAP[item.itemType.icon];
+  const { color } = item.itemType;
 
   return (
     <div
       className="group flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 hover:bg-accent/20 transition-colors"
-      style={{ borderLeftColor: itemType?.color, borderLeftWidth: "3px" }}
+      style={{ borderLeftColor: color, borderLeftWidth: "3px" }}
     >
       {/* Type icon */}
-      {Icon && itemType && (
+      {Icon && (
         <div
           className="flex h-8 w-8 items-center justify-center rounded-md shrink-0"
-          style={{ backgroundColor: `${itemType.color}18` }}
+          style={{ backgroundColor: `${color}18` }}
         >
-          <Icon className="h-4 w-4" style={{ color: itemType.color }} />
+          <Icon className="h-4 w-4" style={{ color }} />
         </div>
       )}
 
@@ -82,8 +71,8 @@ export default function ItemRow({ item }: { item: Item }) {
         {item.tags.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap">
             {item.tags.map((tag) => (
-              <span key={tag} className="text-xs text-muted-foreground">
-                #{tag}
+              <span key={tag.id} className="text-xs text-muted-foreground">
+                #{tag.name}
               </span>
             ))}
           </div>
