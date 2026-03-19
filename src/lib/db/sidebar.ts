@@ -27,8 +27,7 @@ export type SidebarData = {
   recentItems: SidebarRecentItem[];
 };
 
-// TODO: filter by userId once auth is set up
-export async function getSidebarData(): Promise<SidebarData> {
+export async function getSidebarData(userId: string): Promise<SidebarData> {
   const [itemTypes, collections, recentItems] = await Promise.all([
     prisma.itemType.findMany({
       where: { isSystem: true },
@@ -36,6 +35,7 @@ export async function getSidebarData(): Promise<SidebarData> {
     }),
 
     prisma.collection.findMany({
+      where: { userId },
       orderBy: { createdAt: "desc" },
       include: {
         itemCollections: {
@@ -45,6 +45,7 @@ export async function getSidebarData(): Promise<SidebarData> {
     }),
 
     prisma.item.findMany({
+      where: { lastUsedAt: { not: null }, userId },
       orderBy: { lastUsedAt: "desc" },
       take: 3,
       select: {

@@ -24,9 +24,9 @@ export type DashboardStats = {
   favoriteCollections: number;
 };
 
-// TODO: replace with session.user.id once auth is set up
-export async function getCollections(): Promise<CollectionWithMeta[]> {
+export async function getCollections(userId: string): Promise<CollectionWithMeta[]> {
   const collections = await prisma.collection.findMany({
+    where: { userId },
     orderBy: { createdAt: "desc" },
     include: {
       itemCollections: {
@@ -78,14 +78,13 @@ export async function getCollections(): Promise<CollectionWithMeta[]> {
   });
 }
 
-// TODO: replace with session.user.id once auth is set up
-export async function getDashboardStats(): Promise<DashboardStats> {
+export async function getDashboardStats(userId: string): Promise<DashboardStats> {
   const [totalItems, totalCollections, favoriteItems, favoriteCollections] =
     await Promise.all([
-      prisma.item.count(),
-      prisma.collection.count(),
-      prisma.item.count({ where: { isFavorite: true } }),
-      prisma.collection.count({ where: { isFavorite: true } }),
+      prisma.item.count({ where: { userId } }),
+      prisma.collection.count({ where: { userId } }),
+      prisma.item.count({ where: { isFavorite: true, userId } }),
+      prisma.collection.count({ where: { isFavorite: true, userId } }),
     ]);
 
   return { totalItems, totalCollections, favoriteItems, favoriteCollections };

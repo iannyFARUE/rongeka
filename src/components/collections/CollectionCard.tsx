@@ -1,8 +1,7 @@
-"use client";
-
 import Link from "next/link";
-import { ChevronRight, Star, type LucideIcon } from "lucide-react";
 import {
+  ChevronRight,
+  Star,
   Code,
   Sparkles,
   Terminal,
@@ -10,6 +9,7 @@ import {
   File,
   Image,
   Link as LinkIcon,
+  type LucideIcon,
 } from "lucide-react";
 import type { CollectionWithMeta } from "@/lib/db/collections";
 
