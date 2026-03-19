@@ -1,18 +1,19 @@
 # Current Feature
 
-<!-- Feature name and short description -->
+<!-- No active feature -->
 
 ## Status
 
-<!-- Not started | In Progress | Completed -->
+<!-- Not started -->
 
 ## Goals
 
-<!-- Goals and requirements -->
+<!-- None -->
 
 ## Notes
 
-<!-- Any extra notes -->
+<!-- None -->
+
 
 ## History
 
@@ -21,3 +22,5 @@
 - **2026-03-16** — Completed Dashboard UI Phase 2: Collapsible sidebar with icon-only collapsed state, item type links, favorite/recent collections, recently used items, user avatar, mobile drawer support, and Geist font fix
 - **2026-03-16** — Completed Dashboard UI Phase 3: Stats cards, recent collections grid, pinned items section, and recent items list in the main content area
 - **2026-03-18** — Completed Prisma + Neon PostgreSQL setup: Prisma 7 with PrismaPg driver adapter, full schema with all data models and NextAuth tables, initial migration applied to Neon dev branch, db:test and db:studio scripts added
+- **2026-03-18** — Completed Database Seed: idempotent seed script (prisma/seed.ts) with demo user, 7 system item types, and 5 collections with 18 items; db:seed script and prisma.seed config added to package.json
+- **2026-03-18** — Completed Database Seed: demo user (demo@rongeka.io), 7 system item types, 5 collections with 14 items across React Patterns, AI Workflows, DevOps, Terminal Commands, and Design Resources
