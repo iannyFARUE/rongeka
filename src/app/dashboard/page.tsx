@@ -5,36 +5,10 @@ import {
   BookMarked,
   ChevronRight,
 } from "lucide-react";
-import { mockCollections, mockItems } from "@/lib/mock-data";
+import { mockItems } from "@/lib/mock-data";
+import { getCollections, getDashboardStats } from "@/lib/db/collections";
 import CollectionCard from "@/components/collections/CollectionCard";
 import ItemRow from "@/components/items/ItemRow";
-
-const stats = [
-  {
-    label: "Items",
-    value: mockItems.length,
-    icon: Layers,
-    color: "#3b82f6",
-  },
-  {
-    label: "Collections",
-    value: mockCollections.length,
-    icon: FolderOpen,
-    color: "#8b5cf6",
-  },
-  {
-    label: "Favorite Items",
-    value: mockItems.filter((i) => i.isFavorite).length,
-    icon: Star,
-    color: "#fde047",
-  },
-  {
-    label: "Favorite Collections",
-    value: mockCollections.filter((c) => c.isFavorite).length,
-    icon: BookMarked,
-    color: "#10b981",
-  },
-];
 
 const pinnedItems = mockItems.filter((i) => i.isPinned);
 
@@ -46,12 +20,24 @@ const recentItems = [...mockItems]
   })
   .slice(0, 10);
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const [collections, stats] = await Promise.all([
+    getCollections(),
+    getDashboardStats(),
+  ]);
+
+  const statCards = [
+    { label: "Items", value: stats.totalItems, icon: Layers, color: "#3b82f6" },
+    { label: "Collections", value: stats.totalCollections, icon: FolderOpen, color: "#8b5cf6" },
+    { label: "Favorite Items", value: stats.favoriteItems, icon: Star, color: "#fde047" },
+    { label: "Favorite Collections", value: stats.favoriteCollections, icon: BookMarked, color: "#10b981" },
+  ];
+
   return (
     <div className="p-6 space-y-8">
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {stats.map(({ label, value, icon: Icon, color }) => (
+        {statCards.map(({ label, value, icon: Icon, color }) => (
           <div
             key={label}
             className="flex items-center gap-3 rounded-lg border border-border bg-card p-4"
@@ -70,7 +56,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Recent Collections */}
+      {/* Collections */}
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold">Collections</h2>
@@ -79,11 +65,15 @@ export default function DashboardPage() {
             <ChevronRight className="h-3.5 w-3.5" />
           </button>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {mockCollections.map((col) => (
-            <CollectionCard key={col.id} collection={col} />
-          ))}
-        </div>
+        {collections.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No collections yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {collections.map((col) => (
+              <CollectionCard key={col.id} collection={col} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Pinned Items */}

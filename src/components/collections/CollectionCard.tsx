@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { ChevronRight, Star, type LucideIcon } from "lucide-react";
 import {
@@ -9,7 +11,7 @@ import {
   Image,
   Link as LinkIcon,
 } from "lucide-react";
-import { mockItemTypes } from "@/lib/mock-data";
+import type { CollectionWithMeta } from "@/lib/db/collections";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Code,
@@ -21,24 +23,16 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Link: LinkIcon,
 };
 
-interface Collection {
-  id: string;
-  name: string;
-  description: string | null;
-  isFavorite: boolean;
-  itemCount: number;
-  typeIds: string[];
-}
-
-export default function CollectionCard({ collection }: { collection: Collection }) {
-  const types = collection.typeIds
-    .map((id) => mockItemTypes.find((t) => t.id === id))
-    .filter(Boolean) as typeof mockItemTypes;
-
+export default function CollectionCard({
+  collection,
+}: {
+  collection: CollectionWithMeta;
+}) {
   return (
     <Link
       href={`/collections/${collection.id}`}
-      className="group flex flex-col rounded-lg border border-border bg-card p-4 hover:bg-accent/20 transition-colors"
+      className="group flex flex-col rounded-lg border border-border bg-card p-4 hover:bg-accent/20 transition-colors overflow-hidden"
+      style={{ borderLeftColor: collection.dominantColor, borderLeftWidth: 3 }}
     >
       <div className="flex items-start justify-between gap-2 mb-1">
         <h3 className="font-semibold text-sm leading-snug">{collection.name}</h3>
@@ -58,13 +52,15 @@ export default function CollectionCard({ collection }: { collection: Collection 
 
       <div className="flex items-center justify-between mt-auto pt-2">
         <div className="flex items-center gap-1">
-          {types.slice(0, 4).map((type) => {
+          {collection.types.slice(0, 4).map((type) => {
             const Icon = ICON_MAP[type.icon];
+            if (!Icon) return null;
             return (
               <div
                 key={type.id}
                 className="flex h-5 w-5 items-center justify-center rounded"
                 style={{ backgroundColor: `${type.color}25` }}
+                title={type.name}
               >
                 <Icon className="h-3 w-3" style={{ color: type.color }} />
               </div>
@@ -72,7 +68,7 @@ export default function CollectionCard({ collection }: { collection: Collection 
           })}
         </div>
         <span className="text-xs text-muted-foreground">
-          {collection.itemCount} items
+          {collection.itemCount} {collection.itemCount === 1 ? "item" : "items"}
         </span>
       </div>
     </Link>
