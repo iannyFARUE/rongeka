@@ -17,6 +17,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import type { SidebarData } from "@/lib/db/sidebar";
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -196,9 +197,9 @@ export default function Sidebar({ isOpen, onToggle, data }: SidebarProps) {
                           {slug}
                         </span>
                         {isPro && (
-                          <span className="text-[10px] px-1 py-0.5 rounded bg-violet-600/20 text-violet-400 font-medium leading-none">
+                          <Badge className="bg-violet-600/20 text-violet-400 border-0 text-[10px] px-1.5 h-4">
                             Pro
-                          </span>
+                          </Badge>
                         )}
                         {type.itemCount > 0 && (
                           <span className="text-xs text-muted-foreground tabular-nums">
