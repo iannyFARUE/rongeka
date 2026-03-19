@@ -1,18 +1,24 @@
 # Current Feature
 
-<!-- No active feature -->
+Code audit quick wins
 
 ## Status
 
-<!-- Not started -->
+In progress
 
 ## Goals
 
-<!-- None -->
+Fix low-risk issues surfaced by the code scanner audit:
+
+- [x] Remove `"use client"` from `CollectionCard` — no hooks or event handlers; can be a server component
+- [x] Filter `null` from `getRecentItems` and sidebar recent items — items with no `lastUsedAt` sort to the top due to Postgres `NULL DESC` behaviour, causing never-used items to appear first
+- [x] Merge duplicate `lucide-react` import statements in `CollectionCard` — two separate import blocks from the same module
+- [x] Add `userId` scoping to all DB queries using the demo user ID — makes the auth swap a one-liner later
 
 ## Notes
 
-<!-- None -->
+- userId scoping: use the hardcoded demo user ID from the seed for now; replace with `session.user.id` when auth lands
+- Do NOT extract `ICON_MAP` or `TYPE_SLUGS` yet — refactoring risk; save for a dedicated cleanup pass
 
 
 ## History

@@ -7,15 +7,17 @@ import {
 } from "lucide-react";
 import { getCollections, getDashboardStats } from "@/lib/db/collections";
 import { getPinnedItems, getRecentItems } from "@/lib/db/items";
+import { getDemoUserId } from "@/lib/db/users";
 import CollectionCard from "@/components/collections/CollectionCard";
 import ItemRow from "@/components/items/ItemRow";
 
 export default async function DashboardPage() {
+  const userId = await getDemoUserId();
   const [collections, stats, pinnedItems, recentItems] = await Promise.all([
-    getCollections(),
-    getDashboardStats(),
-    getPinnedItems(),
-    getRecentItems(),
+    getCollections(userId),
+    getDashboardStats(userId),
+    getPinnedItems(userId),
+    getRecentItems(userId),
   ]);
 
   const statCards = [
