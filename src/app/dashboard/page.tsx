@@ -5,25 +5,17 @@ import {
   BookMarked,
   ChevronRight,
 } from "lucide-react";
-import { mockItems } from "@/lib/mock-data";
 import { getCollections, getDashboardStats } from "@/lib/db/collections";
+import { getPinnedItems, getRecentItems } from "@/lib/db/items";
 import CollectionCard from "@/components/collections/CollectionCard";
 import ItemRow from "@/components/items/ItemRow";
 
-const pinnedItems = mockItems.filter((i) => i.isPinned);
-
-const recentItems = [...mockItems]
-  .sort((a, b) => {
-    if (!a.lastUsedAt) return 1;
-    if (!b.lastUsedAt) return -1;
-    return new Date(b.lastUsedAt).getTime() - new Date(a.lastUsedAt).getTime();
-  })
-  .slice(0, 10);
-
 export default async function DashboardPage() {
-  const [collections, stats] = await Promise.all([
+  const [collections, stats, pinnedItems, recentItems] = await Promise.all([
     getCollections(),
     getDashboardStats(),
+    getPinnedItems(),
+    getRecentItems(),
   ]);
 
   const statCards = [
@@ -89,14 +81,16 @@ export default async function DashboardPage() {
       )}
 
       {/* Recent Items */}
-      <section>
-        <h2 className="text-base font-semibold mb-4">Recent Items</h2>
-        <div className="space-y-2">
-          {recentItems.map((item) => (
-            <ItemRow key={item.id} item={item} />
-          ))}
-        </div>
-      </section>
+      {recentItems.length > 0 && (
+        <section>
+          <h2 className="text-base font-semibold mb-4">Recent Items</h2>
+          <div className="space-y-2">
+            {recentItems.map((item) => (
+              <ItemRow key={item.id} item={item} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
