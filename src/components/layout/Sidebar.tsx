@@ -16,14 +16,8 @@ import {
   PanelLeft,
   type LucideIcon,
 } from "lucide-react";
-import {
-  mockItemTypes,
-  mockCollections,
-  mockRecentItems,
-  mockItems,
-  mockUser,
-} from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import type { SidebarData } from "@/lib/db/sidebar";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Code,
@@ -50,6 +44,7 @@ const PRO_TYPES = new Set(["file", "image"]);
 interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
+  data: SidebarData;
 }
 
 function SectionHeader({
@@ -78,21 +73,15 @@ function SectionHeader({
   );
 }
 
-export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
+export default function Sidebar({ isOpen, onToggle, data }: SidebarProps) {
   const [typesOpen, setTypesOpen] = useState(true);
   const [collectionsOpen, setCollectionsOpen] = useState(true);
   const [recentOpen, setRecentOpen] = useState(true);
 
-  const typeCounts = mockItems.reduce<Record<string, number>>((acc, item) => {
-    acc[item.itemTypeId] = (acc[item.itemTypeId] || 0) + 1;
-    return acc;
-  }, {});
+  const { itemTypes, collections, recentItems } = data;
 
-  const initials = mockUser.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
+  // Placeholder initials until auth is set up
+  const initials = "D";
 
   return (
     <>
@@ -108,9 +97,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
         className={cn(
           "flex flex-col bg-sidebar border-r border-border shrink-0",
           "transition-all duration-200 ease-in-out",
-          // Mobile: fixed overlay, slides in/out
           "fixed inset-y-0 left-0 z-50",
-          // Desktop: in-flow, width transitions between full and icon-only
           "md:relative md:inset-auto md:z-auto md:translate-x-0",
           isOpen
             ? "w-60 translate-x-0"
@@ -134,14 +121,14 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
             </button>
           </div>
           <div className="flex-1 overflow-y-auto py-3 flex flex-col items-center gap-0.5 w-full">
-            {mockItemTypes.map((type) => {
+            {itemTypes.map((type) => {
               const Icon = ICON_MAP[type.icon];
               const slug = TYPE_SLUGS[type.name];
               return Icon ? (
                 <Link
                   key={type.id}
                   href={`/items/${slug}`}
-                  title={slug}
+                  title={type.name}
                   className="flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent transition-colors mx-auto"
                 >
                   <Icon className="h-4 w-4" style={{ color: type.color }} />
@@ -188,10 +175,9 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
               />
               {typesOpen && (
                 <nav>
-                  {mockItemTypes.map((type) => {
+                  {itemTypes.map((type) => {
                     const Icon = ICON_MAP[type.icon];
                     const slug = TYPE_SLUGS[type.name];
-                    const count = typeCounts[type.id] || 0;
                     const isPro = PRO_TYPES.has(type.name);
 
                     return (
@@ -214,9 +200,9 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                             Pro
                           </span>
                         )}
-                        {count > 0 && (
+                        {type.itemCount > 0 && (
                           <span className="text-xs text-muted-foreground tabular-nums">
-                            {count}
+                            {type.itemCount}
                           </span>
                         )}
                       </Link>
@@ -235,70 +221,68 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
               />
               {collectionsOpen && (
                 <nav>
-                  {mockCollections.map((col) => {
-                    const defaultType = mockItemTypes.find(
-                      (t) => t.id === col.defaultTypeId
-                    );
-                    const dotColor = defaultType?.color ?? "#6b7280";
-
-                    return (
-                      <Link
-                        key={col.id}
-                        href={`/collections/${col.id}`}
-                        className="flex items-center gap-2.5 px-3 mx-1 py-1.5 text-sm rounded-sm hover:bg-accent group transition-colors"
-                      >
-                        <div
-                          className="h-2 w-2 rounded-full shrink-0"
-                          style={{ backgroundColor: dotColor }}
-                        />
-                        <span className="flex-1 truncate text-foreground/80 group-hover:text-foreground transition-colors">
-                          {col.name}
-                        </span>
-                        {col.isFavorite && (
-                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 shrink-0" />
-                        )}
-                      </Link>
-                    );
-                  })}
+                  {collections.map((col) => (
+                    <Link
+                      key={col.id}
+                      href={`/collections/${col.id}`}
+                      className="flex items-center gap-2.5 px-3 mx-1 py-1.5 text-sm rounded-sm hover:bg-accent group transition-colors"
+                    >
+                      <div
+                        className="h-2 w-2 rounded-full shrink-0"
+                        style={{ backgroundColor: col.dominantColor }}
+                      />
+                      <span className="flex-1 truncate text-foreground/80 group-hover:text-foreground transition-colors">
+                        {col.name}
+                      </span>
+                      {col.isFavorite && (
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 shrink-0" />
+                      )}
+                    </Link>
+                  ))}
+                  <Link
+                    href="/collections"
+                    className="flex items-center gap-2.5 px-3 mx-1 py-1.5 text-xs rounded-sm hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    View all collections
+                    <ChevronRight className="h-3 w-3 ml-auto" />
+                  </Link>
                 </nav>
               )}
             </section>
 
             {/* Recently Used */}
-            <section>
-              <SectionHeader
-                label="Recently Used"
-                expanded={recentOpen}
-                onToggle={() => setRecentOpen((v) => !v)}
-              />
-              {recentOpen && (
-                <div>
-                  {mockRecentItems.map((item) => {
-                    const itemType = mockItemTypes.find(
-                      (t) => t.id === item.itemTypeId
-                    );
-                    const Icon = itemType ? ICON_MAP[itemType.icon] : null;
-
-                    return (
-                      <button
-                        key={item.id}
-                        className="w-full flex items-center gap-2.5 px-3 mx-1 py-1.5 text-sm rounded-sm hover:bg-accent group transition-colors text-left"
-                      >
-                        {Icon && itemType && (
-                          <Icon
-                            className="h-4 w-4 shrink-0"
-                            style={{ color: itemType.color }}
-                          />
-                        )}
-                        <span className="flex-1 truncate text-foreground/80 group-hover:text-foreground transition-colors">
-                          {item.title}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
+            {recentItems.length > 0 && (
+              <section>
+                <SectionHeader
+                  label="Recently Used"
+                  expanded={recentOpen}
+                  onToggle={() => setRecentOpen((v) => !v)}
+                />
+                {recentOpen && (
+                  <div>
+                    {recentItems.map((item) => {
+                      const Icon = ICON_MAP[item.itemType.icon];
+                      return (
+                        <button
+                          key={item.id}
+                          className="w-full flex items-center gap-2.5 px-3 mx-1 py-1.5 text-sm rounded-sm hover:bg-accent group transition-colors text-left"
+                        >
+                          {Icon && (
+                            <Icon
+                              className="h-4 w-4 shrink-0"
+                              style={{ color: item.itemType.color }}
+                            />
+                          )}
+                          <span className="flex-1 truncate text-foreground/80 group-hover:text-foreground transition-colors">
+                            {item.title}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            )}
           </div>
 
           {/* User area */}
@@ -308,7 +292,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 {initials}
               </div>
               <div className="flex-1 text-left min-w-0">
-                <p className="text-sm font-medium truncate">{mockUser.name}</p>
+                <p className="text-sm font-medium truncate">Demo User</p>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
             </button>
