@@ -1,24 +1,18 @@
 # Current Feature
 
-Code audit quick wins
+<!-- No active feature -->
 
 ## Status
 
-In progress
+<!-- Not started -->
 
 ## Goals
 
-Fix low-risk issues surfaced by the code scanner audit:
-
-- [x] Remove `"use client"` from `CollectionCard` — no hooks or event handlers; can be a server component
-- [x] Filter `null` from `getRecentItems` and sidebar recent items — items with no `lastUsedAt` sort to the top due to Postgres `NULL DESC` behaviour, causing never-used items to appear first
-- [x] Merge duplicate `lucide-react` import statements in `CollectionCard` — two separate import blocks from the same module
-- [x] Add `userId` scoping to all DB queries using the demo user ID — makes the auth swap a one-liner later
+<!-- None -->
 
 ## Notes
 
-- userId scoping: use the hardcoded demo user ID from the seed for now; replace with `session.user.id` when auth lands
-- Do NOT extract `ICON_MAP` or `TYPE_SLUGS` yet — refactoring risk; save for a dedicated cleanup pass
+<!-- None -->
 
 
 ## History
@@ -33,3 +27,4 @@ Fix low-risk issues surfaced by the code scanner audit:
 - **2026-03-18** — Completed Dashboard Items: replaced mock item data with real Neon DB data; created src/lib/db/items.ts with getPinnedItems() and getRecentItems(); ItemRow now uses DB types; mock-data.ts fully removed from dashboard
 - **2026-03-18** — Completed Stats & Sidebar: created src/lib/db/sidebar.ts and DashboardShell client component; layout.tsx converted to server component; sidebar shows live item types (custom order), collections with dominant-type colored dots, recently used items, and "View all collections" link
 - **2026-03-19** — Completed Pro Badge in Sidebar: added shadcn/ui Badge component; Files and Images item type links in the expanded sidebar now show a subtle violet "Pro" badge
+- **2026-03-19** — Completed Code Audit Quick Wins: added getDemoUserId() helper + userId scoping on all DB queries; filtered null lastUsedAt from recent items; removed "use client" from CollectionCard; merged duplicate lucide-react imports
