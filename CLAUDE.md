@@ -19,3 +19,10 @@ Read the following to get the full context of the project:
 - `npm run build` — production build
 - `npm run lint` — run ESLint
 
+
+  ## Neon MCP                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                       
+  - **Project:** `rongeka` (ID: `hidden-smoke-70148594`)                                                                                                                                                                               
+  - **Default branch:** `development` (ID: `br-lucky-math-amfooesr`)                                                                                                                                                                   
+  - **ALWAYS** use the development branch for all Neon MCP queries and operations                                                                                                                                                      
+  - **NEVER** touch the `production` branch (ID: `br-fancy-night-amn296dw`) unless explicitly told to do so   
