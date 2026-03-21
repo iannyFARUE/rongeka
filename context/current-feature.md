@@ -28,3 +28,4 @@
 - **2026-03-18** — Completed Stats & Sidebar: created src/lib/db/sidebar.ts and DashboardShell client component; layout.tsx converted to server component; sidebar shows live item types (custom order), collections with dominant-type colored dots, recently used items, and "View all collections" link
 - **2026-03-19** — Completed Pro Badge in Sidebar: added shadcn/ui Badge component; Files and Images item type links in the expanded sidebar now show a subtle violet "Pro" badge
 - **2026-03-19** — Completed Code Audit Quick Wins: added getDemoUserId() helper + userId scoping on all DB queries; filtered null lastUsedAt from recent items; removed "use client" from CollectionCard; merged duplicate lucide-react imports
+- **2026-03-21** — Completed Auth Setup: NextAuth v5 beta with GitHub OAuth; split edge config (auth.config.ts + auth.ts); Prisma adapter + JWT strategy; Next.js 16 proxy protecting /dashboard/*; session.user.id exposed via callbacks; Session type extended
