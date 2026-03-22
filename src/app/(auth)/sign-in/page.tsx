@@ -1,11 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
+function VerifiedBanner() {
+  const searchParams = useSearchParams();
+  if (searchParams.get("verified") !== "1") return null;
+  return (
+    <p className="text-sm text-center text-emerald-500">
+      Email verified! You can now sign in.
+    </p>
+  );
+}
 
 export default function SignInPage() {
   const router = useRouter();
@@ -40,6 +50,10 @@ export default function SignInPage() {
 
   return (
     <div className="w-full max-w-sm space-y-6 px-4">
+      <Suspense>
+        <VerifiedBanner />
+      </Suspense>
+
       <div className="space-y-1 text-center">
         <h1 className="text-2xl font-bold">Sign in</h1>
         <p className="text-sm text-muted-foreground">

@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
+import { sendVerificationEmail } from "@/lib/resend";
 
 export async function registerUser(
   _prevState: string | null,
@@ -32,7 +33,26 @@ export async function registerUser(
   }
 
   const hashedPassword = await bcrypt.hash(password, 12);
-  await prisma.user.create({ data: { name, email, password: hashedPassword } });
+  const token = crypto.randomUUID();
+  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-  redirect("/sign-in");
+  try {
+    await prisma.$transaction([
+      prisma.user.create({ data: { name, email, password: hashedPassword } }),
+      prisma.verificationToken.create({ data: { identifier: email, token, expires } }),
+    ]);
+  } catch {
+    return "Registration failed. Please try again.";
+  }
+
+  try {
+    await sendVerificationEmail(email, token);
+  } catch {
+    // Roll back user and token so they can register again
+    await prisma.user.delete({ where: { email } }).catch(() => {});
+    await prisma.verificationToken.delete({ where: { token } }).catch(() => {});
+    return "Failed to send verification email. Please try again.";
+  }
+
+  redirect("/check-email");
 }
