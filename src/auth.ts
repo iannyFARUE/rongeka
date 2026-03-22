@@ -4,6 +4,7 @@ import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/db"
+import { FEATURES } from "@/lib/features"
 import authConfig from "./auth.config"
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
@@ -39,7 +40,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const passwordsMatch = await bcrypt.compare(password, user.password)
         if (!passwordsMatch) return null
 
-        if (!user.emailVerified) return null
+        if (FEATURES.emailVerification && !user.emailVerified) return null
 
         return user
       },

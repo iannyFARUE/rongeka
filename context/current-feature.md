@@ -1,18 +1,30 @@
-# Current Feature
-
-<!-- No active feature -->
+# Current Feature: Email Verification Toggle Flag
 
 ## Status
 
-<!-- Not started -->
+In Progress
 
 ## Goals
 
-<!-- None -->
+- Create `src/lib/features.ts` — central feature flags file, reads from env
+- Add `EMAIL_VERIFICATION_ENABLED` env variable (default `true`)
+- Register action: skip token/email flow and redirect to `/sign-in` when disabled
+- Credentials `authorize`: skip `emailVerified` check when disabled
+- Document the flag in `.env.example`
 
 ## Notes
 
-<!-- None -->
+**Approach:** `src/lib/features.ts` exports typed constants (e.g. `FEATURES.emailVerification`). All feature flag reads go through this file — no scattered `process.env` calls.
+
+**When disabled:**
+- Registration creates the user and redirects straight to `/sign-in` (no token, no email)
+- Credentials sign-in ignores `emailVerified` (allows unverified users to sign in)
+
+**Env variable:**
+```
+EMAIL_VERIFICATION_ENABLED=false   # set to false to disable during dev
+```
+Defaults to `true` if not set (production-safe).
 
 
 ## History
