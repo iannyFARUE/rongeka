@@ -1,31 +1,10 @@
-# Current Feature: Email Verification Toggle Flag
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Create `src/lib/features.ts` — central feature flags file, reads from env
-- Add `EMAIL_VERIFICATION_ENABLED` env variable (default `true`)
-- Register action: skip token/email flow and redirect to `/sign-in` when disabled
-- Credentials `authorize`: skip `emailVerified` check when disabled
-- Document the flag in `.env.example`
-
 ## Notes
-
-**Approach:** `src/lib/features.ts` exports typed constants (e.g. `FEATURES.emailVerification`). All feature flag reads go through this file — no scattered `process.env` calls.
-
-**When disabled:**
-- Registration creates the user and redirects straight to `/sign-in` (no token, no email)
-- Credentials sign-in ignores `emailVerified` (allows unverified users to sign in)
-
-**Env variable:**
-```
-EMAIL_VERIFICATION_ENABLED=false   # set to false to disable during dev
-```
-Defaults to `true` if not set (production-safe).
-
 
 ## History
 
@@ -44,3 +23,4 @@ Defaults to `true` if not set (production-safe).
 - **2026-03-21** — Completed Auth Credentials: email/password Credentials provider with bcrypt validation; edge-safe placeholder in auth.config.ts; POST /api/auth/register with validation, dedup, and hashing; form fields defined for built-in sign-in page
 - **2026-03-22** — Completed Auth UI: custom /sign-in and /register pages; UserAvatar (image or initials); sidebar user area with real session name/avatar and sign-out dropdown; dashboard/page and layout use auth() session; getDemoUserId removed
 - **2026-03-22** — Completed Email Verification: Resend integration; user+token created atomically with email-send rollback; /check-email and /verify-email pages; Credentials sign-in blocked for unverified users; scripts/reset-users.ts for dev DB cleanup
+- **2026-03-22** — Completed Email Verification Toggle Flag: central FEATURES.emailVerification flag in src/lib/features.ts; EMAIL_VERIFICATION_ENABLED env var (defaults true); registration and credentials sign-in respect the flag; documented in .env.example
