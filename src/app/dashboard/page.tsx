@@ -5,14 +5,15 @@ import {
   BookMarked,
   ChevronRight,
 } from "lucide-react";
+import { auth } from "@/auth";
 import { getCollections, getDashboardStats } from "@/lib/db/collections";
 import { getPinnedItems, getRecentItems } from "@/lib/db/items";
-import { getDemoUserId } from "@/lib/db/users";
 import CollectionCard from "@/components/collections/CollectionCard";
 import ItemRow from "@/components/items/ItemRow";
 
 export default async function DashboardPage() {
-  const userId = await getDemoUserId();
+  const session = await auth();
+  const userId = session!.user.id;
   const [collections, stats, pinnedItems, recentItems] = await Promise.all([
     getCollections(userId),
     getDashboardStats(userId),

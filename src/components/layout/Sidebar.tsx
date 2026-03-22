@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import {
   Code,
   Sparkles,
@@ -14,10 +15,12 @@ import {
   ChevronRight,
   ChevronDown,
   PanelLeft,
+  LogOut,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { UserAvatar } from "@/components/layout/UserAvatar";
 import type { SidebarData } from "@/lib/db/sidebar";
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -42,10 +45,16 @@ const TYPE_SLUGS: Record<string, string> = {
 
 const PRO_TYPES = new Set(["file", "image"]);
 
+interface SidebarUser {
+  name?: string | null;
+  image?: string | null;
+}
+
 interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
   data: SidebarData;
+  user: SidebarUser;
 }
 
 function SectionHeader({
@@ -74,15 +83,26 @@ function SectionHeader({
   );
 }
 
-export default function Sidebar({ isOpen, onToggle, data }: SidebarProps) {
+export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) {
   const [typesOpen, setTypesOpen] = useState(true);
   const [collectionsOpen, setCollectionsOpen] = useState(true);
   const [recentOpen, setRecentOpen] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const { itemTypes, collections, recentItems } = data;
 
-  // Placeholder initials until auth is set up
-  const initials = "D";
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const avatarClass = "h-7 w-7 shrink-0";
 
   return (
     <>
@@ -138,9 +158,9 @@ export default function Sidebar({ isOpen, onToggle, data }: SidebarProps) {
             })}
           </div>
           <div className="border-t border-border p-2 w-full flex justify-center shrink-0">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">
-              {initials}
-            </div>
+            <Link href="/profile">
+              <UserAvatar image={user.image} name={user.name} className={avatarClass} />
+            </Link>
           </div>
         </div>
 
@@ -287,15 +307,42 @@ export default function Sidebar({ isOpen, onToggle, data }: SidebarProps) {
           </div>
 
           {/* User area */}
-          <div className="border-t border-border p-3 shrink-0">
-            <button className="w-full flex items-center gap-2.5 rounded-md p-2 hover:bg-accent group transition-colors">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white shrink-0">
-                {initials}
+          <div className="border-t border-border p-3 shrink-0 relative" ref={menuRef}>
+            {menuOpen && (
+              <div className="absolute bottom-full left-3 right-3 mb-1 rounded-md border border-border bg-popover shadow-md overflow-hidden">
+                <Link
+                  href="/profile"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent transition-colors"
+                >
+                  Profile
+                </Link>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/sign-in" })}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent transition-colors text-left text-destructive"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  Sign out
+                </button>
               </div>
+            )}
+
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              className="w-full flex items-center gap-2.5 rounded-md p-2 hover:bg-accent group transition-colors"
+            >
+              <UserAvatar image={user.image} name={user.name} className={avatarClass} />
               <div className="flex-1 text-left min-w-0">
-                <p className="text-sm font-medium truncate">Demo User</p>
+                <p className="text-sm font-medium truncate">
+                  {user.name ?? "Account"}
+                </p>
               </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 text-muted-foreground shrink-0 transition-transform",
+                  menuOpen && "rotate-180"
+                )}
+              />
             </button>
           </div>
         </div>
