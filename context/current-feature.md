@@ -1,26 +1,10 @@
-# Current Feature: Forgot Password
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Add "Forgot password?" link on the sign-in page
-- Create a `/forgot-password` page with an email input form
-- On submission, generate a password reset token using the existing `VerificationToken` model and send a reset email via Resend
-- Create a `/reset-password?token=...` page where users enter and confirm a new password
-- On valid token submission, hash and update the user's password, then invalidate the token
-- Handle edge cases: unknown email (no leak), expired token, already-used token
-- Respect the `FEATURES.emailVerification` flag pattern for consistency
-
 ## Notes
-
-- Reuse the existing `VerificationToken` model (`identifier` = email, `token` = reset token, `expires` = short TTL ~1 hour)
-- Follow the same Resend email pattern used for email verification
-- Do not reveal whether an email exists in the system (return success regardless)
-- Only applies to Credentials users (OAuth users have no password — show appropriate message if needed)
-- Use bcrypt for hashing the new password (same as registration)
 
 ## History
 
@@ -40,3 +24,4 @@ In Progress
 - **2026-03-22** — Completed Auth UI: custom /sign-in and /register pages; UserAvatar (image or initials); sidebar user area with real session name/avatar and sign-out dropdown; dashboard/page and layout use auth() session; getDemoUserId removed
 - **2026-03-22** — Completed Email Verification: Resend integration; user+token created atomically with email-send rollback; /check-email and /verify-email pages; Credentials sign-in blocked for unverified users; scripts/reset-users.ts for dev DB cleanup
 - **2026-03-22** — Completed Email Verification Toggle Flag: central FEATURES.emailVerification flag in src/lib/features.ts; EMAIL_VERIFICATION_ENABLED env var (defaults true); registration and credentials sign-in respect the flag; documented in .env.example
+- **2026-03-23** — Completed Forgot Password: /forgot-password email form + /reset-password token page; VerificationToken model reused with 1hr TTL; no email enumeration; unverified users automatically verified on successful reset; Resend emails upgraded to shared dark-mode HTML template
