@@ -7,14 +7,23 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-function VerifiedBanner() {
+function StatusBanner() {
   const searchParams = useSearchParams();
-  if (searchParams.get("verified") !== "1") return null;
-  return (
-    <p className="text-sm text-center text-emerald-500">
-      Email verified! You can now sign in.
-    </p>
-  );
+  if (searchParams.get("verified") === "1") {
+    return (
+      <p className="text-sm text-center text-emerald-500">
+        Email verified! You can now sign in.
+      </p>
+    );
+  }
+  if (searchParams.get("reset") === "1") {
+    return (
+      <p className="text-sm text-center text-emerald-500">
+        Password updated! Sign in with your new password.
+      </p>
+    );
+  }
+  return null;
 }
 
 export default function SignInPage() {
@@ -51,7 +60,7 @@ export default function SignInPage() {
   return (
     <div className="w-full max-w-sm space-y-6 px-4">
       <Suspense>
-        <VerifiedBanner />
+        <StatusBanner />
       </Suspense>
 
       <div className="space-y-1 text-center">
@@ -78,6 +87,14 @@ export default function SignInPage() {
           required
           autoComplete="current-password"
         />
+        <div className="text-right">
+          <Link
+            href="/forgot-password"
+            className="text-xs text-muted-foreground underline hover:text-foreground"
+          >
+            Forgot password?
+          </Link>
+        </div>
         {error && (
           <p className="text-sm text-destructive">{error}</p>
         )}
