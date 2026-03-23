@@ -1,10 +1,26 @@
-# Current Feature
+# Current Feature: Forgot Password
 
 ## Status
 
+In Progress
+
 ## Goals
 
+- Add "Forgot password?" link on the sign-in page
+- Create a `/forgot-password` page with an email input form
+- On submission, generate a password reset token using the existing `VerificationToken` model and send a reset email via Resend
+- Create a `/reset-password?token=...` page where users enter and confirm a new password
+- On valid token submission, hash and update the user's password, then invalidate the token
+- Handle edge cases: unknown email (no leak), expired token, already-used token
+- Respect the `FEATURES.emailVerification` flag pattern for consistency
+
 ## Notes
+
+- Reuse the existing `VerificationToken` model (`identifier` = email, `token` = reset token, `expires` = short TTL ~1 hour)
+- Follow the same Resend email pattern used for email verification
+- Do not reveal whether an email exists in the system (return success regardless)
+- Only applies to Credentials users (OAuth users have no password — show appropriate message if needed)
+- Use bcrypt for hashing the new password (same as registration)
 
 ## History
 
