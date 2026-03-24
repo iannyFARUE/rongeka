@@ -1,15 +1,23 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/resend";
 import { FEATURES } from "@/lib/features";
+import { checkRateLimit, getIp, retryAfterMinutes } from "@/lib/rate-limit";
 
 export async function registerUser(
   _prevState: string | null,
   formData: FormData
 ): Promise<string | null> {
+  const ip = getIp(await headers());
+  const { success, reset } = await checkRateLimit("register", ip);
+  if (!success) {
+    return `Too many registration attempts. Please try again in ${retryAfterMinutes(reset)} minute(s).`;
+  }
+
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -74,6 +82,12 @@ export async function requestPasswordReset(
   _prevState: string | null | undefined,
   formData: FormData
 ): Promise<string | null> {
+  const ip = getIp(await headers());
+  const { success, reset } = await checkRateLimit("forgotPassword", ip);
+  if (!success) {
+    return `Too many attempts. Please try again in ${retryAfterMinutes(reset)} minute(s).`;
+  }
+
   const email = (formData.get("email") as string)?.trim().toLowerCase();
 
   if (!email || !email.includes("@")) {
@@ -112,6 +126,12 @@ export async function resetPassword(
   _prevState: string | null | undefined,
   formData: FormData
 ): Promise<string | null> {
+  const ip = getIp(await headers());
+  const { success, reset } = await checkRateLimit("resetPassword", ip);
+  if (!success) {
+    return `Too many attempts. Please try again in ${retryAfterMinutes(reset)} minute(s).`;
+  }
+
   const token = formData.get("token") as string;
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
