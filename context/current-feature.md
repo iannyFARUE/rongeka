@@ -1,10 +1,24 @@
-# Current Feature
+# Current Feature: Profile Page
 
 ## Status
 
+In Progress
+
 ## Goals
 
+- Create `/profile` route protected by authentication
+- Display user info: name, email, avatar (GitHub image or initials fallback), account creation date
+- Show usage stats: total items, total collections, and per-type item count breakdown
+- Add "Change Password" action (email/password users only — hidden for OAuth users)
+- Add "Delete Account" action with a confirmation dialog to prevent accidental deletion
+
 ## Notes
+
+- Avatar: use GitHub image if present (`user.image`), otherwise initials from name/email — same logic as `UserAvatar` component
+- Change password: only visible when `user.password` is set (i.e. not a GitHub OAuth user)
+- Delete account: must show a confirmation dialog before proceeding; deletes user record (cascade handles related data)
+- Item type breakdown: show count per system type (snippets, prompts, notes, commands, links, files, images)
+- Fetch data server-side directly with Prisma (server component pattern)
 
 ## History
 

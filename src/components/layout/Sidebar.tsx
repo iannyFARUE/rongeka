@@ -158,7 +158,7 @@ export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) 
             })}
           </div>
           <div className="border-t border-border p-2 w-full flex justify-center shrink-0">
-            <Link href="/profile">
+            <Link href="/dashboard/profile">
               <UserAvatar image={user.image} name={user.name} className={avatarClass} />
             </Link>
           </div>
@@ -311,7 +311,7 @@ export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) 
             {menuOpen && (
               <div className="absolute bottom-full left-3 right-3 mb-1 rounded-md border border-border bg-popover shadow-md overflow-hidden">
                 <Link
-                  href="/profile"
+                  href="/dashboard/profile"
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent transition-colors"
                 >
