@@ -1,32 +1,10 @@
-# Current Feature: Rate Limiting for Auth
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Add rate limiting to all auth-related endpoints to prevent brute-force, credential stuffing, and email abuse
-- Use Upstash Redis with `@upstash/ratelimit` (sliding window, serverless-compatible)
-- Create a reusable `src/lib/rate-limit.ts` utility
-- Protect 5 endpoints with appropriate limits (login, register, forgot-password, reset-password, resend-verification)
-- Return 429 responses with `Retry-After` header and user-friendly error messages
-- Rate limiting fails open if Upstash is unavailable
-
 ## Notes
-
-- Endpoints and limits:
-  - `/api/auth/callback/credentials` (login) — 5 attempts / 15 min, key by IP + email
-  - `/api/auth/register` — 3 attempts / 1 hour, key by IP
-  - `/api/auth/forgot-password` — 3 attempts / 1 hour, key by IP
-  - `/api/auth/reset-password` — 5 attempts / 15 min, key by IP
-  - `/api/auth/resend-verification` — 3 attempts / 15 min, key by IP + email
-- Rate limit utility returns `{ success, remaining, reset }`
-- Extract IP from `x-forwarded-for` header (Vercel)
-- 429 JSON body: `{ error: "Too many attempts. Please try again in X minutes." }`
-- Login limiting with NextAuth Credentials is tricky — may need a custom sign-in handler or authorize-level check
-- Upstash free tier: 10k requests/day (sufficient)
-- Env vars needed: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
 
 ## History
 
@@ -48,3 +26,4 @@ In Progress
 - **2026-03-22** — Completed Email Verification Toggle Flag: central FEATURES.emailVerification flag in src/lib/features.ts; EMAIL_VERIFICATION_ENABLED env var (defaults true); registration and credentials sign-in respect the flag; documented in .env.example
 - **2026-03-23** — Completed Forgot Password: /forgot-password email form + /reset-password token page; VerificationToken model reused with 1hr TTL; no email enumeration; unverified users automatically verified on successful reset; Resend emails upgraded to shared dark-mode HTML template
 - **2026-03-24** — Completed Profile Page: /dashboard/profile with user info (name, email, avatar, creation date), usage stats (total items, collections, per-type breakdown), Change Password dialog (email users only), Delete Account confirmation dialog; shadcn Dialog added (base-ui/react)
+- **2026-03-24** — Completed Rate Limiting for Auth: @upstash/ratelimit sliding-window limits on login (5/15m, IP+email), register (3/1h, IP), forgot-password (3/1h, IP), reset-password (5/15m, IP); src/lib/rate-limit.ts utility with fail-open behavior; deleted orphaned /api/auth/register route that bypassed email verification
