@@ -3,8 +3,10 @@ import GitHub from "next-auth/providers/github"
 import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import bcrypt from "bcryptjs"
+import { headers } from "next/headers"
 import { prisma } from "@/lib/db"
 import { FEATURES } from "@/lib/features"
+import { checkRateLimit, getIp } from "@/lib/rate-limit"
 import authConfig from "./auth.config"
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
@@ -33,6 +35,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           password: string
         }
         if (!email || !password) return null
+
+        const ip = getIp(await headers())
+        const { success } = await checkRateLimit("login", `${ip}:${email}`)
+        if (!success) return null
 
         const user = await prisma.user.findUnique({ where: { email } })
         if (!user?.password) return null
