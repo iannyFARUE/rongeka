@@ -1,24 +1,10 @@
-# Current Feature: Profile Page
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Create `/profile` route protected by authentication
-- Display user info: name, email, avatar (GitHub image or initials fallback), account creation date
-- Show usage stats: total items, total collections, and per-type item count breakdown
-- Add "Change Password" action (email/password users only — hidden for OAuth users)
-- Add "Delete Account" action with a confirmation dialog to prevent accidental deletion
-
 ## Notes
-
-- Avatar: use GitHub image if present (`user.image`), otherwise initials from name/email — same logic as `UserAvatar` component
-- Change password: only visible when `user.password` is set (i.e. not a GitHub OAuth user)
-- Delete account: must show a confirmation dialog before proceeding; deletes user record (cascade handles related data)
-- Item type breakdown: show count per system type (snippets, prompts, notes, commands, links, files, images)
-- Fetch data server-side directly with Prisma (server component pattern)
 
 ## History
 
@@ -39,3 +25,4 @@ In Progress
 - **2026-03-22** — Completed Email Verification: Resend integration; user+token created atomically with email-send rollback; /check-email and /verify-email pages; Credentials sign-in blocked for unverified users; scripts/reset-users.ts for dev DB cleanup
 - **2026-03-22** — Completed Email Verification Toggle Flag: central FEATURES.emailVerification flag in src/lib/features.ts; EMAIL_VERIFICATION_ENABLED env var (defaults true); registration and credentials sign-in respect the flag; documented in .env.example
 - **2026-03-23** — Completed Forgot Password: /forgot-password email form + /reset-password token page; VerificationToken model reused with 1hr TTL; no email enumeration; unverified users automatically verified on successful reset; Resend emails upgraded to shared dark-mode HTML template
+- **2026-03-24** — Completed Profile Page: /dashboard/profile with user info (name, email, avatar, creation date), usage stats (total items, collections, per-type breakdown), Change Password dialog (email users only), Delete Account confirmation dialog; shadcn Dialog added (base-ui/react)
