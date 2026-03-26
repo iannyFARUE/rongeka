@@ -37,3 +37,35 @@ export async function getRecentItems(userId: string, limit = 10): Promise<ItemWi
     include: itemInclude,
   });
 }
+
+export async function getItemsByType(
+  userId: string,
+  typeSlug: string
+): Promise<{ items: ItemWithMeta[]; typeName: string; typeColor: string } | null> {
+  const slugToName: Record<string, string> = {
+    snippets: "snippet",
+    prompts: "prompt",
+    commands: "command",
+    notes: "note",
+    files: "file",
+    images: "image",
+    links: "link",
+  };
+
+  const typeName = slugToName[typeSlug];
+  if (!typeName) return null;
+
+  const itemType = await prisma.itemType.findFirst({
+    where: { name: typeName },
+    select: { id: true, name: true, color: true },
+  });
+  if (!itemType) return null;
+
+  const items = await prisma.item.findMany({
+    where: { userId, itemTypeId: itemType.id },
+    orderBy: { updatedAt: "desc" },
+    include: itemInclude,
+  });
+
+  return { items, typeName: itemType.name, typeColor: itemType.color };
+}
