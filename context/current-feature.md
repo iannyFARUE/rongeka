@@ -1,29 +1,10 @@
-# Current Feature: Item Drawer — Edit Mode
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Edit button in the item drawer action bar toggles inline edit mode
-- In edit mode, action bar replaced with Save and Cancel buttons
-- Cancel discards changes, returns to view mode
-- Save persists changes via server action, returns to view mode, refreshes drawer data, shows toast
-- Editable fields for all types: Title (required), Description (optional), Tags (comma-separated)
-- Type-specific fields: Content (snippet/prompt/command/note), Language (snippet/command), URL (link)
-- Non-editable in edit mode: item type, collections, dates
-- `updateItem` server action in `src/actions/items.ts` with Zod validation and `{ success, data, error }` pattern
-- `updateItem` DB query in `src/lib/db/items.ts` — disconnects/reconnects tags, returns updated `ItemDetail`
-- `router.refresh()` after save so the card list reflects changes
-
 ## Notes
-
-- No form library — use controlled inputs with local state
-- Disable Save button when title is empty (client-side UX guard)
-- Zod is the source of truth for validation (server-side)
-- Content textarea is plain — no code editor yet
-- Collections management is out of scope for this feature
 
 ## History
 
@@ -49,3 +30,4 @@ In Progress
 - **2026-03-25** — Completed Items List View: dynamic route /dashboard/items/[type] with getItemsByType() DB query; responsive 2-column grid of ItemRow components with type-colored left borders; sidebar links corrected from /items/[slug] to /dashboard/items/[slug]
 - **2026-03-25** — Completed Item Listing 3-Column Layout: updated grid from md:grid-cols-2 to lg:grid-cols-3; responsive breakpoints: 1 col mobile, 2 col md, 3 col lg+
 - **2026-03-26** — Completed Item Drawer: Sheet component (base-ui/dialog, slides from right); GET /api/items/[id] with auth + userId scoping; ItemDrawer client component with skeleton loading, error state, and action bar (Favorite, Pin, Copy, Edit, Delete); ItemsWithDrawer client wrapper preserving server components; works on dashboard and items list pages; 5 unit tests for the API route
+- **2026-03-26** — Completed Item Drawer Edit Mode: inline edit mode via Edit button; Save/Cancel action bar; editable title, description, tags (all types), content (text types), language (snippet/command), URL (link); type/collections/dates display-only; updateItem server action with Zod validation + try/catch; updateItem DB query with tag disconnect-all + connectOrCreate; sonner toasts; router.refresh() on save; 8 unit tests for the server action
