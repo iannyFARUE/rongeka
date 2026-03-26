@@ -33,14 +33,21 @@ function timeAgo(date: Date): string {
   return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
 }
 
-export default function ItemRow({ item }: { item: ItemWithMeta }) {
+export default function ItemRow({
+  item,
+  onClick,
+}: {
+  item: ItemWithMeta;
+  onClick?: () => void;
+}) {
   const Icon = ICON_MAP[item.itemType.icon];
   const { color } = item.itemType;
 
   return (
     <div
-      className="group flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 hover:bg-accent/20 transition-colors"
+      className="group flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 hover:bg-accent/20 transition-colors cursor-pointer"
       style={{ borderLeftColor: color, borderLeftWidth: "3px" }}
+      onClick={onClick}
     >
       {/* Type icon */}
       {Icon && (

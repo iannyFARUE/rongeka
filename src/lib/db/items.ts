@@ -1,5 +1,33 @@
 import { prisma } from "@/lib/db";
 
+export type ItemDetail = {
+  id: string;
+  title: string;
+  description: string | null;
+  isFavorite: boolean;
+  isPinned: boolean;
+  lastUsedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  contentType: "TEXT" | "FILE" | "URL";
+  content: string | null;
+  language: string | null;
+  url: string | null;
+  fileUrl: string | null;
+  fileName: string | null;
+  fileSize: number | null;
+  itemType: {
+    id: string;
+    name: string;
+    icon: string;
+    color: string;
+  };
+  tags: { id: string; name: string }[];
+  itemCollections: {
+    collection: { id: string; name: string };
+  }[];
+};
+
 export type ItemWithMeta = {
   id: string;
   title: string;
@@ -68,4 +96,22 @@ export async function getItemsByType(
   });
 
   return { items, typeName: itemType.name, typeColor: itemType.color };
+}
+
+export async function getItemById(
+  userId: string,
+  id: string
+): Promise<ItemDetail | null> {
+  return prisma.item.findFirst({
+    where: { id, userId },
+    include: {
+      itemType: { select: { id: true, name: true, icon: true, color: true } },
+      tags: { select: { id: true, name: true } },
+      itemCollections: {
+        include: {
+          collection: { select: { id: true, name: true } },
+        },
+      },
+    },
+  });
 }

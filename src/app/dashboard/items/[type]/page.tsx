@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { getItemsByType } from "@/lib/db/items";
-import ItemRow from "@/components/items/ItemRow";
+import ItemsWithDrawer from "@/components/items/ItemsWithDrawer";
 
 interface PageProps {
   params: Promise<{ type: string }>;
@@ -35,11 +35,10 @@ export default async function ItemsTypePage({ params }: PageProps) {
           No {typeName}s yet.
         </p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-          {items.map((item) => (
-            <ItemRow key={item.id} item={item} />
-          ))}
-        </div>
+        <ItemsWithDrawer
+          items={items}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"
+        />
       )}
     </div>
   );

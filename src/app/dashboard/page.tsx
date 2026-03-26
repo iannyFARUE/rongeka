@@ -9,7 +9,7 @@ import { auth } from "@/auth";
 import { getCollections, getDashboardStats } from "@/lib/db/collections";
 import { getPinnedItems, getRecentItems } from "@/lib/db/items";
 import CollectionCard from "@/components/collections/CollectionCard";
-import ItemRow from "@/components/items/ItemRow";
+import ItemsWithDrawer from "@/components/items/ItemsWithDrawer";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -75,11 +75,7 @@ export default async function DashboardPage() {
       {pinnedItems.length > 0 && (
         <section>
           <h2 className="text-base font-semibold mb-4">Pinned</h2>
-          <div className="space-y-2">
-            {pinnedItems.map((item) => (
-              <ItemRow key={item.id} item={item} />
-            ))}
-          </div>
+          <ItemsWithDrawer items={pinnedItems} className="space-y-2" />
         </section>
       )}
 
@@ -87,11 +83,7 @@ export default async function DashboardPage() {
       {recentItems.length > 0 && (
         <section>
           <h2 className="text-base font-semibold mb-4">Recent Items</h2>
-          <div className="space-y-2">
-            {recentItems.map((item) => (
-              <ItemRow key={item.id} item={item} />
-            ))}
-          </div>
+          <ItemsWithDrawer items={recentItems} className="space-y-2" />
         </section>
       )}
     </div>
