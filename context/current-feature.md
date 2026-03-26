@@ -1,19 +1,10 @@
-# Current Feature: Item Listing 3-Column Layout
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Update `/dashboard/items/[type]` grid from 2 columns to 3 columns on large screens
-- Keep responsive: 1 column on mobile, 2 on medium, 3 on large+
-
 ## Notes
-
-- Only change is in `src/app/dashboard/items/[type]/page.tsx`
-- Current class: `grid-cols-1 md:grid-cols-2`
-- Target class: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`
 
 ## History
 
@@ -37,3 +28,4 @@ In Progress
 - **2026-03-24** — Completed Profile Page: /dashboard/profile with user info (name, email, avatar, creation date), usage stats (total items, collections, per-type breakdown), Change Password dialog (email users only), Delete Account confirmation dialog; shadcn Dialog added (base-ui/react)
 - **2026-03-24** — Completed Rate Limiting for Auth: @upstash/ratelimit sliding-window limits on login (5/15m, IP+email), register (3/1h, IP), forgot-password (3/1h, IP), reset-password (5/15m, IP); src/lib/rate-limit.ts utility with fail-open behavior; deleted orphaned /api/auth/register route that bypassed email verification
 - **2026-03-25** — Completed Items List View: dynamic route /dashboard/items/[type] with getItemsByType() DB query; responsive 2-column grid of ItemRow components with type-colored left borders; sidebar links corrected from /items/[slug] to /dashboard/items/[slug]
+- **2026-03-25** — Completed Item Listing 3-Column Layout: updated grid from md:grid-cols-2 to lg:grid-cols-3; responsive breakpoints: 1 col mobile, 2 col md, 3 col lg+
