@@ -89,6 +89,17 @@ Example v4 configuration:
 - Return `{ success, data, error }` pattern from actions
 - Display user-friendly error messages via toast
 
+## Testing
+
+- **Vitest** for unit tests — run with `npm test` (one-shot) or `npm run test:watch`
+- Test **server actions** and **utilities** only — no component tests
+- Test files: `src/**/*.test.ts` (`.ts` only, never `.tsx`)
+- Co-locate tests with the module: `src/lib/__tests__/rate-limit.test.ts`
+- Use explicit imports from `vitest` (`import { describe, it, expect } from "vitest"`)
+- Test pure logic branches: validation errors, edge cases, guard clauses
+- Mock Next.js internals (`next/navigation`, `next/headers`) and external services (Prisma, Resend) with `vi.mock()`
+- Do **not** test DB queries directly — mock `@/lib/db` and assert on the mock calls
+
 ## Code Quality
 
 - No commented-out code unless specified
