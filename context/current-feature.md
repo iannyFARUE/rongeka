@@ -1,10 +1,19 @@
-# Current Feature
+# Current Feature: Item Listing 3-Column Layout
 
 ## Status
 
+In Progress
+
 ## Goals
 
+- Update `/dashboard/items/[type]` grid from 2 columns to 3 columns on large screens
+- Keep responsive: 1 column on mobile, 2 on medium, 3 on large+
+
 ## Notes
+
+- Only change is in `src/app/dashboard/items/[type]/page.tsx`
+- Current class: `grid-cols-1 md:grid-cols-2`
+- Target class: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`
 
 ## History
 
