@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import {
   Star,
   Pin,
@@ -25,6 +26,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
+import { toast } from "sonner"
+import { updateItem } from "@/actions/items"
 import type { ItemDetail } from "@/lib/db/items"
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -36,6 +39,11 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Image,
   Link,
 }
+
+// Item types that have a content field
+const CONTENT_TYPES = new Set(["snippet", "prompt", "command", "note"])
+// Item types that have a language field
+const LANGUAGE_TYPES = new Set(["snippet", "command"])
 
 function timeAgo(date: Date): string {
   const diff = Date.now() - new Date(date).getTime()
@@ -55,16 +63,43 @@ interface ItemDrawerProps {
   onClose: () => void
 }
 
+interface EditState {
+  title: string
+  description: string
+  content: string
+  url: string
+  language: string
+  tags: string
+}
+
+function itemToEditState(item: ItemDetail): EditState {
+  return {
+    title: item.title,
+    description: item.description ?? "",
+    content: item.content ?? "",
+    url: item.url ?? "",
+    language: item.language ?? "",
+    tags: item.tags.map((t) => t.name).join(", "),
+  }
+}
 
 export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
+  const router = useRouter()
   const [item, setItem] = useState<ItemDetail | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [copied, setCopied] = useState(false)
 
+  // Edit mode state
+  const [isEditing, setIsEditing] = useState(false)
+  const [editState, setEditState] = useState<EditState | null>(null)
+  const [saving, setSaving] = useState(false)
+
   useEffect(() => {
     if (!itemId || !open) {
       setItem(null)
+      setIsEditing(false)
+      setEditState(null)
       return
     }
 
@@ -72,6 +107,8 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
     setLoading(true)
     setItem(null)
     setError(false)
+    setIsEditing(false)
+    setEditState(null)
 
     fetch(`/api/items/${itemId}`)
       .then((res) => {
@@ -105,8 +142,56 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
     })
   }
 
+  function handleEditStart() {
+    if (!item) return
+    setEditState(itemToEditState(item))
+    setIsEditing(true)
+  }
+
+  function handleEditCancel() {
+    setIsEditing(false)
+    setEditState(null)
+  }
+
+  async function handleEditSave() {
+    if (!item || !editState) return
+    setSaving(true)
+
+    const tags = editState.tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean)
+
+    const result = await updateItem(item.id, {
+      title: editState.title,
+      description: editState.description,
+      content: editState.content,
+      url: editState.url,
+      language: editState.language,
+      tags,
+    })
+
+    setSaving(false)
+
+    if (!result.success) {
+      toast.error(result.error)
+      return
+    }
+
+    setItem(result.data)
+    setIsEditing(false)
+    setEditState(null)
+    toast.success("Item saved")
+    router.refresh()
+  }
+
+  function setField(field: keyof EditState, value: string) {
+    setEditState((prev) => prev ? { ...prev, [field]: value } : prev)
+  }
+
   const Icon = item ? ICON_MAP[item.itemType.icon] : null
   const color = item?.itemType.color ?? "#6b7280"
+  const typeName = item?.itemType.name ?? ""
 
   return (
     <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
@@ -123,6 +208,24 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
                 <div className="h-5 w-16 rounded-full bg-muted" />
                 <div className="h-5 w-12 rounded-full bg-muted" />
               </div>
+            </div>
+          ) : isEditing && editState ? (
+            <div className="flex items-center gap-3">
+              {Icon && (
+                <div
+                  className="flex h-9 w-9 items-center justify-center rounded-md shrink-0"
+                  style={{ backgroundColor: `${color}18` }}
+                >
+                  <Icon className="h-4 w-4" style={{ color }} />
+                </div>
+              )}
+              <input
+                className="flex-1 bg-transparent border-b border-border text-base font-semibold leading-snug focus:outline-none focus:border-foreground transition-colors"
+                value={editState.title}
+                onChange={(e) => setField("title", e.target.value)}
+                placeholder="Title"
+                autoFocus
+              />
             </div>
           ) : (
             <>
@@ -166,57 +269,79 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
 
         {/* 2. Action bar */}
         <div className="flex items-center gap-1 px-4 py-3 mt-3 shrink-0">
-          <button
-            className="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors text-xs"
-            title="Favorite"
-            disabled={!item}
-          >
-            <Star
-              className="h-3.5 w-3.5"
-              style={item?.isFavorite ? { fill: "#fde047", color: "#fde047" } : {}}
-            />
-            Favorite
-          </button>
-          <button
-            className="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors text-xs"
-            title="Pin"
-            disabled={!item}
-          >
-            <Pin
-              className="h-3.5 w-3.5"
-              style={item?.isPinned ? { color } : {}}
-            />
-            Pin
-          </button>
-          <button
-            className="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors text-xs"
-            title="Copy"
-            disabled={!item}
-            onClick={handleCopy}
-          >
-            <Copy
-              className="h-3.5 w-3.5"
-              style={copied ? { color: "#10b981" } : {}}
-            />
-            {copied ? "Copied!" : "Copy"}
-          </button>
-          <button
-            className="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors text-xs"
-            title="Edit"
-            disabled={!item}
-          >
-            <Pencil className="h-3.5 w-3.5" />
-            Edit
-          </button>
-          <div className="flex-1" />
-          <button
-            className="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors text-xs"
-            title="Delete"
-            disabled={!item}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            Delete
-          </button>
+          {isEditing ? (
+            <>
+              <button
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-xs font-medium disabled:opacity-50"
+                onClick={handleEditSave}
+                disabled={saving || !editState?.title.trim()}
+              >
+                {saving ? "Saving…" : "Save"}
+              </button>
+              <button
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors text-xs"
+                onClick={handleEditCancel}
+                disabled={saving}
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors text-xs"
+                title="Favorite"
+                disabled={!item}
+              >
+                <Star
+                  className="h-3.5 w-3.5"
+                  style={item?.isFavorite ? { fill: "#fde047", color: "#fde047" } : {}}
+                />
+                Favorite
+              </button>
+              <button
+                className="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors text-xs"
+                title="Pin"
+                disabled={!item}
+              >
+                <Pin
+                  className="h-3.5 w-3.5"
+                  style={item?.isPinned ? { color } : {}}
+                />
+                Pin
+              </button>
+              <button
+                className="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors text-xs"
+                title="Copy"
+                disabled={!item}
+                onClick={handleCopy}
+              >
+                <Copy
+                  className="h-3.5 w-3.5"
+                  style={copied ? { color: "#10b981" } : {}}
+                />
+                {copied ? "Copied!" : "Copy"}
+              </button>
+              <button
+                className="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors text-xs"
+                title="Edit"
+                disabled={!item}
+                onClick={handleEditStart}
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Edit
+              </button>
+              <div className="flex-1" />
+              <button
+                className="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors text-xs"
+                title="Delete"
+                disabled={!item}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Delete
+              </button>
+            </>
+          )}
         </div>
 
         {/* 3. Body */}
@@ -239,7 +364,7 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
             </div>
           )}
 
-          {!loading && !error && item && (
+          {!loading && !error && item && !isEditing && (
             <>
               {/* Meta */}
               <div className="px-5 py-4 space-y-2">
@@ -313,6 +438,93 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
                 </div>
               )}
             </>
+          )}
+
+          {/* Edit form body */}
+          {!loading && !error && item && isEditing && editState && (
+            <div className="px-5 py-4 space-y-5">
+              {/* Type (read-only) */}
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Type</p>
+                <p className="text-sm font-medium capitalize" style={{ color }}>{typeName}</p>
+              </div>
+
+              <div className="border-t border-border" />
+
+              {/* Description */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Description
+                </label>
+                <textarea
+                  className="w-full bg-muted/50 border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors resize-none"
+                  rows={2}
+                  value={editState.description}
+                  onChange={(e) => setField("description", e.target.value)}
+                  placeholder="Optional description"
+                />
+              </div>
+
+              {/* Content (text types only) */}
+              {CONTENT_TYPES.has(typeName) && (
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    Content
+                  </label>
+                  <textarea
+                    className="w-full bg-muted/50 border border-border rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:border-foreground transition-colors resize-none"
+                    rows={8}
+                    value={editState.content}
+                    onChange={(e) => setField("content", e.target.value)}
+                    placeholder="Content"
+                  />
+                </div>
+              )}
+
+              {/* Language (snippet/command only) */}
+              {LANGUAGE_TYPES.has(typeName) && (
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    Language
+                  </label>
+                  <input
+                    className="w-full bg-muted/50 border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                    value={editState.language}
+                    onChange={(e) => setField("language", e.target.value)}
+                    placeholder="e.g. typescript"
+                  />
+                </div>
+              )}
+
+              {/* URL (link type only) */}
+              {typeName === "link" && (
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    URL
+                  </label>
+                  <input
+                    className="w-full bg-muted/50 border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                    value={editState.url}
+                    onChange={(e) => setField("url", e.target.value)}
+                    placeholder="https://..."
+                  />
+                </div>
+              )}
+
+              {/* Tags */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Tags
+                </label>
+                <input
+                  className="w-full bg-muted/50 border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                  value={editState.tags}
+                  onChange={(e) => setField("tags", e.target.value)}
+                  placeholder="react, hooks, typescript"
+                />
+                <p className="text-xs text-muted-foreground">Comma-separated</p>
+              </div>
+            </div>
           )}
         </div>
       </SheetContent>
