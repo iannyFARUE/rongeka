@@ -148,7 +148,7 @@ export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) 
               return Icon ? (
                 <Link
                   key={type.id}
-                  href={`/items/${slug}`}
+                  href={`/dashboard/items/${slug}`}
                   title={type.name}
                   className="flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent transition-colors mx-auto"
                 >
@@ -204,7 +204,7 @@ export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) 
                     return (
                       <Link
                         key={type.id}
-                        href={`/items/${slug}`}
+                        href={`/dashboard/items/${slug}`}
                         className="flex items-center gap-2.5 px-3 mx-1 py-1.5 text-sm rounded-sm hover:bg-accent group transition-colors"
                       >
                         {Icon && (
