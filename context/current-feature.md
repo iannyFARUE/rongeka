@@ -1,22 +1,10 @@
-# Current Feature: Items List View
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Create dynamic route `/items/[type]` (e.g., /items/snippets, /items/notes)
-- Fetch and display items filtered by item type
-- Responsive grid of ItemCard components (two columns on medium and up)
-- Each card has a left border colored by item type
-- Follow existing codebase patterns
-
 ## Notes
-
-- Route segment: `src/app/(dashboard)/items/[type]/page.tsx`
-- Type slug maps to ItemType name (e.g., "snippets" → "snippet")
-- Use existing DB patterns from `src/lib/db/items.ts`
 
 ## History
 
@@ -39,3 +27,4 @@ In Progress
 - **2026-03-23** — Completed Forgot Password: /forgot-password email form + /reset-password token page; VerificationToken model reused with 1hr TTL; no email enumeration; unverified users automatically verified on successful reset; Resend emails upgraded to shared dark-mode HTML template
 - **2026-03-24** — Completed Profile Page: /dashboard/profile with user info (name, email, avatar, creation date), usage stats (total items, collections, per-type breakdown), Change Password dialog (email users only), Delete Account confirmation dialog; shadcn Dialog added (base-ui/react)
 - **2026-03-24** — Completed Rate Limiting for Auth: @upstash/ratelimit sliding-window limits on login (5/15m, IP+email), register (3/1h, IP), forgot-password (3/1h, IP), reset-password (5/15m, IP); src/lib/rate-limit.ts utility with fail-open behavior; deleted orphaned /api/auth/register route that bypassed email verification
+- **2026-03-25** — Completed Items List View: dynamic route /dashboard/items/[type] with getItemsByType() DB query; responsive 2-column grid of ItemRow components with type-colored left borders; sidebar links corrected from /items/[slug] to /dashboard/items/[slug]
