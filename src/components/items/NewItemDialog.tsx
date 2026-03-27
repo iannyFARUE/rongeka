@@ -11,6 +11,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { createItem } from "@/actions/items"
+import MarkdownEditor from "@/components/items/MarkdownEditor"
 
 const ITEM_TYPES = [
   { name: "snippet", label: "Snippet" },
@@ -24,6 +25,7 @@ type ItemTypeName = typeof ITEM_TYPES[number]["name"]
 
 const CONTENT_TYPES = new Set<ItemTypeName>(["snippet", "prompt", "command", "note"])
 const LANGUAGE_TYPES = new Set<ItemTypeName>(["snippet", "command"])
+const MARKDOWN_TYPES = new Set<ItemTypeName>(["note", "prompt"])
 
 interface NewItemDialogProps {
   open: boolean
@@ -150,13 +152,25 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 Content
               </label>
-              <textarea
-                className={`${inputClass} font-mono resize-none`}
-                rows={6}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Content"
-              />
+              {LANGUAGE_TYPES.has(typeName) ? (
+                <textarea
+                  className={`${inputClass} font-mono resize-none`}
+                  rows={6}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Content"
+                />
+              ) : MARKDOWN_TYPES.has(typeName) ? (
+                <MarkdownEditor value={content} onChange={setContent} />
+              ) : (
+                <textarea
+                  className={`${inputClass} font-mono resize-none`}
+                  rows={6}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Content"
+                />
+              )}
             </div>
           )}
 

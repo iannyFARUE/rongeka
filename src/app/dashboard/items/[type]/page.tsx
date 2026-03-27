@@ -33,7 +33,7 @@ export default async function ItemsTypePage({ params }: PageProps) {
             </span>
           </div>
         </div>
-        <AddItemButton type={typeName} label={typeName} />
+        <AddItemButton type={typeName as "snippet" | "prompt" | "command" | "note" | "link"} label={typeName} />
       </div>
 
       {items.length === 0 ? (

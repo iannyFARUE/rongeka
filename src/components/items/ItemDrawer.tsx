@@ -12,6 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import CodeEditor from "@/components/items/CodeEditor"
+import MarkdownEditor from "@/components/items/MarkdownEditor"
 import {
   Code,
   Sparkles,
@@ -55,6 +56,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
 const CONTENT_TYPES = new Set(["snippet", "prompt", "command", "note"])
 // Item types that have a language field
 const LANGUAGE_TYPES = new Set(["snippet", "command"])
+// Item types that use the markdown editor
+const MARKDOWN_TYPES = new Set(["note", "prompt"])
 
 function timeAgo(date: Date): string {
   const diff = Date.now() - new Date(date).getTime()
@@ -448,6 +451,8 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
                       language={item.language ?? "plaintext"}
                       readOnly
                     />
+                  ) : MARKDOWN_TYPES.has(typeName) ? (
+                    <MarkdownEditor value={item.content} readOnly />
                   ) : (
                     <pre className="text-xs text-foreground whitespace-pre-wrap font-mono leading-relaxed bg-muted/50 rounded-md p-4 overflow-x-auto">
                       {item.content}
@@ -515,6 +520,11 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
                     <CodeEditor
                       value={editState.content}
                       language={editState.language || "plaintext"}
+                      onChange={(val) => setField("content", val)}
+                    />
+                  ) : MARKDOWN_TYPES.has(typeName) ? (
+                    <MarkdownEditor
+                      value={editState.content}
                       onChange={(val) => setField("content", val)}
                     />
                   ) : (
