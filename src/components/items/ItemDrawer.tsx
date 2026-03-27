@@ -11,6 +11,7 @@ import {
   FolderOpen,
   type LucideIcon,
 } from "lucide-react"
+import CodeEditor from "@/components/items/CodeEditor"
 import {
   Code,
   Sparkles,
@@ -441,9 +442,17 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
               {item.content && (
                 <div className="px-5 py-5 space-y-3">
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Content</p>
-                  <pre className="text-xs text-foreground whitespace-pre-wrap font-mono leading-relaxed bg-muted/50 rounded-md p-4 overflow-x-auto">
-                    {item.content}
-                  </pre>
+                  {LANGUAGE_TYPES.has(typeName) ? (
+                    <CodeEditor
+                      value={item.content}
+                      language={item.language ?? "plaintext"}
+                      readOnly
+                    />
+                  ) : (
+                    <pre className="text-xs text-foreground whitespace-pre-wrap font-mono leading-relaxed bg-muted/50 rounded-md p-4 overflow-x-auto">
+                      {item.content}
+                    </pre>
+                  )}
                 </div>
               )}
 
@@ -502,13 +511,21 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                     Content
                   </label>
-                  <textarea
-                    className="w-full bg-muted/50 border border-border rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:border-foreground transition-colors resize-none"
-                    rows={8}
-                    value={editState.content}
-                    onChange={(e) => setField("content", e.target.value)}
-                    placeholder="Content"
-                  />
+                  {LANGUAGE_TYPES.has(typeName) ? (
+                    <CodeEditor
+                      value={editState.content}
+                      language={editState.language || "plaintext"}
+                      onChange={(val) => setField("content", val)}
+                    />
+                  ) : (
+                    <textarea
+                      className="w-full bg-muted/50 border border-border rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:border-foreground transition-colors resize-none"
+                      rows={8}
+                      value={editState.content}
+                      onChange={(e) => setField("content", e.target.value)}
+                      placeholder="Content"
+                    />
+                  )}
                 </div>
               )}
 
