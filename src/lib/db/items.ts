@@ -128,6 +128,57 @@ export async function deleteItem(
   }
 }
 
+export type CreateItemData = {
+  title: string;
+  description: string | null;
+  content: string | null;
+  url: string | null;
+  language: string | null;
+  tags: string[];
+  typeName: string;
+};
+
+export async function createItem(
+  userId: string,
+  data: CreateItemData
+): Promise<ItemDetail | null> {
+  const itemType = await prisma.itemType.findFirst({
+    where: { name: data.typeName, isSystem: true },
+    select: { id: true },
+  });
+  if (!itemType) return null;
+
+  const contentType = data.typeName === "link" ? "URL" : "TEXT";
+
+  return prisma.item.create({
+    data: {
+      title: data.title,
+      description: data.description,
+      content: data.content,
+      url: data.url,
+      language: data.language,
+      contentType,
+      userId,
+      itemTypeId: itemType.id,
+      tags: {
+        connectOrCreate: data.tags.map((name) => ({
+          where: { name },
+          create: { name },
+        })),
+      },
+    },
+    include: {
+      itemType: { select: { id: true, name: true, icon: true, color: true } },
+      tags: { select: { id: true, name: true } },
+      itemCollections: {
+        include: {
+          collection: { select: { id: true, name: true } },
+        },
+      },
+    },
+  });
+}
+
 export type UpdateItemData = {
   title: string;
   description: string | null;
