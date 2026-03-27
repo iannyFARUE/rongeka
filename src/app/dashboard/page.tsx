@@ -29,7 +29,7 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-6 space-y-6 max-w-5xl mx-auto">
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {statCards.map(({ label, value, icon: Icon, color }) => (

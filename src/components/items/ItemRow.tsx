@@ -49,51 +49,49 @@ export default function ItemRow({
 
   return (
     <div
-      className="group relative flex flex-col gap-3 rounded-xl border border-border bg-card px-5 py-4 hover:bg-accent/10 transition-colors cursor-pointer overflow-hidden"
+      className="group relative flex flex-col gap-2 rounded-lg border border-border bg-card px-4 py-3 hover:bg-accent/10 transition-colors cursor-pointer overflow-hidden"
       style={{ borderLeftColor: color, borderLeftWidth: "3px" }}
       onClick={onClick}
     >
-      {/* Top row: icon + date */}
-      <div className="flex items-start justify-between gap-2">
+      {/* Top row: icon + title + meta */}
+      <div className="flex items-center gap-2.5 min-w-0">
         {Icon && (
           <div
-            className="flex h-9 w-9 items-center justify-center rounded-full shrink-0"
+            className="flex h-6 w-6 items-center justify-center rounded-md shrink-0"
             style={{ backgroundColor: `${color}22` }}
           >
-            <Icon className="h-4 w-4" style={{ color }} />
+            <Icon className="h-3.5 w-3.5" style={{ color }} />
           </div>
         )}
-        <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
-          {item.isPinned && (
-            <Pin className="h-3 w-3 text-muted-foreground" />
-          )}
-          {item.isFavorite && (
-            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-          )}
+        <p className="text-sm font-semibold truncate flex-1 leading-snug">{item.title}</p>
+        <div className="flex items-center gap-1 shrink-0">
+          {item.isPinned && <Pin className="h-3 w-3 text-muted-foreground" />}
+          {item.isFavorite && <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />}
           <span className="text-xs text-muted-foreground tabular-nums">
             {item.lastUsedAt ? formatDate(item.lastUsedAt) : "Today"}
           </span>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="min-w-0">
-        <p className="text-sm font-semibold truncate leading-snug">{item.title}</p>
-        {item.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-            {item.description}
-          </p>
-        )}
-        {item.tags.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap mt-2">
-            {item.tags.map((tag) => (
-              <span key={tag.id} className="text-xs text-muted-foreground">
-                #{tag.name}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Description + tags */}
+      {(item.description || item.tags.length > 0) && (
+        <div className="min-w-0 pl-8.5">
+          {item.description && (
+            <p className="text-xs text-muted-foreground line-clamp-1">
+              {item.description}
+            </p>
+          )}
+          {item.tags.length > 0 && (
+            <div className="flex items-center gap-2 flex-wrap mt-1">
+              {item.tags.map((tag) => (
+                <span key={tag.id} className="text-xs text-muted-foreground">
+                  #{tag.name}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

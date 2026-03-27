@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Plus } from "lucide-react";
@@ -12,12 +13,12 @@ export default function TopBar() {
   return (
     <>
       <header className="flex items-center justify-between gap-4 px-4 h-12 border-b border-border bg-background shrink-0">
-        <div className="flex items-center gap-2 font-semibold text-foreground shrink-0">
+        <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-foreground shrink-0">
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-violet-600 text-xs font-bold text-white">
             R
           </div>
           <span className="text-base">Rongeka</span>
-        </div>
+        </Link>
         <div className="relative flex-1 max-w-lg">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
