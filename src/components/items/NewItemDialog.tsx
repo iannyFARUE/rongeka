@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
@@ -28,11 +28,12 @@ const LANGUAGE_TYPES = new Set<ItemTypeName>(["snippet", "command"])
 interface NewItemDialogProps {
   open: boolean
   onClose: () => void
+  defaultType?: ItemTypeName
 }
 
-export default function NewItemDialog({ open, onClose }: NewItemDialogProps) {
+export default function NewItemDialog({ open, onClose, defaultType = "snippet" }: NewItemDialogProps) {
   const router = useRouter()
-  const [typeName, setTypeName] = useState<ItemTypeName>("snippet")
+  const [typeName, setTypeName] = useState<ItemTypeName>(defaultType)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [content, setContent] = useState("")
@@ -41,8 +42,12 @@ export default function NewItemDialog({ open, onClose }: NewItemDialogProps) {
   const [tags, setTags] = useState("")
   const [saving, setSaving] = useState(false)
 
+  useEffect(() => {
+    if (open) setTypeName(defaultType)
+  }, [open, defaultType])
+
   function reset() {
-    setTypeName("snippet")
+    setTypeName(defaultType)
     setTitle("")
     setDescription("")
     setContent("")
