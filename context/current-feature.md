@@ -1,24 +1,10 @@
-# Current Feature: Item Delete
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Delete button in the item drawer action bar opens a shadcn AlertDialog for confirmation
-- Confirmation dialog shows the item title and asks the user to confirm deletion
-- On confirm: calls `deleteItem` server action, closes drawer, shows success toast, calls `router.refresh()`
-- On cancel: dialog closes, nothing changes
-- `deleteItem` server action in `src/actions/items.ts` — auth guard, ownership check, deletes item, returns `{ success, error }`
-- `deleteItem` DB query in `src/lib/db/items.ts` — deletes by id + userId
-
 ## Notes
-
-- Use shadcn AlertDialog (already installed via base-ui/react or needs adding)
-- Toast via sonner (already wired up from edit mode feature)
-- Drawer should close after successful delete
-- No loading state needed on the delete button — the dialog confirm button can show a brief disabled state while the action runs
 
 ## History
 
@@ -45,3 +31,4 @@ In Progress
 - **2026-03-25** — Completed Item Listing 3-Column Layout: updated grid from md:grid-cols-2 to lg:grid-cols-3; responsive breakpoints: 1 col mobile, 2 col md, 3 col lg+
 - **2026-03-26** — Completed Item Drawer: Sheet component (base-ui/dialog, slides from right); GET /api/items/[id] with auth + userId scoping; ItemDrawer client component with skeleton loading, error state, and action bar (Favorite, Pin, Copy, Edit, Delete); ItemsWithDrawer client wrapper preserving server components; works on dashboard and items list pages; 5 unit tests for the API route
 - **2026-03-26** — Completed Item Drawer Edit Mode: inline edit mode via Edit button; Save/Cancel action bar; editable title, description, tags (all types), content (text types), language (snippet/command), URL (link); type/collections/dates display-only; updateItem server action with Zod validation + try/catch; updateItem DB query with tag disconnect-all + connectOrCreate; sonner toasts; router.refresh() on save; 8 unit tests for the server action
+- **2026-03-26** — Completed Item Delete: Delete button opens shadcn AlertDialog confirmation with item title; on confirm calls deleteItem server action (auth + userId-scoped), closes drawer, success toast, router.refresh(); deleteItem DB query with try/catch; 5 unit tests for the server action
