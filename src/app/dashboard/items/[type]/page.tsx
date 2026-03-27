@@ -18,16 +18,18 @@ export default async function ItemsTypePage({ params }: PageProps) {
   const { items, typeName, typeColor } = result;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center gap-3">
         <div
-          className="h-1 w-6 rounded-full"
+          className="h-1 w-6 rounded-full self-start mt-2.5"
           style={{ backgroundColor: typeColor }}
         />
-        <h1 className="text-lg font-semibold capitalize">{type}</h1>
-        <span className="text-sm text-muted-foreground tabular-nums">
-          {items.length} {items.length === 1 ? "item" : "items"}
-        </span>
+        <div className="flex flex-col">
+          <h1 className="text-lg font-semibold capitalize">{type}</h1>
+          <span className="text-sm text-muted-foreground tabular-nums">
+            {items.length} {items.length === 1 ? "item" : "items"}
+          </span>
+        </div>
       </div>
 
       {items.length === 0 ? (
@@ -37,7 +39,7 @@ export default async function ItemsTypePage({ params }: PageProps) {
       ) : (
         <ItemsWithDrawer
           items={items}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
         />
       )}
     </div>
