@@ -1,14 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { updateItem } from "../items";
+import { updateItem, deleteItem } from "../items";
 
 vi.mock("@/auth", () => ({ auth: vi.fn() }));
-vi.mock("@/lib/db/items", () => ({ updateItem: vi.fn() }));
+vi.mock("@/lib/db/items", () => ({ updateItem: vi.fn(), deleteItem: vi.fn() }));
 
 import { auth } from "@/auth";
-import { updateItem as dbUpdateItem } from "@/lib/db/items";
+import { updateItem as dbUpdateItem, deleteItem as dbDeleteItem } from "@/lib/db/items";
 
 const mockAuth = vi.mocked(auth);
 const mockDbUpdateItem = vi.mocked(dbUpdateItem);
+const mockDbDeleteItem = vi.mocked(dbDeleteItem);
 
 const validPayload = {
   title: "My Snippet",
@@ -104,5 +105,55 @@ describe("updateItem server action", () => {
       expect.any(String),
       expect.objectContaining({ url: null })
     );
+  });
+});
+
+describe("deleteItem server action", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns error when not authenticated", async () => {
+    mockAuth.mockResolvedValue(null as never);
+
+    const result = await deleteItem("item-1");
+
+    expect(result).toEqual({ success: false, error: "Not authenticated." });
+    expect(mockDbDeleteItem).not.toHaveBeenCalled();
+  });
+
+  it("returns error when session has no user id", async () => {
+    mockAuth.mockResolvedValue({ user: {} } as never);
+
+    const result = await deleteItem("item-1");
+
+    expect(result).toEqual({ success: false, error: "Not authenticated." });
+  });
+
+  it("returns error when item is not found or not owned", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+    mockDbDeleteItem.mockResolvedValue(false);
+
+    const result = await deleteItem("item-1");
+
+    expect(result).toEqual({ success: false, error: "Item not found or access denied." });
+  });
+
+  it("calls dbDeleteItem with correct userId and itemId", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-abc" } } as never);
+    mockDbDeleteItem.mockResolvedValue(true);
+
+    await deleteItem("item-xyz");
+
+    expect(mockDbDeleteItem).toHaveBeenCalledWith("user-abc", "item-xyz");
+  });
+
+  it("returns success when item is deleted", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+    mockDbDeleteItem.mockResolvedValue(true);
+
+    const result = await deleteItem("item-1");
+
+    expect(result).toEqual({ success: true });
   });
 });

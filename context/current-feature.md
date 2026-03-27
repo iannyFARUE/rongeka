@@ -1,10 +1,24 @@
-# Current Feature
+# Current Feature: Item Delete
 
 ## Status
 
+In Progress
+
 ## Goals
 
+- Delete button in the item drawer action bar opens a shadcn AlertDialog for confirmation
+- Confirmation dialog shows the item title and asks the user to confirm deletion
+- On confirm: calls `deleteItem` server action, closes drawer, shows success toast, calls `router.refresh()`
+- On cancel: dialog closes, nothing changes
+- `deleteItem` server action in `src/actions/items.ts` — auth guard, ownership check, deletes item, returns `{ success, error }`
+- `deleteItem` DB query in `src/lib/db/items.ts` — deletes by id + userId
+
 ## Notes
+
+- Use shadcn AlertDialog (already installed via base-ui/react or needs adding)
+- Toast via sonner (already wired up from edit mode feature)
+- Drawer should close after successful delete
+- No loading state needed on the delete button — the dialog confirm button can show a brief disabled state while the action runs
 
 ## History
 

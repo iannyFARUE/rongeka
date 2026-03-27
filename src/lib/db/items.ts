@@ -116,6 +116,18 @@ export async function getItemById(
   });
 }
 
+export async function deleteItem(
+  userId: string,
+  id: string
+): Promise<boolean> {
+  try {
+    await prisma.item.delete({ where: { id, userId } });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export type UpdateItemData = {
   title: string;
   description: string | null;

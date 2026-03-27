@@ -27,7 +27,17 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { toast } from "sonner"
-import { updateItem } from "@/actions/items"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { updateItem, deleteItem } from "@/actions/items"
 import type { ItemDetail } from "@/lib/db/items"
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -94,6 +104,10 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editState, setEditState] = useState<EditState | null>(null)
   const [saving, setSaving] = useState(false)
+
+  // Delete state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     if (!itemId || !open) {
@@ -185,6 +199,21 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
     router.refresh()
   }
 
+  async function handleDelete() {
+    if (!item) return
+    setDeleting(true)
+    const result = await deleteItem(item.id)
+    setDeleting(false)
+    if (!result.success) {
+      toast.error(result.error)
+      return
+    }
+    setDeleteDialogOpen(false)
+    toast.success("Item deleted")
+    router.refresh()
+    onClose()
+  }
+
   function setField(field: keyof EditState, value: string) {
     setEditState((prev) => prev ? { ...prev, [field]: value } : prev)
   }
@@ -194,6 +223,7 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
   const typeName = item?.itemType.name ?? ""
 
   return (
+    <>
     <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
       <SheetContent showCloseButton={false}>
         {/* 1. Header: icon + title + tags */}
@@ -336,6 +366,7 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
                 className="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors text-xs"
                 title="Delete"
                 disabled={!item}
+                onClick={() => setDeleteDialogOpen(true)}
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 Delete
@@ -529,5 +560,27 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
         </div>
       </SheetContent>
     </Sheet>
+
+    <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete item?</AlertDialogTitle>
+          <AlertDialogDescription>
+            <strong>&ldquo;{item?.title}&rdquo;</strong> will be permanently deleted. This cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDelete}
+            disabled={deleting}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {deleting ? "Deleting…" : "Delete"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   )
 }
