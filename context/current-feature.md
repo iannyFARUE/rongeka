@@ -1,27 +1,10 @@
-# Current Feature: Item Create
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- "New Item" button in the top bar opens a shadcn Dialog modal
-- Type selector in the dialog: snippet, prompt, command, note, link
-- Fields shown based on selected type:
-  - All types: title (required), description, tags
-  - snippet / command: content + language
-  - prompt / note: content
-  - link: URL (required)
-- `createItem` server action in `src/actions/items.ts` with Zod validation and `{ success, data, error }` pattern
-- `createItem` DB query in `src/lib/db/items.ts`
-- On success: toast, close modal, `router.refresh()`
-
 ## Notes
-
-- File and image types are Pro/future — exclude from the type selector
-- shadcn Dialog is already installed (used on profile page)
-- Tags are comma-separated input, split on save (same pattern as edit mode)
 
 ## History
 
@@ -49,3 +32,4 @@ In Progress
 - **2026-03-26** — Completed Item Drawer: Sheet component (base-ui/dialog, slides from right); GET /api/items/[id] with auth + userId scoping; ItemDrawer client component with skeleton loading, error state, and action bar (Favorite, Pin, Copy, Edit, Delete); ItemsWithDrawer client wrapper preserving server components; works on dashboard and items list pages; 5 unit tests for the API route
 - **2026-03-26** — Completed Item Drawer Edit Mode: inline edit mode via Edit button; Save/Cancel action bar; editable title, description, tags (all types), content (text types), language (snippet/command), URL (link); type/collections/dates display-only; updateItem server action with Zod validation + try/catch; updateItem DB query with tag disconnect-all + connectOrCreate; sonner toasts; router.refresh() on save; 8 unit tests for the server action
 - **2026-03-26** — Completed Item Delete: Delete button opens shadcn AlertDialog confirmation with item title; on confirm calls deleteItem server action (auth + userId-scoped), closes drawer, success toast, router.refresh(); deleteItem DB query with try/catch; 5 unit tests for the server action
+- **2026-03-26** — Completed Item Create: New Item button opens shadcn Dialog with type selector (snippet, prompt, command, note, link) and dynamic fields per type; createItem server action with Zod + superRefine URL-required check; createItem DB query resolves itemType by name, sets contentType; toast + modal reset + router.refresh() on success; 10 unit tests for the server action
