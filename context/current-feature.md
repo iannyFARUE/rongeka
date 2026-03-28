@@ -1,10 +1,24 @@
-# Current Feature
+# Current Feature: File List View
 
 ## Status
 
+In Progress
+
 ## Goals
 
+- Update `/dashboard/items/files` to display as a single-column list layout (Google Drive/Dropbox style)
+- Each row shows: file icon (by extension), file name, file size, upload date, download button
+- Row hover highlight
+- Clicking a row opens the ItemDrawer
+- Download button triggers direct download without opening the drawer (stop propagation)
+- Responsive: stack info vertically on mobile
+
 ## Notes
+
+- The images page already uses a gallery variant via `ItemsWithDrawer`'s `variant` prop — files needs a new `file-list` variant or a dedicated layout
+- File icon should vary by extension (e.g. PDF, ZIP, TXT, etc.)
+- Download should call the existing `/api/download` proxy endpoint
+- Keep consistent with existing ItemDrawer open/close patterns
 
 ## History
 

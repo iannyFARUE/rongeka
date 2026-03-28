@@ -43,8 +43,14 @@ export default async function ItemsTypePage({ params }: PageProps) {
       ) : (
         <ItemsWithDrawer
           items={items}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-          variant={typeName === "image" ? "gallery" : "list"}
+          className={
+            typeName === "image"
+              ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
+              : typeName === "file"
+              ? "flex flex-col gap-1"
+              : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          }
+          variant={typeName === "image" ? "gallery" : typeName === "file" ? "file-list" : "list"}
         />
       )}
     </div>

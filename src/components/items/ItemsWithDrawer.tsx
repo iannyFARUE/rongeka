@@ -3,13 +3,14 @@
 import { useState } from "react"
 import ItemRow from "@/components/items/ItemRow"
 import ImageThumbnailCard from "@/components/items/ImageThumbnailCard"
+import FileListRow from "@/components/items/FileListRow"
 import ItemDrawer from "@/components/items/ItemDrawer"
 import type { ItemWithMeta } from "@/lib/db/items"
 
 interface ItemsWithDrawerProps {
   items: ItemWithMeta[]
   className?: string
-  variant?: "list" | "gallery"
+  variant?: "list" | "gallery" | "file-list"
 }
 
 export default function ItemsWithDrawer({ items, className, variant = "list" }: ItemsWithDrawerProps) {
@@ -31,6 +32,12 @@ export default function ItemsWithDrawer({ items, className, variant = "list" }: 
         {items.map((item) =>
           variant === "gallery" ? (
             <ImageThumbnailCard
+              key={item.id}
+              item={item}
+              onClick={() => handleItemClick(item.id)}
+            />
+          ) : variant === "file-list" ? (
+            <FileListRow
               key={item.id}
               item={item}
               onClick={() => handleItemClick(item.id)}

@@ -37,6 +37,8 @@ export type ItemWithMeta = {
   lastUsedAt: Date | null;
   fileUrl: string | null;
   fileName: string | null;
+  fileSize: number | null;
+  createdAt: Date;
   itemType: {
     id: string;
     name: string;
@@ -55,6 +57,8 @@ const itemSelect = {
   lastUsedAt: true,
   fileUrl: true,
   fileName: true,
+  fileSize: true,
+  createdAt: true,
   itemType: { select: { id: true, name: true, icon: true, color: true } },
   tags: { select: { id: true, name: true } },
 } as const;
