@@ -10,8 +10,9 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { createItem } from "@/actions/items"
+import { createItem, cancelUpload } from "@/actions/items"
 import MarkdownEditor from "@/components/items/MarkdownEditor"
+import FileUpload, { type UploadedFile } from "@/components/items/FileUpload"
 
 const ITEM_TYPES = [
   { name: "snippet", label: "Snippet" },
@@ -19,6 +20,8 @@ const ITEM_TYPES = [
   { name: "command", label: "Command" },
   { name: "note", label: "Note" },
   { name: "link", label: "Link" },
+  { name: "file", label: "File" },
+  { name: "image", label: "Image" },
 ] as const
 
 type ItemTypeName = typeof ITEM_TYPES[number]["name"]
@@ -26,6 +29,7 @@ type ItemTypeName = typeof ITEM_TYPES[number]["name"]
 const CONTENT_TYPES = new Set<ItemTypeName>(["snippet", "prompt", "command", "note"])
 const LANGUAGE_TYPES = new Set<ItemTypeName>(["snippet", "command"])
 const MARKDOWN_TYPES = new Set<ItemTypeName>(["note", "prompt"])
+const FILE_TYPES = new Set<ItemTypeName>(["file", "image"])
 
 interface NewItemDialogProps {
   open: boolean
@@ -42,6 +46,7 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
   const [url, setUrl] = useState("")
   const [language, setLanguage] = useState("")
   const [tags, setTags] = useState("")
+  const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -56,9 +61,14 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
     setUrl("")
     setLanguage("")
     setTags("")
+    setUploadedFile(null)
   }
 
   function handleClose() {
+    if (uploadedFile) {
+      // File was uploaded to R2 but item was never saved — clean up asynchronously
+      cancelUpload(uploadedFile.key).catch(() => {})
+    }
     reset()
     onClose()
   }
@@ -75,6 +85,9 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
       url,
       language,
       tags: tagList,
+      fileKey: uploadedFile?.key ?? null,
+      fileName: uploadedFile?.fileName ?? null,
+      fileSize: uploadedFile?.fileSize ?? null,
     })
 
     setSaving(false)
@@ -84,10 +97,19 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
       return
     }
 
+    // Clear before handleClose so the cancel-cleanup guard doesn't fire
+    setUploadedFile(null)
     toast.success("Item created")
     router.refresh()
     handleClose()
   }
+
+  const isFileType = FILE_TYPES.has(typeName)
+  const isSubmitDisabled =
+    saving ||
+    !title.trim() ||
+    (typeName === "link" && !url.trim()) ||
+    (isFileType && !uploadedFile)
 
   const inputClass =
     "w-full bg-muted/50 border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
@@ -145,6 +167,21 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
               placeholder="Optional description"
             />
           </div>
+
+          {/* File upload (file/image types) */}
+          {isFileType && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                File <span className="text-destructive">*</span>
+              </label>
+              <FileUpload
+                itemType={typeName as "file" | "image"}
+                uploaded={uploadedFile}
+                onUpload={setUploadedFile}
+                onClear={() => setUploadedFile(null)}
+              />
+            </div>
+          )}
 
           {/* Content (text types) */}
           {CONTENT_TYPES.has(typeName) && (
@@ -231,7 +268,7 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={saving || !title.trim() || (typeName === "link" && !url.trim())}
+            disabled={isSubmitDisabled}
             className="px-4 py-1.5 rounded text-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
           >
             {saving ? "Creating…" : "Create"}

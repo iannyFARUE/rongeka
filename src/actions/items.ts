@@ -3,9 +3,10 @@
 import { z } from "zod";
 import { auth } from "@/auth";
 import { updateItem as dbUpdateItem, deleteItem as dbDeleteItem, createItem as dbCreateItem } from "@/lib/db/items";
+import { deleteFromR2 } from "@/lib/r2";
 import type { ItemDetail } from "@/lib/db/items";
 
-const ITEM_TYPES = ["snippet", "prompt", "command", "note", "link"] as const;
+const ITEM_TYPES = ["snippet", "prompt", "command", "note", "link", "file", "image"] as const;
 type ItemTypeName = typeof ITEM_TYPES[number];
 
 const CreateItemSchema = z.object({
@@ -16,9 +17,15 @@ const CreateItemSchema = z.object({
   url: z.union([z.url("Must be a valid URL"), z.literal("")]).optional(),
   language: z.string().trim().optional(),
   tags: z.array(z.string().trim().min(1)),
+  fileKey: z.string().nullable().optional(),
+  fileName: z.string().nullable().optional(),
+  fileSize: z.number().nullable().optional(),
 }).superRefine((data, ctx) => {
   if (data.typeName === "link" && !data.url) {
     ctx.addIssue({ code: "custom", message: "URL is required for link items", path: ["url"] });
+  }
+  if ((data.typeName === "file" || data.typeName === "image") && !data.fileKey) {
+    ctx.addIssue({ code: "custom", message: "A file is required for this item type", path: ["fileKey"] });
   }
 });
 
@@ -34,6 +41,9 @@ export async function createItem(payload: {
   url: string;
   language: string;
   tags: string[];
+  fileKey: string | null;
+  fileName: string | null;
+  fileSize: number | null;
 }): Promise<CreateItemResult> {
   const session = await auth();
   if (!session?.user?.id) {
@@ -46,7 +56,7 @@ export async function createItem(payload: {
     return { success: false, error: message };
   }
 
-  const { typeName, title, description, content, url, language, tags } = parsed.data;
+  const { typeName, title, description, content, url, language, tags, fileKey, fileName, fileSize } = parsed.data;
 
   try {
     const created = await dbCreateItem(session.user.id, {
@@ -57,6 +67,9 @@ export async function createItem(payload: {
       url: url || null,
       language: language || null,
       tags,
+      fileUrl: fileKey ?? null,
+      fileName: fileName ?? null,
+      fileSize: fileSize ?? null,
     });
 
     if (!created) {
@@ -80,6 +93,20 @@ const UpdateItemSchema = z.object({
 
 type DeleteItemResult = { success: true } | { success: false; error: string };
 
+export async function cancelUpload(key: string): Promise<void> {
+  const session = await auth();
+  if (!session?.user?.id) return;
+
+  // Only allow deletion of the requesting user's own keys
+  if (!key.startsWith(`uploads/${session.user.id}/`)) return;
+
+  try {
+    await deleteFromR2(key);
+  } catch {
+    // Non-fatal
+  }
+}
+
 export async function deleteItem(itemId: string): Promise<DeleteItemResult> {
   const session = await auth();
   if (!session?.user?.id) {
@@ -89,6 +116,14 @@ export async function deleteItem(itemId: string): Promise<DeleteItemResult> {
   const deleted = await dbDeleteItem(session.user.id, itemId);
   if (!deleted) {
     return { success: false, error: "Item not found or access denied." };
+  }
+
+  if (deleted.fileUrl) {
+    try {
+      await deleteFromR2(deleted.fileUrl);
+    } catch {
+      console.error("Failed to delete R2 file:", deleted.fileUrl);
+    }
   }
 
   return { success: true };

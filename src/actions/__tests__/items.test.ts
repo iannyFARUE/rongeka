@@ -1,16 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { updateItem, deleteItem, createItem } from "../items";
+import { updateItem, deleteItem, createItem, cancelUpload } from "../items";
 
 vi.mock("@/auth", () => ({ auth: vi.fn() }));
 vi.mock("@/lib/db/items", () => ({ updateItem: vi.fn(), deleteItem: vi.fn(), createItem: vi.fn() }));
+vi.mock("@/lib/r2", () => ({ deleteFromR2: vi.fn() }));
 
 import { auth } from "@/auth";
 import { updateItem as dbUpdateItem, deleteItem as dbDeleteItem, createItem as dbCreateItem } from "@/lib/db/items";
+import { deleteFromR2 } from "@/lib/r2";
 
 const mockAuth = vi.mocked(auth);
 const mockDbUpdateItem = vi.mocked(dbUpdateItem);
 const mockDbDeleteItem = vi.mocked(dbDeleteItem);
 const mockDbCreateItem = vi.mocked(dbCreateItem);
+const mockDeleteFromR2 = vi.mocked(deleteFromR2);
 
 const validPayload = {
   title: "My Snippet",
@@ -29,7 +32,7 @@ describe("updateItem server action", () => {
   });
 
   it("returns error when not authenticated", async () => {
-    mockAuth.mockResolvedValue(null);
+    mockAuth.mockResolvedValue(null as never);
 
     const result = await updateItem("item-1", validPayload);
 
@@ -86,7 +89,7 @@ describe("updateItem server action", () => {
     expect(result).toEqual({ success: true, data: mockItem });
   });
 
-  it("returns error when db throws (item not owned by user)", async () => {
+  it("returns error when db throws", async () => {
     mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
     mockDbUpdateItem.mockRejectedValue(new Error("P2025"));
 
@@ -108,6 +111,8 @@ describe("updateItem server action", () => {
     );
   });
 });
+
+// ─── deleteItem ─────────────────────────────────────────────────────────────
 
 describe("deleteItem server action", () => {
   beforeEach(() => {
@@ -133,7 +138,7 @@ describe("deleteItem server action", () => {
 
   it("returns error when item is not found or not owned", async () => {
     mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
-    mockDbDeleteItem.mockResolvedValue(false);
+    mockDbDeleteItem.mockResolvedValue(null as never);
 
     const result = await deleteItem("item-1");
 
@@ -142,16 +147,38 @@ describe("deleteItem server action", () => {
 
   it("calls dbDeleteItem with correct userId and itemId", async () => {
     mockAuth.mockResolvedValue({ user: { id: "user-abc" } } as never);
-    mockDbDeleteItem.mockResolvedValue(true);
+    mockDbDeleteItem.mockResolvedValue({ fileUrl: null } as never);
 
     await deleteItem("item-xyz");
 
     expect(mockDbDeleteItem).toHaveBeenCalledWith("user-abc", "item-xyz");
   });
 
-  it("returns success when item is deleted", async () => {
+  it("returns success when item has no file", async () => {
     mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
-    mockDbDeleteItem.mockResolvedValue(true);
+    mockDbDeleteItem.mockResolvedValue({ fileUrl: null } as never);
+
+    const result = await deleteItem("item-1");
+
+    expect(result).toEqual({ success: true });
+    expect(mockDeleteFromR2).not.toHaveBeenCalled();
+  });
+
+  it("calls deleteFromR2 when item has a file", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+    mockDbDeleteItem.mockResolvedValue({ fileUrl: "uploads/user-1/abc.pdf" } as never);
+    mockDeleteFromR2.mockResolvedValue(undefined);
+
+    const result = await deleteItem("item-1");
+
+    expect(result).toEqual({ success: true });
+    expect(mockDeleteFromR2).toHaveBeenCalledWith("uploads/user-1/abc.pdf");
+  });
+
+  it("returns success even when R2 deletion fails (non-fatal)", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+    mockDbDeleteItem.mockResolvedValue({ fileUrl: "uploads/user-1/abc.pdf" } as never);
+    mockDeleteFromR2.mockRejectedValue(new Error("R2 error"));
 
     const result = await deleteItem("item-1");
 
@@ -159,8 +186,10 @@ describe("deleteItem server action", () => {
   });
 });
 
+// ─── createItem ─────────────────────────────────────────────────────────────
+
 describe("createItem server action", () => {
-  const validPayload = {
+  const basePayload = {
     typeName: "snippet" as const,
     title: "My Snippet",
     description: "",
@@ -168,9 +197,10 @@ describe("createItem server action", () => {
     url: "",
     language: "typescript",
     tags: ["react"],
+    fileKey: null,
+    fileName: null,
+    fileSize: null,
   };
-
-  const mockItem = { id: "item-1", title: "My Snippet" };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -179,7 +209,7 @@ describe("createItem server action", () => {
   it("returns error when not authenticated", async () => {
     mockAuth.mockResolvedValue(null as never);
 
-    const result = await createItem(validPayload);
+    const result = await createItem(basePayload);
 
     expect(result).toEqual({ success: false, error: "Not authenticated." });
     expect(mockDbCreateItem).not.toHaveBeenCalled();
@@ -188,7 +218,7 @@ describe("createItem server action", () => {
   it("returns error when session has no user id", async () => {
     mockAuth.mockResolvedValue({ user: {} } as never);
 
-    const result = await createItem(validPayload);
+    const result = await createItem(basePayload);
 
     expect(result).toEqual({ success: false, error: "Not authenticated." });
   });
@@ -196,7 +226,7 @@ describe("createItem server action", () => {
   it("returns validation error when title is empty", async () => {
     mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
 
-    const result = await createItem({ ...validPayload, title: "  " });
+    const result = await createItem({ ...basePayload, title: "  " });
 
     expect(result.success).toBe(false);
     expect((result as { success: false; error: string }).error).toContain("Title is required");
@@ -206,7 +236,7 @@ describe("createItem server action", () => {
   it("returns validation error when link type has no URL", async () => {
     mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
 
-    const result = await createItem({ ...validPayload, typeName: "link", url: "" });
+    const result = await createItem({ ...basePayload, typeName: "link", url: "" });
 
     expect(result.success).toBe(false);
     expect((result as { success: false; error: string }).error).toContain("URL is required");
@@ -215,7 +245,7 @@ describe("createItem server action", () => {
   it("returns validation error when URL is invalid", async () => {
     mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
 
-    const result = await createItem({ ...validPayload, typeName: "link", url: "not-a-url" });
+    const result = await createItem({ ...basePayload, typeName: "link", url: "not-a-url" });
 
     expect(result.success).toBe(false);
     expect((result as { success: false; error: string }).error).toContain("valid URL");
@@ -225,7 +255,65 @@ describe("createItem server action", () => {
     mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
     mockDbCreateItem.mockResolvedValue(mockItem as never);
 
-    const result = await createItem({ ...validPayload, typeName: "link", url: "https://example.com" });
+    const result = await createItem({ ...basePayload, typeName: "link", url: "https://example.com" });
+
+    expect(result).toEqual({ success: true, data: mockItem });
+  });
+
+  it("returns validation error when file type has no fileKey", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+
+    const result = await createItem({ ...basePayload, typeName: "file", fileKey: null });
+
+    expect(result.success).toBe(false);
+    expect((result as { success: false; error: string }).error).toContain("file is required");
+    expect(mockDbCreateItem).not.toHaveBeenCalled();
+  });
+
+  it("returns validation error when image type has no fileKey", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+
+    const result = await createItem({ ...basePayload, typeName: "image", fileKey: null });
+
+    expect(result.success).toBe(false);
+    expect((result as { success: false; error: string }).error).toContain("file is required");
+  });
+
+  it("accepts a file type with a valid fileKey", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+    mockDbCreateItem.mockResolvedValue(mockItem as never);
+
+    const result = await createItem({
+      ...basePayload,
+      typeName: "file",
+      fileKey: "uploads/user-1/abc.pdf",
+      fileName: "document.pdf",
+      fileSize: 102400,
+    });
+
+    expect(result).toEqual({ success: true, data: mockItem });
+    expect(mockDbCreateItem).toHaveBeenCalledWith(
+      "user-1",
+      expect.objectContaining({
+        typeName: "file",
+        fileUrl: "uploads/user-1/abc.pdf",
+        fileName: "document.pdf",
+        fileSize: 102400,
+      })
+    );
+  });
+
+  it("accepts an image type with a valid fileKey", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+    mockDbCreateItem.mockResolvedValue(mockItem as never);
+
+    const result = await createItem({
+      ...basePayload,
+      typeName: "image",
+      fileKey: "uploads/user-1/photo.png",
+      fileName: "photo.png",
+      fileSize: 204800,
+    });
 
     expect(result).toEqual({ success: true, data: mockItem });
   });
@@ -234,7 +322,7 @@ describe("createItem server action", () => {
     mockAuth.mockResolvedValue({ user: { id: "user-abc" } } as never);
     mockDbCreateItem.mockResolvedValue(mockItem as never);
 
-    await createItem(validPayload);
+    await createItem(basePayload);
 
     expect(mockDbCreateItem).toHaveBeenCalledWith(
       "user-abc",
@@ -246,7 +334,7 @@ describe("createItem server action", () => {
     mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
     mockDbCreateItem.mockResolvedValue(mockItem as never);
 
-    const result = await createItem(validPayload);
+    const result = await createItem(basePayload);
 
     expect(result).toEqual({ success: true, data: mockItem });
   });
@@ -255,7 +343,7 @@ describe("createItem server action", () => {
     mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
     mockDbCreateItem.mockResolvedValue(null as never);
 
-    const result = await createItem(validPayload);
+    const result = await createItem(basePayload);
 
     expect(result).toEqual({ success: false, error: "Item type not found." });
   });
@@ -264,8 +352,56 @@ describe("createItem server action", () => {
     mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
     mockDbCreateItem.mockRejectedValue(new Error("DB error"));
 
-    const result = await createItem(validPayload);
+    const result = await createItem(basePayload);
 
     expect(result).toEqual({ success: false, error: "Failed to create item." });
+  });
+});
+
+// ─── cancelUpload ────────────────────────────────────────────────────────────
+
+describe("cancelUpload server action", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("does nothing when not authenticated", async () => {
+    mockAuth.mockResolvedValue(null as never);
+
+    await cancelUpload("uploads/user-1/abc.pdf");
+
+    expect(mockDeleteFromR2).not.toHaveBeenCalled();
+  });
+
+  it("does nothing when session has no user id", async () => {
+    mockAuth.mockResolvedValue({ user: {} } as never);
+
+    await cancelUpload("uploads/user-1/abc.pdf");
+
+    expect(mockDeleteFromR2).not.toHaveBeenCalled();
+  });
+
+  it("does nothing when key does not belong to the requesting user", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-2" } } as never);
+
+    await cancelUpload("uploads/user-1/abc.pdf");
+
+    expect(mockDeleteFromR2).not.toHaveBeenCalled();
+  });
+
+  it("calls deleteFromR2 with the key when ownership is verified", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+    mockDeleteFromR2.mockResolvedValue(undefined);
+
+    await cancelUpload("uploads/user-1/abc.pdf");
+
+    expect(mockDeleteFromR2).toHaveBeenCalledWith("uploads/user-1/abc.pdf");
+  });
+
+  it("swallows R2 errors silently", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+    mockDeleteFromR2.mockRejectedValue(new Error("R2 unavailable"));
+
+    await expect(cancelUpload("uploads/user-1/abc.pdf")).resolves.toBeUndefined();
   });
 });

@@ -9,6 +9,7 @@ import {
   Pencil,
   Trash2,
   FolderOpen,
+  Download,
   type LucideIcon,
 } from "lucide-react"
 import CodeEditor from "@/components/items/CodeEditor"
@@ -41,6 +42,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { updateItem, deleteItem } from "@/actions/items"
 import type { ItemDetail } from "@/lib/db/items"
+import { formatBytes } from "@/lib/format"
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Code,
@@ -475,11 +477,33 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
               )}
 
               {item.fileUrl && (
-                <div className="px-5 py-5 text-sm text-muted-foreground">
-                  <p>{item.fileName}</p>
-                  {item.fileSize && (
-                    <p className="text-xs mt-1">{(item.fileSize / 1024).toFixed(1)} KB</p>
+                <div className="px-5 py-5 space-y-3">
+                  {typeName === "image" && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={`/api/download?key=${encodeURIComponent(item.fileUrl)}`}
+                      alt={item.fileName ?? "Image"}
+                      className="w-full rounded-md border border-border object-contain max-h-80 bg-black/10"
+                    />
                   )}
+                  <div className="flex items-center gap-3 rounded-md border border-border bg-muted/30 px-3 py-2.5">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm truncate">{item.fileName}</p>
+                      {item.fileSize && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {formatBytes(item.fileSize)}
+                        </p>
+                      )}
+                    </div>
+                    <a
+                      href={`/api/download?key=${encodeURIComponent(item.fileUrl)}&download=1&filename=${encodeURIComponent(item.fileName ?? "download")}`}
+                      className="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors text-xs shrink-0"
+                      title="Download"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      Download
+                    </a>
+                  </div>
                 </div>
               )}
             </>

@@ -119,12 +119,15 @@ export async function getItemById(
 export async function deleteItem(
   userId: string,
   id: string
-): Promise<boolean> {
+): Promise<{ fileUrl: string | null } | null> {
   try {
-    await prisma.item.delete({ where: { id, userId } });
-    return true;
+    const deleted = await prisma.item.delete({
+      where: { id, userId },
+      select: { fileUrl: true },
+    });
+    return deleted;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -136,6 +139,9 @@ export type CreateItemData = {
   language: string | null;
   tags: string[];
   typeName: string;
+  fileUrl: string | null;
+  fileName: string | null;
+  fileSize: number | null;
 };
 
 export async function createItem(
@@ -148,7 +154,12 @@ export async function createItem(
   });
   if (!itemType) return null;
 
-  const contentType = data.typeName === "link" ? "URL" : "TEXT";
+  const FILE_ITEM_TYPES = new Set(["file", "image"]);
+  const contentType = data.typeName === "link"
+    ? "URL"
+    : FILE_ITEM_TYPES.has(data.typeName)
+    ? "FILE"
+    : "TEXT";
 
   return prisma.item.create({
     data: {
@@ -157,6 +168,9 @@ export async function createItem(
       content: data.content,
       url: data.url,
       language: data.language,
+      fileUrl: data.fileUrl,
+      fileName: data.fileName,
+      fileSize: data.fileSize,
       contentType,
       userId,
       itemTypeId: itemType.id,
