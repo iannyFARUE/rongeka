@@ -1,24 +1,10 @@
-# Current Feature: File List View
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Update `/dashboard/items/files` to display as a single-column list layout (Google Drive/Dropbox style)
-- Each row shows: file icon (by extension), file name, file size, upload date, download button
-- Row hover highlight
-- Clicking a row opens the ItemDrawer
-- Download button triggers direct download without opening the drawer (stop propagation)
-- Responsive: stack info vertically on mobile
-
 ## Notes
-
-- The images page already uses a gallery variant via `ItemsWithDrawer`'s `variant` prop — files needs a new `file-list` variant or a dedicated layout
-- File icon should vary by extension (e.g. PDF, ZIP, TXT, etc.)
-- Download should call the existing `/api/download` proxy endpoint
-- Keep consistent with existing ItemDrawer open/close patterns
 
 ## History
 
@@ -51,3 +37,4 @@ In Progress
 - **2026-03-27** — Completed Markdown Editor: MarkdownEditor component using react-markdown + remark-gfm; Write/Preview tabs in edit mode, Preview-only in readonly mode; dark theme matching CodeEditor (bg-[#2d2d2d] header, bg-[#1e1e1e] body); copy button in header; .markdown-preview CSS class for h1–h6, code blocks, inline code, lists, blockquotes, links, tables; replaces Textarea for note and prompt types in NewItemDialog and ItemDrawer (view + edit modes)
 - **2026-03-28** — Completed File & Image Upload with Cloudflare R2: POST /api/upload with MIME + size validation (5 MB images, 10 MB files) and extension fallback for .ini/.toml; GET /api/download proxy with RFC 5987 Content-Disposition and user-scoped key authorization; FileUpload component with drag-and-drop, XHR progress bar, image preview, file info; NewItemDialog extended with file/image type buttons and orphaned-upload cleanup on cancel; ItemDrawer shows image preview, file info card, and Download button; deleteItem calls deleteFromR2 (non-fatal); cancelUpload server action for abandoned uploads; formatBytes extracted to src/lib/format.ts; 47 tests passing
 - **2026-03-28** — Completed Image Gallery View: ImageThumbnailCard component with aspect-video, object-cover, and 5% hover zoom (300ms); ItemsWithDrawer extended with variant prop (list/gallery); /dashboard/items/images renders gallery grid; fileUrl/fileName added to ItemWithMeta type; images served via /api/download R2 proxy
+- **2026-03-28** — Completed File List View: FileListRow component with extension-based icon (FileImage/FileArchive/FileCode/FileText/File), file name, size, upload date, and download button (stops propagation); ItemsWithDrawer extended with file-list variant; /dashboard/items/files renders single-column list; fileSize and createdAt added to ItemWithMeta type and itemSelect
