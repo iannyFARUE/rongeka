@@ -2,15 +2,17 @@
 
 import { useState } from "react"
 import ItemRow from "@/components/items/ItemRow"
+import ImageThumbnailCard from "@/components/items/ImageThumbnailCard"
 import ItemDrawer from "@/components/items/ItemDrawer"
 import type { ItemWithMeta } from "@/lib/db/items"
 
 interface ItemsWithDrawerProps {
   items: ItemWithMeta[]
   className?: string
+  variant?: "list" | "gallery"
 }
 
-export default function ItemsWithDrawer({ items, className }: ItemsWithDrawerProps) {
+export default function ItemsWithDrawer({ items, className, variant = "list" }: ItemsWithDrawerProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [open, setOpen] = useState(false)
 
@@ -26,13 +28,21 @@ export default function ItemsWithDrawer({ items, className }: ItemsWithDrawerPro
   return (
     <>
       <div className={className}>
-        {items.map((item) => (
-          <ItemRow
-            key={item.id}
-            item={item}
-            onClick={() => handleItemClick(item.id)}
-          />
-        ))}
+        {items.map((item) =>
+          variant === "gallery" ? (
+            <ImageThumbnailCard
+              key={item.id}
+              item={item}
+              onClick={() => handleItemClick(item.id)}
+            />
+          ) : (
+            <ItemRow
+              key={item.id}
+              item={item}
+              onClick={() => handleItemClick(item.id)}
+            />
+          )
+        )}
       </div>
       <ItemDrawer itemId={selectedId} open={open} onClose={handleClose} />
     </>

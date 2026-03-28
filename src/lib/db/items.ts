@@ -35,6 +35,8 @@ export type ItemWithMeta = {
   isFavorite: boolean;
   isPinned: boolean;
   lastUsedAt: Date | null;
+  fileUrl: string | null;
+  fileName: string | null;
   itemType: {
     id: string;
     name: string;
@@ -44,7 +46,15 @@ export type ItemWithMeta = {
   tags: { id: string; name: string }[];
 };
 
-const itemInclude = {
+const itemSelect = {
+  id: true,
+  title: true,
+  description: true,
+  isFavorite: true,
+  isPinned: true,
+  lastUsedAt: true,
+  fileUrl: true,
+  fileName: true,
   itemType: { select: { id: true, name: true, icon: true, color: true } },
   tags: { select: { id: true, name: true } },
 } as const;
@@ -53,7 +63,7 @@ export async function getPinnedItems(userId: string): Promise<ItemWithMeta[]> {
   return prisma.item.findMany({
     where: { isPinned: true, userId },
     orderBy: { updatedAt: "desc" },
-    include: itemInclude,
+    select: itemSelect,
   });
 }
 
@@ -62,7 +72,7 @@ export async function getRecentItems(userId: string, limit = 10): Promise<ItemWi
     where: { lastUsedAt: { not: null }, userId },
     orderBy: { lastUsedAt: "desc" },
     take: limit,
-    include: itemInclude,
+    select: itemSelect,
   });
 }
 
@@ -92,7 +102,7 @@ export async function getItemsByType(
   const items = await prisma.item.findMany({
     where: { userId, itemTypeId: itemType.id },
     orderBy: { updatedAt: "desc" },
-    include: itemInclude,
+    select: itemSelect,
   });
 
   return { items, typeName: itemType.name, typeColor: itemType.color };

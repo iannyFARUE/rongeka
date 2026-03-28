@@ -44,6 +44,7 @@ export default async function ItemsTypePage({ params }: PageProps) {
         <ItemsWithDrawer
           items={items}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          variant={typeName === "image" ? "gallery" : "list"}
         />
       )}
     </div>
