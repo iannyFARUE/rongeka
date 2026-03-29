@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import {
   File,
   FileText,
@@ -7,6 +8,8 @@ import {
   FileImage,
   FileArchive,
   Download,
+  Copy,
+  Check,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { formatBytes } from "@/lib/format"
@@ -29,6 +32,7 @@ function getFileIcon(fileName: string | null) {
 }
 
 export default function FileListRow({ item, onClick }: FileListRowProps) {
+  const [copied, setCopied] = useState(false)
   const Icon = getFileIcon(item.fileName)
   const downloadUrl = item.fileUrl
     ? `/api/download?key=${encodeURIComponent(item.fileUrl)}&download=1`
@@ -41,6 +45,15 @@ export default function FileListRow({ item, onClick }: FileListRowProps) {
     a.href = downloadUrl
     a.download = item.fileName ?? item.title
     a.click()
+  }
+
+  function handleCopy(e: React.MouseEvent) {
+    e.stopPropagation()
+    const text = item.fileName ?? item.title
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    })
   }
 
   return (
@@ -64,6 +77,21 @@ export default function FileListRow({ item, onClick }: FileListRowProps) {
         {item.fileSize != null && <span>{formatBytes(item.fileSize)}</span>}
         <span>{new Date(item.createdAt).toLocaleDateString()}</span>
       </div>
+
+      {/* Copy button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+        onClick={handleCopy}
+        aria-label="Copy file name"
+      >
+        {copied ? (
+          <Check className="h-4 w-4 text-emerald-500" />
+        ) : (
+          <Copy className="h-4 w-4" />
+        )}
+      </Button>
 
       {/* Download button */}
       {downloadUrl && (

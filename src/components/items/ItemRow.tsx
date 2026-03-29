@@ -1,4 +1,7 @@
-import { Pin, Star, type LucideIcon } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { Pin, Star, Copy, Check, type LucideIcon } from "lucide-react";
 import {
   Code,
   Sparkles,
@@ -44,8 +47,18 @@ export default function ItemRow({
   item: ItemWithMeta;
   onClick?: () => void;
 }) {
+  const [copied, setCopied] = useState(false);
   const Icon = ICON_MAP[item.itemType.icon];
   const { color } = item.itemType;
+
+  function handleCopy(e: React.MouseEvent) {
+    e.stopPropagation();
+    const text = item.content ?? item.url ?? item.title;
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  }
 
   return (
     <div
@@ -92,6 +105,19 @@ export default function ItemRow({
           )}
         </div>
       )}
+
+      {/* Copy button — bottom right */}
+      <button
+        onClick={handleCopy}
+        className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground"
+        aria-label="Copy"
+      >
+        {copied ? (
+          <Check className="h-3.5 w-3.5 text-emerald-500" />
+        ) : (
+          <Copy className="h-3.5 w-3.5" />
+        )}
+      </button>
     </div>
   );
 }

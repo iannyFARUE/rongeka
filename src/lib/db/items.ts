@@ -35,6 +35,8 @@ export type ItemWithMeta = {
   isFavorite: boolean;
   isPinned: boolean;
   lastUsedAt: Date | null;
+  content: string | null;
+  url: string | null;
   fileUrl: string | null;
   fileName: string | null;
   fileSize: number | null;
@@ -55,6 +57,8 @@ const itemSelect = {
   isFavorite: true,
   isPinned: true,
   lastUsedAt: true,
+  content: true,
+  url: true,
   fileUrl: true,
   fileName: true,
   fileSize: true,
