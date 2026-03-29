@@ -1,23 +1,10 @@
-# Current Feature: Collections Pages
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Create `/dashboard/collections` page that lists all user collections using existing CollectionCard components
-- Create `/dashboard/collections/[id]` page that shows all items in a specific collection using existing item display components
-- Link the "View all collections" sidebar button to `/dashboard/collections`
-- Link all collection cards (dashboard + collections page) to `/dashboard/collections/[id]`
-
 ## Notes
-
-- Use existing `CollectionCard` component for the collections grid
-- Use existing `ItemsWithDrawer` / `ItemRow` components for displaying items inside a collection
-- Collection cards currently have no href — add a wrapping link or pass an `href` prop
-- Data fetching: `getCollections()` already exists in `src/lib/db/collections.ts`; add a `getCollectionWithItems()` query for the detail page
-- Auth-scope all queries to the logged-in user
 
 ## History
 
@@ -53,3 +40,4 @@ In Progress
 - **2026-03-28** — Completed File List View: FileListRow component with extension-based icon (FileImage/FileArchive/FileCode/FileText/File), file name, size, upload date, and download button (stops propagation); ItemsWithDrawer extended with file-list variant; /dashboard/items/files renders single-column list; fileSize and createdAt added to ItemWithMeta type and itemSelect
 - **2026-03-29** — Completed Collection Create: "New Collection" button (outline, FolderPlus icon) in top bar; NewCollectionDialog modal with name + description fields; createCollection server action (Zod validation, auth-scoped); createCollection DB function in lib/db/collections.ts; toast on success/failure; router.refresh() on save; 6 unit tests passing
 - **2026-03-29** — Completed Item-to-Collection Picker: CollectionPicker toggle-button component; collection picker added to NewItemDialog (fetched on open) and ItemDrawer edit mode (pre-populated from existing associations); createItem and updateItem server actions and DB functions extended with collectionIds; updateItem uses a Prisma transaction with ownership check before delete-all + reconnect; getCollectionsForPicker server action; 53 tests passing
+- **2026-03-29** — Completed Collections Pages: /dashboard/collections lists all collections with CollectionCard grid; /dashboard/collections/[id] shows collection items separated into Images (gallery), Files (file-list), and Items (3-col grid) sections; getCollectionWithItems() DB query added; sidebar collection links and "View all collections" + dashboard "View All" button all corrected to /dashboard/* routes
