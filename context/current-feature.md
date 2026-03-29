@@ -1,24 +1,10 @@
-# Current Feature: Add Item to Collections
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Add a multi-select collection picker to the New Item dialog (all types)
-- Add a multi-select collection picker to the Item Drawer edit mode
-- Pre-populate the picker with the item's current collections when editing
-- Save selected collections on create (createItem) and update (updateItem) server actions
-- Display selected collections as badges/chips in the picker UI
-
 ## Notes
-
-- Use the existing `ItemCollection` join table (many-to-many)
-- Fetch available collections server-side (auth-scoped) and pass as props
-- No need to build collection detail pages — just the association UI
-- Follow existing patterns: Zod validation, auth check, try/catch in actions
-- The updateItem action already handles tag disconnect-all + connectOrCreate; apply the same pattern for collections
 
 ## History
 
@@ -53,3 +39,4 @@ In Progress
 - **2026-03-28** — Completed Image Gallery View: ImageThumbnailCard component with aspect-video, object-cover, and 5% hover zoom (300ms); ItemsWithDrawer extended with variant prop (list/gallery); /dashboard/items/images renders gallery grid; fileUrl/fileName added to ItemWithMeta type; images served via /api/download R2 proxy
 - **2026-03-28** — Completed File List View: FileListRow component with extension-based icon (FileImage/FileArchive/FileCode/FileText/File), file name, size, upload date, and download button (stops propagation); ItemsWithDrawer extended with file-list variant; /dashboard/items/files renders single-column list; fileSize and createdAt added to ItemWithMeta type and itemSelect
 - **2026-03-29** — Completed Collection Create: "New Collection" button (outline, FolderPlus icon) in top bar; NewCollectionDialog modal with name + description fields; createCollection server action (Zod validation, auth-scoped); createCollection DB function in lib/db/collections.ts; toast on success/failure; router.refresh() on save; 6 unit tests passing
+- **2026-03-29** — Completed Item-to-Collection Picker: CollectionPicker toggle-button component; collection picker added to NewItemDialog (fetched on open) and ItemDrawer edit mode (pre-populated from existing associations); createItem and updateItem server actions and DB functions extended with collectionIds; updateItem uses a Prisma transaction with ownership check before delete-all + reconnect; getCollectionsForPicker server action; 53 tests passing
