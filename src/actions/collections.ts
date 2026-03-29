@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { auth } from "@/auth";
-import { createCollection as dbCreateCollection } from "@/lib/db/collections";
+import { createCollection as dbCreateCollection, getSimpleCollections } from "@/lib/db/collections";
 
 const CreateCollectionSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
@@ -12,6 +12,12 @@ const CreateCollectionSchema = z.object({
 type CreateCollectionResult =
   | { success: true; data: { id: string; name: string } }
   | { success: false; error: string };
+
+export async function getCollectionsForPicker(): Promise<{ id: string; name: string }[]> {
+  const session = await auth();
+  if (!session?.user?.id) return [];
+  return getSimpleCollections(session.user.id);
+}
 
 export async function createCollection(payload: {
   name: string;

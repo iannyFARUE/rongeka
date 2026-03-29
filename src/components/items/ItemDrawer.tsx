@@ -41,8 +41,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { updateItem, deleteItem } from "@/actions/items"
+import { getCollectionsForPicker } from "@/actions/collections"
 import type { ItemDetail } from "@/lib/db/items"
 import { formatBytes } from "@/lib/format"
+import CollectionPicker from "@/components/items/CollectionPicker"
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Code,
@@ -86,6 +88,7 @@ interface EditState {
   url: string
   language: string
   tags: string
+  collectionIds: string[]
 }
 
 function itemToEditState(item: ItemDetail): EditState {
@@ -96,6 +99,7 @@ function itemToEditState(item: ItemDetail): EditState {
     url: item.url ?? "",
     language: item.language ?? "",
     tags: item.tags.map((t) => t.name).join(", "),
+    collectionIds: item.itemCollections.map(({ collection }) => collection.id),
   }
 }
 
@@ -110,6 +114,9 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editState, setEditState] = useState<EditState | null>(null)
   const [saving, setSaving] = useState(false)
+
+  // Collections for picker
+  const [collections, setCollections] = useState<{ id: string; name: string }[]>([])
 
   // Delete state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -166,6 +173,7 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
     if (!item) return
     setEditState(itemToEditState(item))
     setIsEditing(true)
+    getCollectionsForPicker().then(setCollections)
   }
 
   function handleEditCancel() {
@@ -189,6 +197,7 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
       url: editState.url,
       language: editState.language,
       tags,
+      collectionIds: editState.collectionIds,
     })
 
     setSaving(false)
@@ -605,6 +614,18 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
                   placeholder="react, hooks, typescript"
                 />
                 <p className="text-xs text-muted-foreground">Comma-separated</p>
+              </div>
+
+              {/* Collections */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Collections
+                </label>
+                <CollectionPicker
+                  collections={collections}
+                  selected={editState.collectionIds}
+                  onChange={(ids) => setEditState((prev) => prev ? { ...prev, collectionIds: ids } : prev)}
+                />
               </div>
             </div>
           )}

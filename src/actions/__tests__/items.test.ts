@@ -22,6 +22,7 @@ const validPayload = {
   url: "",
   language: "typescript",
   tags: ["react", "hooks"],
+  collectionIds: [],
 };
 
 const mockItem = { id: "item-1", title: "My Snippet" };
@@ -197,6 +198,7 @@ describe("createItem server action", () => {
     url: "",
     language: "typescript",
     tags: ["react"],
+    collectionIds: [],
     fileKey: null,
     fileName: null,
     fileSize: null,

@@ -160,6 +160,7 @@ export type CreateItemData = {
   fileUrl: string | null;
   fileName: string | null;
   fileSize: number | null;
+  collectionIds: string[];
 };
 
 export async function createItem(
@@ -198,6 +199,9 @@ export async function createItem(
           create: { name },
         })),
       },
+      itemCollections: data.collectionIds.length > 0 ? {
+        create: data.collectionIds.map((collectionId) => ({ collectionId })),
+      } : undefined,
     },
     include: {
       itemType: { select: { id: true, name: true, icon: true, color: true } },
@@ -218,6 +222,7 @@ export type UpdateItemData = {
   url: string | null;
   language: string | null;
   tags: string[];
+  collectionIds: string[];
 };
 
 export async function updateItem(
@@ -225,31 +230,41 @@ export async function updateItem(
   id: string,
   data: UpdateItemData
 ): Promise<ItemDetail | null> {
-  const updated = await prisma.item.update({
-    where: { id, userId },
-    data: {
-      title: data.title,
-      description: data.description,
-      content: data.content,
-      url: data.url,
-      language: data.language,
-      tags: {
-        set: [],
-        connectOrCreate: data.tags.map((name) => ({
-          where: { name },
-          create: { name },
-        })),
+  const updated = await prisma.$transaction(async (tx) => {
+    // Verify ownership before modifying — throws if item not found or userId mismatch
+    await tx.item.findFirstOrThrow({ where: { id, userId }, select: { id: true } });
+
+    await tx.itemCollection.deleteMany({ where: { itemId: id } });
+
+    return tx.item.update({
+      where: { id, userId },
+      data: {
+        title: data.title,
+        description: data.description,
+        content: data.content,
+        url: data.url,
+        language: data.language,
+        tags: {
+          set: [],
+          connectOrCreate: data.tags.map((name) => ({
+            where: { name },
+            create: { name },
+          })),
+        },
+        itemCollections: data.collectionIds.length > 0 ? {
+          create: data.collectionIds.map((collectionId) => ({ collectionId })),
+        } : undefined,
       },
-    },
-    include: {
-      itemType: { select: { id: true, name: true, icon: true, color: true } },
-      tags: { select: { id: true, name: true } },
-      itemCollections: {
-        include: {
-          collection: { select: { id: true, name: true } },
+      include: {
+        itemType: { select: { id: true, name: true, icon: true, color: true } },
+        tags: { select: { id: true, name: true } },
+        itemCollections: {
+          include: {
+            collection: { select: { id: true, name: true } },
+          },
         },
       },
-    },
+    });
   });
   return updated;
 }

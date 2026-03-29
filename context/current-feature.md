@@ -1,10 +1,24 @@
-# Current Feature
+# Current Feature: Add Item to Collections
 
 ## Status
 
+In Progress
+
 ## Goals
 
+- Add a multi-select collection picker to the New Item dialog (all types)
+- Add a multi-select collection picker to the Item Drawer edit mode
+- Pre-populate the picker with the item's current collections when editing
+- Save selected collections on create (createItem) and update (updateItem) server actions
+- Display selected collections as badges/chips in the picker UI
+
 ## Notes
+
+- Use the existing `ItemCollection` join table (many-to-many)
+- Fetch available collections server-side (auth-scoped) and pass as props
+- No need to build collection detail pages — just the association UI
+- Follow existing patterns: Zod validation, auth check, try/catch in actions
+- The updateItem action already handles tag disconnect-all + connectOrCreate; apply the same pattern for collections
 
 ## History
 

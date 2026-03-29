@@ -17,6 +17,7 @@ const CreateItemSchema = z.object({
   url: z.union([z.url("Must be a valid URL"), z.literal("")]).optional(),
   language: z.string().trim().optional(),
   tags: z.array(z.string().trim().min(1)),
+  collectionIds: z.array(z.string()),
   fileKey: z.string().nullable().optional(),
   fileName: z.string().nullable().optional(),
   fileSize: z.number().nullable().optional(),
@@ -41,6 +42,7 @@ export async function createItem(payload: {
   url: string;
   language: string;
   tags: string[];
+  collectionIds: string[];
   fileKey: string | null;
   fileName: string | null;
   fileSize: number | null;
@@ -56,7 +58,7 @@ export async function createItem(payload: {
     return { success: false, error: message };
   }
 
-  const { typeName, title, description, content, url, language, tags, fileKey, fileName, fileSize } = parsed.data;
+  const { typeName, title, description, content, url, language, tags, collectionIds, fileKey, fileName, fileSize } = parsed.data;
 
   try {
     const created = await dbCreateItem(session.user.id, {
@@ -70,6 +72,7 @@ export async function createItem(payload: {
       fileUrl: fileKey ?? null,
       fileName: fileName ?? null,
       fileSize: fileSize ?? null,
+      collectionIds,
     });
 
     if (!created) {
@@ -89,6 +92,7 @@ const UpdateItemSchema = z.object({
   url: z.union([z.url("Must be a valid URL"), z.literal(""), z.null()]).optional(),
   language: z.string().trim().nullable().optional(),
   tags: z.array(z.string().trim().min(1)),
+  collectionIds: z.array(z.string()),
 });
 
 type DeleteItemResult = { success: true } | { success: false; error: string };
@@ -142,6 +146,7 @@ export async function updateItem(
     url: string;
     language: string;
     tags: string[];
+    collectionIds: string[];
   }
 ): Promise<UpdateItemResult> {
   const session = await auth();
@@ -155,7 +160,7 @@ export async function updateItem(
     return { success: false, error: message };
   }
 
-  const { title, description, content, url, language, tags } = parsed.data;
+  const { title, description, content, url, language, tags, collectionIds } = parsed.data;
 
   try {
     const updated = await dbUpdateItem(session.user.id, itemId, {
@@ -165,6 +170,7 @@ export async function updateItem(
       url: url || null,
       language: language ?? null,
       tags,
+      collectionIds,
     });
 
     if (!updated) {

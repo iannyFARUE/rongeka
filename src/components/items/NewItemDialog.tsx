@@ -11,8 +11,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { createItem, cancelUpload } from "@/actions/items"
+import { getCollectionsForPicker } from "@/actions/collections"
 import MarkdownEditor from "@/components/items/MarkdownEditor"
 import FileUpload, { type UploadedFile } from "@/components/items/FileUpload"
+import CollectionPicker from "@/components/items/CollectionPicker"
 
 const ITEM_TYPES = [
   { name: "snippet", label: "Snippet" },
@@ -48,9 +50,14 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
   const [tags, setTags] = useState("")
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null)
   const [saving, setSaving] = useState(false)
+  const [collections, setCollections] = useState<{ id: string; name: string }[]>([])
+  const [collectionIds, setCollectionIds] = useState<string[]>([])
 
   useEffect(() => {
-    if (open) setTypeName(defaultType)
+    if (open) {
+      setTypeName(defaultType)
+      getCollectionsForPicker().then(setCollections)
+    }
   }, [open, defaultType])
 
   function reset() {
@@ -62,6 +69,7 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
     setLanguage("")
     setTags("")
     setUploadedFile(null)
+    setCollectionIds([])
   }
 
   function handleClose() {
@@ -85,6 +93,7 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
       url,
       language,
       tags: tagList,
+      collectionIds,
       fileKey: uploadedFile?.key ?? null,
       fileName: uploadedFile?.fileName ?? null,
       fileSize: uploadedFile?.fileSize ?? null,
@@ -253,6 +262,18 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
               placeholder="react, hooks, typescript"
             />
             <p className="text-xs text-muted-foreground">Comma-separated</p>
+          </div>
+
+          {/* Collections */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Collections
+            </label>
+            <CollectionPicker
+              collections={collections}
+              selected={collectionIds}
+              onChange={setCollectionIds}
+            />
           </div>
         </div>
 
