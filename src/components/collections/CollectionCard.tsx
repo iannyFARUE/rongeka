@@ -30,7 +30,7 @@ export default function CollectionCard({
 }) {
   return (
     <Link
-      href={`/collections/${collection.id}`}
+      href={`/dashboard/collections/${collection.id}`}
       className="group flex flex-col rounded-lg border border-border bg-card p-4 hover:bg-accent/20 transition-colors overflow-hidden"
       style={{ borderLeftColor: collection.dominantColor, borderLeftWidth: 3 }}
     >

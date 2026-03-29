@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Layers,
   FolderOpen,
@@ -55,10 +56,10 @@ export default async function DashboardPage() {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold">Collections</h2>
-          <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Link href="/dashboard/collections" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
             View All
             <ChevronRight className="h-3.5 w-3.5" />
-          </button>
+          </Link>
         </div>
         {collections.length === 0 ? (
           <p className="text-sm text-muted-foreground">No collections yet.</p>

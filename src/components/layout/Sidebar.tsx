@@ -245,7 +245,7 @@ export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) 
                   {collections.map((col) => (
                     <Link
                       key={col.id}
-                      href={`/collections/${col.id}`}
+                      href={`/dashboard/collections/${col.id}`}
                       className="flex items-center gap-2.5 px-3 mx-1 py-1.5 text-sm rounded-sm hover:bg-accent group transition-colors"
                     >
                       <div
@@ -261,7 +261,7 @@ export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) 
                     </Link>
                   ))}
                   <Link
-                    href="/collections"
+                    href="/dashboard/collections"
                     className="flex items-center gap-2.5 px-3 mx-1 py-1.5 text-xs rounded-sm hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
                   >
                     View all collections

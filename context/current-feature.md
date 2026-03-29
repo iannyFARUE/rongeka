@@ -1,10 +1,23 @@
-# Current Feature
+# Current Feature: Collections Pages
 
 ## Status
 
+In Progress
+
 ## Goals
 
+- Create `/dashboard/collections` page that lists all user collections using existing CollectionCard components
+- Create `/dashboard/collections/[id]` page that shows all items in a specific collection using existing item display components
+- Link the "View all collections" sidebar button to `/dashboard/collections`
+- Link all collection cards (dashboard + collections page) to `/dashboard/collections/[id]`
+
 ## Notes
+
+- Use existing `CollectionCard` component for the collections grid
+- Use existing `ItemsWithDrawer` / `ItemRow` components for displaying items inside a collection
+- Collection cards currently have no href — add a wrapping link or pass an `href` prop
+- Data fetching: `getCollections()` already exists in `src/lib/db/collections.ts`; add a `getCollectionWithItems()` query for the detail page
+- Auth-scope all queries to the logged-in user
 
 ## History
 
