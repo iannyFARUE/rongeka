@@ -78,6 +78,19 @@ export async function getCollections(userId: string): Promise<CollectionWithMeta
   });
 }
 
+export async function createCollection(
+  userId: string,
+  data: { name: string; description?: string | null }
+) {
+  return prisma.collection.create({
+    data: {
+      name: data.name,
+      description: data.description ?? null,
+      userId,
+    },
+  });
+}
+
 export async function getDashboardStats(userId: string): Promise<DashboardStats> {
   const [totalItems, totalCollections, favoriteItems, favoriteCollections] =
     await Promise.all([

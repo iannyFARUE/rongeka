@@ -4,11 +4,13 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, FolderPlus } from "lucide-react";
 import NewItemDialog from "@/components/items/NewItemDialog";
+import NewCollectionDialog from "@/components/collections/NewCollectionDialog";
 
 export default function TopBar() {
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [itemDialogOpen, setItemDialogOpen] = useState(false);
+  const [collectionDialogOpen, setCollectionDialogOpen] = useState(false);
 
   return (
     <>
@@ -30,13 +32,20 @@ export default function TopBar() {
             <span>⌘</span>K
           </kbd>
         </div>
-        <Button size="sm" className="shrink-0" onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4" />
-          New Item
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button size="sm" variant="outline" onClick={() => setCollectionDialogOpen(true)}>
+            <FolderPlus className="h-4 w-4" />
+            New Collection
+          </Button>
+          <Button size="sm" onClick={() => setItemDialogOpen(true)}>
+            <Plus className="h-4 w-4" />
+            New Item
+          </Button>
+        </div>
       </header>
 
-      <NewItemDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
+      <NewItemDialog open={itemDialogOpen} onClose={() => setItemDialogOpen(false)} />
+      <NewCollectionDialog open={collectionDialogOpen} onClose={() => setCollectionDialogOpen(false)} />
     </>
   );
 }
