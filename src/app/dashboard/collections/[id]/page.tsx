@@ -1,7 +1,8 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getCollectionWithItems } from "@/lib/db/collections";
 import ItemsWithDrawer from "@/components/items/ItemsWithDrawer";
+import CollectionDetailActions from "@/components/collections/CollectionDetailActions";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -10,27 +11,35 @@ interface PageProps {
 export default async function CollectionDetailPage({ params }: PageProps) {
   const { id } = await params;
   const session = await auth();
-  const userId = session!.user.id;
+  if (!session?.user?.id) redirect("/sign-in");
+  const userId = session.user.id;
 
   const collection = await getCollectionWithItems(userId, id);
   if (!collection) notFound();
 
   return (
     <div className="p-6 space-y-6 max-w-5xl mx-auto">
-      <div className="flex items-center gap-3">
-        <div
-          className="h-1 w-6 rounded-full self-start mt-2.5"
-          style={{ backgroundColor: collection.dominantColor }}
-        />
-        <div className="flex flex-col">
-          <h1 className="text-lg font-semibold">{collection.name}</h1>
-          {collection.description && (
-            <p className="text-sm text-muted-foreground">{collection.description}</p>
-          )}
-          <span className="text-sm text-muted-foreground tabular-nums">
-            {collection.items.length} {collection.items.length === 1 ? "item" : "items"}
-          </span>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div
+            className="h-1 w-6 rounded-full self-start mt-2.5"
+            style={{ backgroundColor: collection.dominantColor }}
+          />
+          <div className="flex flex-col">
+            <h1 className="text-lg font-semibold">{collection.name}</h1>
+            {collection.description && (
+              <p className="text-sm text-muted-foreground">{collection.description}</p>
+            )}
+            <span className="text-sm text-muted-foreground tabular-nums">
+              {collection.items.length} {collection.items.length === 1 ? "item" : "items"}
+            </span>
+          </div>
         </div>
+        <CollectionDetailActions
+          collectionId={collection.id}
+          collectionName={collection.name}
+          collectionDescription={collection.description}
+        />
       </div>
 
       {collection.items.length === 0 ? (
