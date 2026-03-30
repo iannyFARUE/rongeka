@@ -8,7 +8,7 @@ import { Search, Plus, FolderPlus } from "lucide-react";
 import NewItemDialog from "@/components/items/NewItemDialog";
 import NewCollectionDialog from "@/components/collections/NewCollectionDialog";
 
-export default function TopBar() {
+export default function TopBar({ onSearchClick }: { onSearchClick?: () => void }) {
   const [itemDialogOpen, setItemDialogOpen] = useState(false);
   const [collectionDialogOpen, setCollectionDialogOpen] = useState(false);
 
@@ -25,12 +25,11 @@ export default function TopBar() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
             id="topbar-search"
-            placeholder="Search items, collections, tags..."
-            className="pl-9 pr-16"
+            placeholder="Search... ⌘K"
+            className="pl-9 pr-4 cursor-pointer"
+            readOnly
+            onClick={onSearchClick}
           />
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none inline-flex items-center gap-1 rounded border border-border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
-            <span>⌘</span>K
-          </kbd>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <Button size="sm" variant="outline" onClick={() => setCollectionDialogOpen(true)}>
