@@ -1,22 +1,30 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getItemsByType } from "@/lib/db/items";
+import { ITEMS_PER_PAGE } from "@/lib/constants";
 import ItemsWithDrawer from "@/components/items/ItemsWithDrawer";
 import AddItemButton from "@/components/items/AddItemButton";
+import Pagination from "@/components/ui/Pagination";
 
 interface PageProps {
   params: Promise<{ type: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
-export default async function ItemsTypePage({ params }: PageProps) {
+export default async function ItemsTypePage({ params, searchParams }: PageProps) {
   const { type } = await params;
+  const { page: pageParam } = await searchParams;
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+
   const session = await auth();
   const userId = session!.user.id;
 
-  const result = await getItemsByType(userId, type);
+  const result = await getItemsByType(userId, type, page);
   if (!result) notFound();
 
-  const { items, typeName, typeColor } = result;
+  const { items, typeName, typeColor, totalCount } = result;
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  if (totalCount > 0 && page > totalPages) redirect(`/dashboard/items/${type}?page=${totalPages}`);
 
   return (
     <div className="p-6 space-y-6 max-w-5xl mx-auto">
@@ -29,29 +37,32 @@ export default async function ItemsTypePage({ params }: PageProps) {
           <div className="flex flex-col">
             <h1 className="text-lg font-semibold capitalize">{type}</h1>
             <span className="text-sm text-muted-foreground tabular-nums">
-              {items.length} {items.length === 1 ? "item" : "items"}
+              {totalCount} {totalCount === 1 ? "item" : "items"}
             </span>
           </div>
         </div>
         <AddItemButton type={typeName as "snippet" | "prompt" | "command" | "note" | "link"} label={typeName} />
       </div>
 
-      {items.length === 0 ? (
+      {totalCount === 0 ? (
         <p className="text-sm text-muted-foreground">
           No {typeName}s yet.
         </p>
       ) : (
-        <ItemsWithDrawer
-          items={items}
-          className={
-            typeName === "image"
-              ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
-              : typeName === "file"
-              ? "flex flex-col gap-1"
-              : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-          }
-          variant={typeName === "image" ? "gallery" : typeName === "file" ? "file-list" : "list"}
-        />
+        <>
+          <ItemsWithDrawer
+            items={items}
+            className={
+              typeName === "image"
+                ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
+                : typeName === "file"
+                ? "flex flex-col gap-1"
+                : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            }
+            variant={typeName === "image" ? "gallery" : typeName === "file" ? "file-list" : "list"}
+          />
+          <Pagination currentPage={page} totalPages={totalPages} />
+        </>
       )}
     </div>
   );

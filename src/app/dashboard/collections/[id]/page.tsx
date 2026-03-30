@@ -1,21 +1,30 @@
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getCollectionWithItems } from "@/lib/db/collections";
+import { COLLECTIONS_PER_PAGE } from "@/lib/constants";
 import ItemsWithDrawer from "@/components/items/ItemsWithDrawer";
 import CollectionDetailActions from "@/components/collections/CollectionDetailActions";
+import Pagination from "@/components/ui/Pagination";
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
-export default async function CollectionDetailPage({ params }: PageProps) {
+export default async function CollectionDetailPage({ params, searchParams }: PageProps) {
   const { id } = await params;
+  const { page: pageParam } = await searchParams;
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in");
   const userId = session.user.id;
 
-  const collection = await getCollectionWithItems(userId, id);
+  const collection = await getCollectionWithItems(userId, id, page);
   if (!collection) notFound();
+
+  const totalPages = Math.ceil(collection.totalItems / COLLECTIONS_PER_PAGE);
+  if (collection.totalItems > 0 && page > totalPages) redirect(`/dashboard/collections/${id}?page=${totalPages}`);
 
   return (
     <div className="p-6 space-y-6 max-w-5xl mx-auto">
@@ -31,7 +40,7 @@ export default async function CollectionDetailPage({ params }: PageProps) {
               <p className="text-sm text-muted-foreground">{collection.description}</p>
             )}
             <span className="text-sm text-muted-foreground tabular-nums">
-              {collection.items.length} {collection.items.length === 1 ? "item" : "items"}
+              {collection.totalItems} {collection.totalItems === 1 ? "item" : "items"}
             </span>
           </div>
         </div>
@@ -42,7 +51,7 @@ export default async function CollectionDetailPage({ params }: PageProps) {
         />
       </div>
 
-      {collection.items.length === 0 ? (
+      {collection.totalItems === 0 ? (
         <p className="text-sm text-muted-foreground">No items in this collection yet.</p>
       ) : (
         <>
@@ -88,6 +97,7 @@ export default async function CollectionDetailPage({ params }: PageProps) {
               </>
             );
           })()}
+          <Pagination currentPage={page} totalPages={totalPages} />
         </>
       )}
     </div>

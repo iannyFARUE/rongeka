@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { COLLECTIONS_PER_PAGE } from "@/lib/constants";
 
 export type CollectionType = {
   id: string;
@@ -24,58 +25,56 @@ export type DashboardStats = {
   favoriteCollections: number;
 };
 
-export async function getCollections(userId: string): Promise<CollectionWithMeta[]> {
-  const collections = await prisma.collection.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-    include: {
-      itemCollections: {
-        include: {
-          item: {
-            include: { itemType: true },
-          },
-        },
-      },
-    },
-  });
+function mapCollectionWithMeta(col: {
+  id: string;
+  name: string;
+  description: string | null;
+  isFavorite: boolean;
+  itemCollections: { item: { itemType: { id: string; name: string; icon: string; color: string } } }[];
+}): CollectionWithMeta {
+  const typeCount = new Map<string, CollectionType & { count: number }>();
+  for (const ic of col.itemCollections) {
+    const { id, name, icon, color } = ic.item.itemType;
+    const existing = typeCount.get(id);
+    if (existing) existing.count++;
+    else typeCount.set(id, { id, name, icon, color, count: 1 });
+  }
+  const sortedTypes = Array.from(typeCount.values()).sort((a, b) => b.count - a.count);
+  return {
+    id: col.id,
+    name: col.name,
+    description: col.description,
+    isFavorite: col.isFavorite,
+    itemCount: col.itemCollections.length,
+    types: sortedTypes.map(({ id, name, icon, color }) => ({ id, name, icon, color })),
+    dominantColor: sortedTypes[0]?.color ?? "#6b7280",
+  };
+}
 
-  return collections.map((col) => {
-    const items = col.itemCollections.map((ic) => ic.item);
+const collectionWithMetaInclude = {
+  itemCollections: {
+    include: { item: { include: { itemType: true } } },
+  },
+} as const;
 
-    // Count occurrences of each item type
-    const typeCount = new Map<
-      string,
-      CollectionType & { count: number }
-    >();
-    for (const item of items) {
-      const { id, name, icon, color } = item.itemType;
-      const existing = typeCount.get(id);
-      if (existing) {
-        existing.count++;
-      } else {
-        typeCount.set(id, { id, name, icon, color, count: 1 });
-      }
-    }
+export async function getCollections(
+  userId: string,
+  options?: { page?: number; limit?: number }
+): Promise<{ collections: CollectionWithMeta[]; totalCount: number }> {
+  const { page, limit } = options ?? {};
+  const isPaginated = page !== undefined && limit !== undefined;
 
-    const sortedTypes = Array.from(typeCount.values()).sort(
-      (a, b) => b.count - a.count
-    );
+  const [totalCount, rows] = await Promise.all([
+    prisma.collection.count({ where: { userId } }),
+    prisma.collection.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      include: collectionWithMetaInclude,
+      ...(isPaginated ? { skip: (page! - 1) * limit!, take: limit } : { take: limit }),
+    }),
+  ]);
 
-    return {
-      id: col.id,
-      name: col.name,
-      description: col.description,
-      isFavorite: col.isFavorite,
-      itemCount: items.length,
-      types: sortedTypes.map(({ id, name, icon, color }) => ({
-        id,
-        name,
-        icon,
-        color,
-      })),
-      dominantColor: sortedTypes[0]?.color ?? "#6b7280",
-    };
-  });
+  return { collections: rows.map(mapCollectionWithMeta), totalCount };
 }
 
 export async function createCollection(
@@ -107,6 +106,7 @@ export type CollectionDetail = {
   description: string | null;
   isFavorite: boolean;
   dominantColor: string;
+  totalItems: number;
   items: {
     id: string;
     title: string;
@@ -127,20 +127,20 @@ export type CollectionDetail = {
 
 export async function getCollectionWithItems(
   userId: string,
-  collectionId: string
+  collectionId: string,
+  page = 1
 ): Promise<CollectionDetail | null> {
+  // Fetch collection metadata + lightweight type info for dominant color
   const collection = await prisma.collection.findFirst({
     where: { id: collectionId, userId },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      isFavorite: true,
       itemCollections: {
-        orderBy: { addedAt: "desc" },
-        include: {
-          item: {
-            include: {
-              itemType: { select: { id: true, name: true, icon: true, color: true } },
-              tags: { select: { id: true, name: true } },
-            },
-          },
+        select: {
+          item: { select: { itemType: { select: { id: true, color: true } } } },
         },
       },
     },
@@ -148,41 +148,56 @@ export async function getCollectionWithItems(
 
   if (!collection) return null;
 
-  const items = collection.itemCollections.map((ic) => ic.item);
-
-  const typeCount = new Map<string, CollectionType & { count: number }>();
-  for (const item of items) {
-    const { id, name, icon, color } = item.itemType;
+  // Compute dominant color from all items (lightweight)
+  const typeCount = new Map<string, { color: string; count: number }>();
+  for (const ic of collection.itemCollections) {
+    const { id, color } = ic.item.itemType;
     const existing = typeCount.get(id);
-    if (existing) {
-      existing.count++;
-    } else {
-      typeCount.set(id, { id, name, icon, color, count: 1 });
-    }
+    if (existing) existing.count++;
+    else typeCount.set(id, { color, count: 1 });
   }
   const sortedTypes = Array.from(typeCount.values()).sort((a, b) => b.count - a.count);
+  const dominantColor = sortedTypes[0]?.color ?? "#6b7280";
+  const totalItems = collection.itemCollections.length;
+
+  // Fetch paginated items
+  const paginatedIcs = await prisma.itemCollection.findMany({
+    where: { collectionId, item: { userId } },
+    orderBy: { addedAt: "desc" },
+    skip: (page - 1) * COLLECTIONS_PER_PAGE,
+    take: COLLECTIONS_PER_PAGE,
+    include: {
+      item: {
+        include: {
+          itemType: { select: { id: true, name: true, icon: true, color: true } },
+          tags: { select: { id: true, name: true } },
+        },
+      },
+    },
+  });
 
   return {
     id: collection.id,
     name: collection.name,
     description: collection.description,
     isFavorite: collection.isFavorite,
-    dominantColor: sortedTypes[0]?.color ?? "#6b7280",
-    items: items.map((item) => ({
-      id: item.id,
-      title: item.title,
-      description: item.description,
-      isFavorite: item.isFavorite,
-      isPinned: item.isPinned,
-      lastUsedAt: item.lastUsedAt,
-      content: item.content,
-      url: item.url,
-      fileUrl: item.fileUrl,
-      fileName: item.fileName,
-      fileSize: item.fileSize,
-      createdAt: item.createdAt,
-      itemType: item.itemType,
-      tags: item.tags,
+    dominantColor,
+    totalItems,
+    items: paginatedIcs.map((ic) => ({
+      id: ic.item.id,
+      title: ic.item.title,
+      description: ic.item.description,
+      isFavorite: ic.item.isFavorite,
+      isPinned: ic.item.isPinned,
+      lastUsedAt: ic.item.lastUsedAt,
+      content: ic.item.content,
+      url: ic.item.url,
+      fileUrl: ic.item.fileUrl,
+      fileName: ic.item.fileName,
+      fileSize: ic.item.fileSize,
+      createdAt: ic.item.createdAt,
+      itemType: ic.item.itemType,
+      tags: ic.item.tags,
     })),
   };
 }

@@ -9,17 +9,18 @@ import {
 import { auth } from "@/auth";
 import { getCollections, getDashboardStats } from "@/lib/db/collections";
 import { getPinnedItems, getRecentItems } from "@/lib/db/items";
+import { DASHBOARD_COLLECTIONS_LIMIT, DASHBOARD_RECENT_ITEMS_LIMIT } from "@/lib/constants";
 import CollectionCard from "@/components/collections/CollectionCard";
 import ItemsWithDrawer from "@/components/items/ItemsWithDrawer";
 
 export default async function DashboardPage() {
   const session = await auth();
   const userId = session!.user.id;
-  const [collections, stats, pinnedItems, recentItems] = await Promise.all([
-    getCollections(userId),
+  const [{ collections }, stats, pinnedItems, recentItems] = await Promise.all([
+    getCollections(userId, { limit: DASHBOARD_COLLECTIONS_LIMIT }),
     getDashboardStats(userId),
     getPinnedItems(userId),
-    getRecentItems(userId),
+    getRecentItems(userId, DASHBOARD_RECENT_ITEMS_LIMIT),
   ]);
 
   const statCards = [

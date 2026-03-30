@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { ITEMS_PER_PAGE } from "@/lib/constants";
 
 export type ItemDetail = {
   id: string;
@@ -86,8 +87,9 @@ export async function getRecentItems(userId: string, limit = 10): Promise<ItemWi
 
 export async function getItemsByType(
   userId: string,
-  typeSlug: string
-): Promise<{ items: ItemWithMeta[]; typeName: string; typeColor: string } | null> {
+  typeSlug: string,
+  page = 1
+): Promise<{ items: ItemWithMeta[]; typeName: string; typeColor: string; totalCount: number } | null> {
   const slugToName: Record<string, string> = {
     snippets: "snippet",
     prompts: "prompt",
@@ -107,13 +109,19 @@ export async function getItemsByType(
   });
   if (!itemType) return null;
 
-  const items = await prisma.item.findMany({
-    where: { userId, itemTypeId: itemType.id },
-    orderBy: { updatedAt: "desc" },
-    select: itemSelect,
-  });
+  const where = { userId, itemTypeId: itemType.id };
+  const [totalCount, items] = await Promise.all([
+    prisma.item.count({ where }),
+    prisma.item.findMany({
+      where,
+      orderBy: { updatedAt: "desc" },
+      skip: (page - 1) * ITEMS_PER_PAGE,
+      take: ITEMS_PER_PAGE,
+      select: itemSelect,
+    }),
+  ]);
 
-  return { items, typeName: itemType.name, typeColor: itemType.color };
+  return { items, typeName: itemType.name, typeColor: itemType.color, totalCount };
 }
 
 export async function getItemById(
