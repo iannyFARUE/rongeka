@@ -3,7 +3,9 @@
 import { useState } from "react";
 import TopBar from "@/components/layout/TopBar";
 import Sidebar from "@/components/layout/Sidebar";
+import CommandPalette, { useCommandPalette } from "@/components/layout/CommandPalette";
 import type { SidebarData } from "@/lib/db/sidebar";
+import type { SearchData } from "@/lib/db/search";
 
 interface SidebarUser {
   name?: string | null;
@@ -12,18 +14,21 @@ interface SidebarUser {
 
 export default function DashboardShell({
   sidebarData,
+  searchData,
   user,
   children,
 }: {
   sidebarData: SidebarData;
+  searchData: SearchData;
   user: SidebarUser;
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { open, setOpen } = useCommandPalette();
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
-      <TopBar />
+      <TopBar onSearchClick={() => setOpen(true)} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           isOpen={sidebarOpen}
@@ -33,6 +38,11 @@ export default function DashboardShell({
         />
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
+      <CommandPalette
+        open={open}
+        onClose={() => setOpen(false)}
+        searchData={searchData}
+      />
     </div>
   );
 }
