@@ -317,6 +317,13 @@ export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) 
                 >
                   Profile
                 </Link>
+                <Link
+                  href="/dashboard/settings"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent transition-colors"
+                >
+                  Settings
+                </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: "/sign-in" })}
                   className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent transition-colors text-left text-destructive"

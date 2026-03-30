@@ -13,8 +13,6 @@ import {
 import { auth } from "@/auth";
 import { getProfileData } from "@/lib/db/profile";
 import { UserAvatar } from "@/components/layout/UserAvatar";
-import { ChangePasswordDialog } from "@/components/profile/ChangePasswordDialog";
-import { DeleteAccountDialog } from "@/components/profile/DeleteAccountDialog";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Code,
@@ -105,32 +103,6 @@ export default async function ProfilePage() {
         </div>
       </section>
 
-      {/* Account Actions */}
-      <section>
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-          Account
-        </h2>
-        <div className="rounded-lg border border-border bg-card divide-y divide-border">
-          {profile.hasPassword && (
-            <div className="flex items-center justify-between px-4 py-3">
-              <div>
-                <p className="text-sm font-medium">Password</p>
-                <p className="text-xs text-muted-foreground">Change your account password</p>
-              </div>
-              <ChangePasswordDialog />
-            </div>
-          )}
-          <div className="flex items-center justify-between px-4 py-3">
-            <div>
-              <p className="text-sm font-medium">Delete Account</p>
-              <p className="text-xs text-muted-foreground">
-                Permanently delete your account and all data
-              </p>
-            </div>
-            <DeleteAccountDialog />
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
