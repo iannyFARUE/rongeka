@@ -1,21 +1,11 @@
-# Current Feature: Client-Side Sorting on Favorites Page
+# Current Feature
 
 ## Status
-In Progress
 
 ## Goals
-- Add a sort control to the favorites page (name, date, type)
-- Sorting is client-side — no additional DB queries on sort change
-- Items section and Collections section each sort independently
-- Default sort is by date (most recently favorited, current behavior)
-- Sort state is ephemeral (no URL param needed)
 
 ## Notes
-- Favorites page is at `/dashboard/favorites`
-- Data is fetched server-side; sorting happens in the client component
-- Items sorted by: name (title alpha), date (updatedAt desc), type (itemType.name alpha)
-- Collections sorted by: name (alpha), date (updatedAt desc), type (dominant type or N/A)
-- Use a simple dropdown or segmented control — keep UI minimal and consistent with existing style
+
 
 
 ## History
@@ -60,3 +50,4 @@ In Progress
 - **2026-03-31** — Completed Favorites Page: star icon button in TopBar links to /dashboard/favorites; protected route fetches all favorited items and collections; compact terminal-style list with type icon, title, type badge, updatedAt date; separate Items and Collections sections with counts; item click opens ItemDrawer, collection click navigates to collection page; empty state; sorted by most recently favorited (updatedAt desc); getFavoriteItems and getFavoriteCollections DB queries with FavoriteItem type extending ItemWithMeta with updatedAt
 - **2026-03-31** — Completed Favorite Toggle Button: toggleFavoriteItem and toggleFavoriteCollection server actions + DB functions (userId-scoped); Item Drawer Favorite button wired up with optimistic local state; Collection detail page Favorite button (CollectionDetailActions) wired up; CollectionCard 3-dot dropdown Favorite item wired up; all components show filled yellow star when favorited; 12 new unit tests (84 total)
 - **2026-03-31** — Completed Editor Preferences Settings: editorPreferences JSON column on User (migration); EditorPreferencesContext with useState for live updates; updateEditorPreferences server action (Zod validation, auth-scoped); EditorPreferencesForm with font size/tab size/theme dropdowns and word wrap/minimap toggles (auto-save on change, optimistic update, rollback on error); CodeEditor consumes context for theme/fontSize/tabSize/wordWrap/minimap; React cache() deduplicates DB fetch; 10 unit tests (72 total)
+- **2026-04-01** — Completed Favorites Sorting: client-side sort (Date / Name / Type) on favorites page; separate sort dropdowns for Items and Collections sections; sort functions extracted to src/lib/favorites-sort.ts; dominantTypeName added to FavoriteCollection for type sorting; fixed nested button hydration bug in FileListRow; 8 unit tests (92 total)
