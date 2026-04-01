@@ -1,23 +1,21 @@
-# Current Feature: Editor Preferences Settings
+# Current Feature: Favorites Page
 
 ## Status
-Complete
+In Progress
 
 ## Goals
-- Font size dropdown in settings
-- Tab size dropdown in settings
-- Word wrap toggle (default: on)
-- Minimap toggle (default: off)
-- Theme dropdown: vs-dark, monokai, github-dark (default: vs-dark)
-- Store preferences in JSON column `editorPreferences` on User model
-- Prisma migration created and applied (no db push)
-- Server action to update preferences
-- Settings applied to Monaco CodeEditor component
-- Auto-save on change (no save button)
-- Success toast on save
-- EditorPreferencesContext for client components
+- Add star icon button to TopBar linking to /favorites
+- Create /favorites route with protection
+- Fetch all user favorited items and collections
+- Compact list view (VS Code/terminal style, not cards)
+- Each row: type icon, title, type badge, date added
+- Separate sections for items and collections with counts
+- Click item opens ItemDrawer, click collection navigates to /collections/[id]
+- Empty state when no favorites
+- Sort by most recently favorited (updatedAt)
 
 ## Notes
+- UI style: monospace or semi-monospace font, minimal padding, high density, subtle hover states, no cards or heavy borders
 
 ## History
 

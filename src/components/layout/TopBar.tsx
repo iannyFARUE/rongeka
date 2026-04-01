@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, FolderPlus } from "lucide-react";
+import { Search, Plus, FolderPlus, Star } from "lucide-react";
 import NewItemDialog from "@/components/items/NewItemDialog";
 import NewCollectionDialog from "@/components/collections/NewCollectionDialog";
 
@@ -32,6 +32,11 @@ export default function TopBar({ onSearchClick }: { onSearchClick?: () => void }
           />
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <Link href="/dashboard/favorites">
+            <Button size="sm" variant="ghost" aria-label="Favorites">
+              <Star className="h-4 w-4" />
+            </Button>
+          </Link>
           <Button size="sm" variant="outline" onClick={() => setCollectionDialogOpen(true)}>
             <FolderPlus className="h-4 w-4" />
             New Collection
