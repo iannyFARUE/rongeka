@@ -1,12 +1,17 @@
 import { auth } from "@/auth";
 import { getProfileData } from "@/lib/db/profile";
+import { getEditorPreferences } from "@/lib/db/editor-preferences";
 import { ChangePasswordDialog } from "@/components/profile/ChangePasswordDialog";
 import { DeleteAccountDialog } from "@/components/profile/DeleteAccountDialog";
+import { EditorPreferencesForm } from "@/components/settings/EditorPreferencesForm";
 
 export default async function SettingsPage() {
   const session = await auth();
   const userId = session!.user.id;
-  const profile = await getProfileData(userId);
+  const [profile, editorPreferences] = await Promise.all([
+    getProfileData(userId),
+    getEditorPreferences(userId),
+  ]);
 
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-8">
@@ -14,6 +19,14 @@ export default async function SettingsPage() {
         <h1 className="text-xl font-semibold">Settings</h1>
         <p className="text-sm text-muted-foreground mt-1">Manage your account settings</p>
       </div>
+
+      {/* Editor Preferences */}
+      <section>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+          Editor
+        </h2>
+        <EditorPreferencesForm initial={editorPreferences} />
+      </section>
 
       {/* Account Actions */}
       <section>

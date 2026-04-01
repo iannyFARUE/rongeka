@@ -3,6 +3,7 @@
 import { useState } from "react"
 import MonacoEditor from "@monaco-editor/react"
 import { Copy, Check } from "lucide-react"
+import { useEditorPreferences } from "@/context/EditorPreferencesContext"
 
 interface CodeEditorProps {
   value: string
@@ -19,6 +20,7 @@ export default function CodeEditor({
 }: CodeEditorProps) {
   const [copied, setCopied] = useState(false)
   const [editorHeight, setEditorHeight] = useState(120)
+  const prefs = useEditorPreferences()
 
   function handleCopy() {
     navigator.clipboard.writeText(value).then(() => {
@@ -68,19 +70,20 @@ export default function CodeEditor({
           height="100%"
           value={value}
           language={normalizedLang}
-          theme="vs-dark"
+          theme={prefs.theme}
           options={{
             readOnly,
-            minimap: { enabled: false },
+            minimap: { enabled: prefs.minimap },
             scrollBeyondLastLine: false,
-            fontSize: 13,
+            fontSize: prefs.fontSize,
+            tabSize: prefs.tabSize,
             lineNumbers: readOnly ? "off" : "on",
             glyphMargin: false,
             folding: false,
             lineDecorationsWidth: readOnly ? 8 : 16,
             lineNumbersMinChars: readOnly ? 0 : 3,
             renderLineHighlight: readOnly ? "none" : "line",
-            wordWrap: "on",
+            wordWrap: prefs.wordWrap ? "on" : "off",
             padding: { top: 12, bottom: 12 },
             scrollbar: {
               vertical: "auto",
