@@ -114,7 +114,7 @@ export async function getItemsByType(
     prisma.item.count({ where }),
     prisma.item.findMany({
       where,
-      orderBy: { updatedAt: "desc" },
+      orderBy: [{ isPinned: "desc" }, { updatedAt: "desc" }],
       skip: (page - 1) * ITEMS_PER_PAGE,
       take: ITEMS_PER_PAGE,
       select: itemSelect,
@@ -273,6 +273,23 @@ export async function updateItem(
         },
       },
     });
+  });
+  return updated;
+}
+
+export async function toggleItemPin(
+  userId: string,
+  itemId: string
+): Promise<{ isPinned: boolean } | null> {
+  const item = await prisma.item.findFirst({
+    where: { id: itemId, userId },
+    select: { isPinned: true },
+  });
+  if (!item) return null;
+  const updated = await prisma.item.update({
+    where: { id: itemId, userId },
+    data: { isPinned: !item.isPinned },
+    select: { isPinned: true },
   });
   return updated;
 }

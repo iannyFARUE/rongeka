@@ -1,10 +1,20 @@
-# Current Feature
+# Current Feature: Pinned Items
 
 ## Status
+Complete
 
 ## Goals
+- Create `toggleItemPin` server action (auth-scoped, Zod validation)
+- Wire up Pin button in ItemDrawer with optimistic UI state
+- Pinned items sort to top of item listings (`/dashboard/items/[type]`)
+- Pinned items appear in the dashboard pinned section (already exists, needs live data)
+- Toast notification on pin/unpin success and error
+- Follow the Favorite Button pattern
 
 ## Notes
+- Items only (not collections)
+- Pin icon on ItemCard/ItemRow remains a static visual indicator (no click action)
+- Reference implementation: `toggleFavoriteItem` in `src/actions/favorites.ts` and `CollectionDetailActions` / ItemDrawer favorite button
 
 
 

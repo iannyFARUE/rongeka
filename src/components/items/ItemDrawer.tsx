@@ -40,7 +40,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { updateItem, deleteItem, toggleFavoriteItem } from "@/actions/items"
+import { updateItem, deleteItem, toggleFavoriteItem, toggleItemPin } from "@/actions/items"
 import { getCollectionsForPicker } from "@/actions/collections"
 import type { ItemDetail } from "@/lib/db/items"
 import { formatBytes } from "@/lib/format"
@@ -214,6 +214,18 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
     router.refresh()
   }
 
+  async function handleTogglePin() {
+    if (!item) return
+    const result = await toggleItemPin(item.id)
+    if (!result.success) {
+      toast.error(result.error)
+      return
+    }
+    setItem((prev) => prev ? { ...prev, isPinned: result.isPinned } : prev)
+    toast.success(result.isPinned ? "Item pinned" : "Item unpinned")
+    router.refresh()
+  }
+
   async function handleToggleFavorite() {
     if (!item) return
     const result = await toggleFavoriteItem(item.id)
@@ -361,6 +373,7 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
                 className="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors text-xs"
                 title="Pin"
                 disabled={!item}
+                onClick={handleTogglePin}
               >
                 <Pin
                   className="h-3.5 w-3.5"
