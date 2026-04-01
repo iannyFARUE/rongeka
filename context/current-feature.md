@@ -1,20 +1,11 @@
-# Current Feature: Pinned Items
+# Current Feature
 
 ## Status
-Complete
 
 ## Goals
-- Create `toggleItemPin` server action (auth-scoped, Zod validation)
-- Wire up Pin button in ItemDrawer with optimistic UI state
-- Pinned items sort to top of item listings (`/dashboard/items/[type]`)
-- Pinned items appear in the dashboard pinned section (already exists, needs live data)
-- Toast notification on pin/unpin success and error
-- Follow the Favorite Button pattern
 
 ## Notes
-- Items only (not collections)
-- Pin icon on ItemCard/ItemRow remains a static visual indicator (no click action)
-- Reference implementation: `toggleFavoriteItem` in `src/actions/favorites.ts` and `CollectionDetailActions` / ItemDrawer favorite button
+
 
 
 
@@ -60,4 +51,5 @@ Complete
 - **2026-03-31** — Completed Favorites Page: star icon button in TopBar links to /dashboard/favorites; protected route fetches all favorited items and collections; compact terminal-style list with type icon, title, type badge, updatedAt date; separate Items and Collections sections with counts; item click opens ItemDrawer, collection click navigates to collection page; empty state; sorted by most recently favorited (updatedAt desc); getFavoriteItems and getFavoriteCollections DB queries with FavoriteItem type extending ItemWithMeta with updatedAt
 - **2026-03-31** — Completed Favorite Toggle Button: toggleFavoriteItem and toggleFavoriteCollection server actions + DB functions (userId-scoped); Item Drawer Favorite button wired up with optimistic local state; Collection detail page Favorite button (CollectionDetailActions) wired up; CollectionCard 3-dot dropdown Favorite item wired up; all components show filled yellow star when favorited; 12 new unit tests (84 total)
 - **2026-03-31** — Completed Editor Preferences Settings: editorPreferences JSON column on User (migration); EditorPreferencesContext with useState for live updates; updateEditorPreferences server action (Zod validation, auth-scoped); EditorPreferencesForm with font size/tab size/theme dropdowns and word wrap/minimap toggles (auto-save on change, optimistic update, rollback on error); CodeEditor consumes context for theme/fontSize/tabSize/wordWrap/minimap; React cache() deduplicates DB fetch; 10 unit tests (72 total)
+- **2026-04-01** — Completed Pinned Items: toggleItemPin server action + DB function (userId-scoped); Pin button in ItemDrawer wired up with optimistic local state and toasts; pinned items sort to top of /dashboard/items/[type] listings; dashboard pinned section already used getPinnedItems(); 6 new unit tests (98 total)
 - **2026-04-01** — Completed Favorites Sorting: client-side sort (Date / Name / Type) on favorites page; separate sort dropdowns for Items and Collections sections; sort functions extracted to src/lib/favorites-sort.ts; dominantTypeName added to FavoriteCollection for type sorting; fixed nested button hydration bug in FileListRow; 8 unit tests (92 total)
