@@ -1,21 +1,11 @@
-# Current Feature: Favorites Page
+# Current Feature
 
 ## Status
-In Progress
 
 ## Goals
-- Add star icon button to TopBar linking to /favorites
-- Create /favorites route with protection
-- Fetch all user favorited items and collections
-- Compact list view (VS Code/terminal style, not cards)
-- Each row: type icon, title, type badge, date added
-- Separate sections for items and collections with counts
-- Click item opens ItemDrawer, click collection navigates to /collections/[id]
-- Empty state when no favorites
-- Sort by most recently favorited (updatedAt)
 
 ## Notes
-- UI style: monospace or semi-monospace font, minimal padding, high density, subtle hover states, no cards or heavy borders
+
 
 ## History
 
@@ -56,4 +46,5 @@ In Progress
 - **2026-03-30** — Completed Global Search / Command Palette: Cmd+K / Ctrl+K opens palette; cmdk-powered fuzzy search across all items and collections; grouped results (Items, Collections) with type icons, type colors, and collection item counts; item select opens ItemDrawer, collection select navigates to collection page; TopBar search input opens palette on click with ⌘K hint; search data pre-fetched server-side in layout; custom portal overlay (bypasses base-ui/Radix conflict with CommandDialog)
 - **2026-03-30** — Completed Pagination: URL-based ?page=N pagination on /dashboard/items/[type], /dashboard/collections, and /dashboard/collections/[id]; Pagination component with numbered pages, ellipsis, prev/next (disabled at boundaries); ITEMS_PER_PAGE=21 and COLLECTIONS_PER_PAGE=21 constants; dashboard limited to DASHBOARD_COLLECTIONS_LIMIT; out-of-range pages redirect to last valid page; only fetches records needed per page
 - **2026-03-30** — Completed Settings Page: /dashboard/settings with Change Password and Delete Account sections; "Settings" link added to sidebar user dropdown (between Profile and Sign out); Account actions removed from profile page (profile now shows user info + usage stats only)
+- **2026-03-31** — Completed Favorites Page: star icon button in TopBar links to /dashboard/favorites; protected route fetches all favorited items and collections; compact terminal-style list with type icon, title, type badge, updatedAt date; separate Items and Collections sections with counts; item click opens ItemDrawer, collection click navigates to collection page; empty state; sorted by most recently favorited (updatedAt desc); getFavoriteItems and getFavoriteCollections DB queries with FavoriteItem type extending ItemWithMeta with updatedAt
 - **2026-03-31** — Completed Editor Preferences Settings: editorPreferences JSON column on User (migration); EditorPreferencesContext with useState for live updates; updateEditorPreferences server action (Zod validation, auth-scoped); EditorPreferencesForm with font size/tab size/theme dropdowns and word wrap/minimap toggles (auto-save on change, optimistic update, rollback on error); CodeEditor consumes context for theme/fontSize/tabSize/wordWrap/minimap; React cache() deduplicates DB fetch; 10 unit tests (72 total)
