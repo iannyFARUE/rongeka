@@ -1,22 +1,10 @@
-# Current Feature: Favorite Toggle Button
+# Current Feature
 
 ## Status
-Complete
 
 ## Goals
-- Add a Favorite toggle button to the Item Drawer action bar (already has one, verify it works end-to-end)
-- Add a Favorite toggle button to the Collection detail page header
-- Add a Favorite toggle button to CollectionCard (in the grid/list views)
-- Toggling favorite persists to DB via a server action
-- UI updates optimistically (or refreshes) after toggle
 
 ## Notes
-- Items already have `isFavorite` field on the Item model
-- Collections already have `isFavorite` field on the Collection model
-- Item Drawer already has a Favorite button — verify it calls a server action and actually persists
-- Collection detail page (/dashboard/collections/[id]) has Edit/Delete/Favorite buttons — verify the Favorite button works
-- CollectionCard needs a favorite toggle (3-dot dropdown already has actions — add favorite toggle there or as a direct icon button)
-- Use existing patterns: server action returning `{ success, error }`, toast on result, router.refresh()
 
 
 ## History
