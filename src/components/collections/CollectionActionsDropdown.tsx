@@ -31,12 +31,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { updateCollection, deleteCollection } from "@/actions/collections";
+import { updateCollection, deleteCollection, toggleFavoriteCollection } from "@/actions/collections";
 
 interface Props {
   collectionId: string;
   collectionName: string;
   collectionDescription: string | null;
+  isFavorite: boolean;
   /** Called after a successful delete so parent can redirect/refresh */
   onDeleted?: () => void;
 }
@@ -45,6 +46,7 @@ export default function CollectionActionsDropdown({
   collectionId,
   collectionName,
   collectionDescription,
+  isFavorite: initialIsFavorite,
   onDeleted,
 }: Props) {
   const router = useRouter();
@@ -54,6 +56,18 @@ export default function CollectionActionsDropdown({
   const [description, setDescription] = useState(collectionDescription ?? "");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
+
+  async function handleToggleFavorite() {
+    const result = await toggleFavoriteCollection(collectionId);
+    if (!result.success) {
+      toast.error(result.error);
+      return;
+    }
+    setIsFavorite(result.isFavorite);
+    toast.success(result.isFavorite ? "Added to favorites" : "Removed from favorites");
+    router.refresh();
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -105,9 +119,12 @@ export default function CollectionActionsDropdown({
             <Pencil className="mr-2 h-4 w-4" />
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem disabled>
-            <Star className="mr-2 h-4 w-4" />
-            Favorite
+          <DropdownMenuItem onClick={handleToggleFavorite}>
+            <Star
+              className="mr-2 h-4 w-4"
+              style={isFavorite ? { fill: "#fde047", color: "#fde047" } : {}}
+            />
+            {isFavorite ? "Unfavorite" : "Favorite"}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem

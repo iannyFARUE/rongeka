@@ -40,7 +40,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { updateItem, deleteItem } from "@/actions/items"
+import { updateItem, deleteItem, toggleFavoriteItem } from "@/actions/items"
 import { getCollectionsForPicker } from "@/actions/collections"
 import type { ItemDetail } from "@/lib/db/items"
 import { formatBytes } from "@/lib/format"
@@ -214,6 +214,18 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
     router.refresh()
   }
 
+  async function handleToggleFavorite() {
+    if (!item) return
+    const result = await toggleFavoriteItem(item.id)
+    if (!result.success) {
+      toast.error(result.error)
+      return
+    }
+    setItem((prev) => prev ? { ...prev, isFavorite: result.isFavorite } : prev)
+    toast.success(result.isFavorite ? "Added to favorites" : "Removed from favorites")
+    router.refresh()
+  }
+
   async function handleDelete() {
     if (!item) return
     setDeleting(true)
@@ -337,6 +349,7 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
                 className="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors text-xs"
                 title="Favorite"
                 disabled={!item}
+                onClick={handleToggleFavorite}
               >
                 <Star
                   className="h-3.5 w-3.5"

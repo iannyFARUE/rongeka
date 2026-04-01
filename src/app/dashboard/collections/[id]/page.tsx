@@ -48,6 +48,7 @@ export default async function CollectionDetailPage({ params, searchParams }: Pag
           collectionId={collection.id}
           collectionName={collection.name}
           collectionDescription={collection.description}
+          isFavorite={collection.isFavorite}
         />
       </div>
 

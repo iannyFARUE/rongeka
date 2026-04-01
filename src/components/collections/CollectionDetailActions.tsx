@@ -24,18 +24,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { updateCollection, deleteCollection } from "@/actions/collections";
+import { updateCollection, deleteCollection, toggleFavoriteCollection } from "@/actions/collections";
 
 interface Props {
   collectionId: string;
   collectionName: string;
   collectionDescription: string | null;
+  isFavorite: boolean;
 }
 
 export default function CollectionDetailActions({
   collectionId,
   collectionName,
   collectionDescription,
+  isFavorite: initialIsFavorite,
 }: Props) {
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
@@ -44,6 +46,18 @@ export default function CollectionDetailActions({
   const [description, setDescription] = useState(collectionDescription ?? "");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
+
+  async function handleToggleFavorite() {
+    const result = await toggleFavoriteCollection(collectionId);
+    if (!result.success) {
+      toast.error(result.error);
+      return;
+    }
+    setIsFavorite(result.isFavorite);
+    toast.success(result.isFavorite ? "Added to favorites" : "Removed from favorites");
+    router.refresh();
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -90,10 +104,13 @@ export default function CollectionDetailActions({
           variant="ghost"
           size="icon"
           className="h-7 w-7"
-          disabled
-          title="Favorite (coming soon)"
+          onClick={handleToggleFavorite}
+          title={isFavorite ? "Remove from favorites" : "Add to favorites"}
         >
-          <Star className="h-4 w-4" />
+          <Star
+            className="h-4 w-4"
+            style={isFavorite ? { fill: "#fde047", color: "#fde047" } : {}}
+          />
         </Button>
         <Button
           variant="ghost"

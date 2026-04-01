@@ -82,6 +82,7 @@ export default function CollectionCard({
           collectionId={collection.id}
           collectionName={collection.name}
           collectionDescription={collection.description}
+          isFavorite={collection.isFavorite}
         />
       </div>
     </div>
