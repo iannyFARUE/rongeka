@@ -1,18 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { updateItem, deleteItem, createItem, cancelUpload } from "../items";
+import { updateItem, deleteItem, createItem, cancelUpload, toggleFavoriteItem } from "../items";
 
 vi.mock("@/auth", () => ({ auth: vi.fn() }));
-vi.mock("@/lib/db/items", () => ({ updateItem: vi.fn(), deleteItem: vi.fn(), createItem: vi.fn() }));
+vi.mock("@/lib/db/items", () => ({ updateItem: vi.fn(), deleteItem: vi.fn(), createItem: vi.fn(), toggleFavoriteItem: vi.fn() }));
 vi.mock("@/lib/r2", () => ({ deleteFromR2: vi.fn() }));
 
 import { auth } from "@/auth";
-import { updateItem as dbUpdateItem, deleteItem as dbDeleteItem, createItem as dbCreateItem } from "@/lib/db/items";
+import { updateItem as dbUpdateItem, deleteItem as dbDeleteItem, createItem as dbCreateItem, toggleFavoriteItem as dbToggleFavoriteItem } from "@/lib/db/items";
 import { deleteFromR2 } from "@/lib/r2";
 
 const mockAuth = vi.mocked(auth);
 const mockDbUpdateItem = vi.mocked(dbUpdateItem);
 const mockDbDeleteItem = vi.mocked(dbDeleteItem);
 const mockDbCreateItem = vi.mocked(dbCreateItem);
+const mockDbToggleFavoriteItem = vi.mocked(dbToggleFavoriteItem);
 const mockDeleteFromR2 = vi.mocked(deleteFromR2);
 
 const validPayload = {
@@ -405,5 +406,67 @@ describe("cancelUpload server action", () => {
     mockDeleteFromR2.mockRejectedValue(new Error("R2 unavailable"));
 
     await expect(cancelUpload("uploads/user-1/abc.pdf")).resolves.toBeUndefined();
+  });
+});
+
+// ─── toggleFavoriteItem ──────────────────────────────────────────────────────
+
+describe("toggleFavoriteItem server action", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns error when not authenticated", async () => {
+    mockAuth.mockResolvedValue(null as never);
+
+    const result = await toggleFavoriteItem("item-1");
+
+    expect(result).toEqual({ success: false, error: "Not authenticated." });
+    expect(mockDbToggleFavoriteItem).not.toHaveBeenCalled();
+  });
+
+  it("returns error when session has no user id", async () => {
+    mockAuth.mockResolvedValue({ user: {} } as never);
+
+    const result = await toggleFavoriteItem("item-1");
+
+    expect(result).toEqual({ success: false, error: "Not authenticated." });
+    expect(mockDbToggleFavoriteItem).not.toHaveBeenCalled();
+  });
+
+  it("returns error when item is not found or not owned", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+    mockDbToggleFavoriteItem.mockResolvedValue(null as never);
+
+    const result = await toggleFavoriteItem("item-1");
+
+    expect(result).toEqual({ success: false, error: "Item not found or access denied." });
+  });
+
+  it("calls dbToggleFavoriteItem with correct userId and itemId", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-abc" } } as never);
+    mockDbToggleFavoriteItem.mockResolvedValue({ isFavorite: true });
+
+    await toggleFavoriteItem("item-xyz");
+
+    expect(mockDbToggleFavoriteItem).toHaveBeenCalledWith("user-abc", "item-xyz");
+  });
+
+  it("returns success with isFavorite true when toggled on", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+    mockDbToggleFavoriteItem.mockResolvedValue({ isFavorite: true });
+
+    const result = await toggleFavoriteItem("item-1");
+
+    expect(result).toEqual({ success: true, isFavorite: true });
+  });
+
+  it("returns success with isFavorite false when toggled off", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+    mockDbToggleFavoriteItem.mockResolvedValue({ isFavorite: false });
+
+    const result = await toggleFavoriteItem("item-1");
+
+    expect(result).toEqual({ success: true, isFavorite: false });
   });
 });

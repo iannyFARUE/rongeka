@@ -276,3 +276,20 @@ export async function updateItem(
   });
   return updated;
 }
+
+export async function toggleFavoriteItem(
+  userId: string,
+  itemId: string
+): Promise<{ isFavorite: boolean } | null> {
+  const item = await prisma.item.findFirst({
+    where: { id: itemId, userId },
+    select: { isFavorite: true },
+  });
+  if (!item) return null;
+  const updated = await prisma.item.update({
+    where: { id: itemId, userId },
+    data: { isFavorite: !item.isFavorite },
+    select: { isFavorite: true },
+  });
+  return updated;
+}

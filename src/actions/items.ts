@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { auth } from "@/auth";
-import { updateItem as dbUpdateItem, deleteItem as dbDeleteItem, createItem as dbCreateItem } from "@/lib/db/items";
+import { updateItem as dbUpdateItem, deleteItem as dbDeleteItem, createItem as dbCreateItem, toggleFavoriteItem as dbToggleFavoriteItem } from "@/lib/db/items";
 import { deleteFromR2 } from "@/lib/r2";
 import type { ItemDetail } from "@/lib/db/items";
 
@@ -94,6 +94,22 @@ const UpdateItemSchema = z.object({
   tags: z.array(z.string().trim().min(1)),
   collectionIds: z.array(z.string()),
 });
+
+type ToggleFavoriteResult =
+  | { success: true; isFavorite: boolean }
+  | { success: false; error: string };
+
+export async function toggleFavoriteItem(itemId: string): Promise<ToggleFavoriteResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "Not authenticated." };
+  }
+  const result = await dbToggleFavoriteItem(session.user.id, itemId);
+  if (!result) {
+    return { success: false, error: "Item not found or access denied." };
+  }
+  return { success: true, isFavorite: result.isFavorite };
+}
 
 type DeleteItemResult = { success: true } | { success: false; error: string };
 
