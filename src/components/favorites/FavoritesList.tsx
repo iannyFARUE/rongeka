@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   Code, Sparkles, Terminal, StickyNote, File, Image, Link, Folder,
   type LucideIcon,
 } from "lucide-react";
 import ItemDrawer from "@/components/items/ItemDrawer";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { FavoriteItem, FavoriteCollection } from "@/lib/db/favorites";
+import { sortItems, sortCollections, type SortKey } from "@/lib/favorites-sort";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Code, Sparkles, Terminal, StickyNote, File, Image, Link,
@@ -31,10 +39,31 @@ interface FavoritesListProps {
   collections: FavoriteCollection[];
 }
 
+
+function SortControl({ value, onChange }: { value: SortKey; onChange: (v: SortKey) => void }) {
+  return (
+    <Select value={value} onValueChange={(v) => onChange(v as SortKey)}>
+      <SelectTrigger className="h-6 w-28 font-mono text-xs px-2">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="date" className="font-mono text-xs">Date</SelectItem>
+        <SelectItem value="name" className="font-mono text-xs">Name</SelectItem>
+        <SelectItem value="type" className="font-mono text-xs">Type</SelectItem>
+      </SelectContent>
+    </Select>
+  );
+}
+
 export default function FavoritesList({ items, collections }: FavoritesListProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [itemSort, setItemSort] = useState<SortKey>("date");
+  const [collectionSort, setCollectionSort] = useState<SortKey>("date");
   const router = useRouter();
+
+  const sortedItems = useMemo(() => sortItems(items, itemSort), [items, itemSort]);
+  const sortedCollections = useMemo(() => sortCollections(collections, collectionSort), [collections, collectionSort]);
 
   function openItem(id: string) {
     setSelectedId(id);
@@ -60,11 +89,14 @@ export default function FavoritesList({ items, collections }: FavoritesListProps
       <div className="space-y-8">
         {hasItems && (
           <section>
-            <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-2">
-              Items <span className="ml-1 opacity-60">({items.length})</span>
-            </p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
+                Items <span className="ml-1 opacity-60">({items.length})</span>
+              </p>
+              <SortControl value={itemSort} onChange={setItemSort} />
+            </div>
             <div className="border border-border rounded-md overflow-hidden divide-y divide-border">
-              {items.map((item) => {
+              {sortedItems.map((item) => {
                 const Icon = ICON_MAP[item.itemType.icon];
                 return (
                   <button
@@ -100,11 +132,14 @@ export default function FavoritesList({ items, collections }: FavoritesListProps
 
         {hasCollections && (
           <section>
-            <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-2">
-              Collections <span className="ml-1 opacity-60">({collections.length})</span>
-            </p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
+                Collections <span className="ml-1 opacity-60">({collections.length})</span>
+              </p>
+              <SortControl value={collectionSort} onChange={setCollectionSort} />
+            </div>
             <div className="border border-border rounded-md overflow-hidden divide-y divide-border">
-              {collections.map((col) => (
+              {sortedCollections.map((col) => (
                 <button
                   key={col.id}
                   onClick={() => router.push(`/dashboard/collections/${col.id}`)}

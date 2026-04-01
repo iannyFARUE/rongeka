@@ -57,9 +57,12 @@ export default function FileListRow({ item, onClick }: FileListRowProps) {
   }
 
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
-      className="group w-full flex items-center gap-4 px-4 py-3 rounded-lg border border-border bg-card hover:bg-accent/40 transition-colors text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClick() }}
+      className="group w-full flex items-center gap-4 px-4 py-3 rounded-lg border border-border bg-card hover:bg-accent/40 transition-colors text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       {/* File icon */}
       <Icon className="h-5 w-5 shrink-0 text-muted-foreground" />
@@ -105,6 +108,6 @@ export default function FileListRow({ item, onClick }: FileListRowProps) {
           <Download className="h-4 w-4" />
         </Button>
       )}
-    </button>
+    </div>
   )
 }

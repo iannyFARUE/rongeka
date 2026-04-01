@@ -10,6 +10,7 @@ export type FavoriteCollection = {
   updatedAt: Date;
   itemCount: number;
   dominantColor: string;
+  dominantTypeName: string;
 };
 
 const itemSelect = {
@@ -49,22 +50,24 @@ export async function getFavoriteCollections(userId: string): Promise<FavoriteCo
       updatedAt: true,
       itemCollections: {
         select: {
-          item: { select: { itemType: { select: { color: true } } } },
+          item: { select: { itemType: { select: { color: true, name: true } } } },
         },
       },
     },
   });
 
   return collections.map((col) => {
-    const colorCount = new Map<string, number>();
+    const typeCount = new Map<string, { count: number; color: string; name: string }>();
     for (const ic of col.itemCollections) {
-      const c = ic.item.itemType.color;
-      colorCount.set(c, (colorCount.get(c) ?? 0) + 1);
+      const { color, name } = ic.item.itemType;
+      const entry = typeCount.get(name);
+      if (entry) { entry.count++; } else { typeCount.set(name, { count: 1, color, name }); }
     }
     let dominantColor = "#6b7280";
+    let dominantTypeName = "";
     let max = 0;
-    for (const [color, count] of colorCount) {
-      if (count > max) { max = count; dominantColor = color; }
+    for (const entry of typeCount.values()) {
+      if (entry.count > max) { max = entry.count; dominantColor = entry.color; dominantTypeName = entry.name; }
     }
     return {
       id: col.id,
@@ -73,6 +76,7 @@ export async function getFavoriteCollections(userId: string): Promise<FavoriteCo
       updatedAt: col.updatedAt,
       itemCount: col.itemCollections.length,
       dominantColor,
+      dominantTypeName,
     };
   });
 }
