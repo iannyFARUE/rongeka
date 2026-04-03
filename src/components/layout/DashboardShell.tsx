@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TopBar from "@/components/layout/TopBar";
 import Sidebar from "@/components/layout/Sidebar";
 import CommandPalette, { useCommandPalette } from "@/components/layout/CommandPalette";
@@ -24,11 +24,15 @@ export default function DashboardShell({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    if (window.innerWidth < 768) setSidebarOpen(false);
+  }, []);
   const { open, setOpen } = useCommandPalette();
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
-      <TopBar onSearchClick={() => setOpen(true)} />
+      <TopBar onSearchClick={() => setOpen(true)} onMenuClick={() => setSidebarOpen(true)} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           isOpen={sidebarOpen}
