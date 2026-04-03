@@ -89,7 +89,7 @@ export async function getItemsByType(
   userId: string,
   typeSlug: string,
   page = 1
-): Promise<{ items: ItemWithMeta[]; typeName: string; typeColor: string; totalCount: number } | null> {
+): Promise<{ items: ItemWithMeta[]; typeName: string; typeColor: string; typeIcon: string; totalCount: number } | null> {
   const slugToName: Record<string, string> = {
     snippets: "snippet",
     prompts: "prompt",
@@ -105,7 +105,7 @@ export async function getItemsByType(
 
   const itemType = await prisma.itemType.findFirst({
     where: { name: typeName },
-    select: { id: true, name: true, color: true },
+    select: { id: true, name: true, color: true, icon: true },
   });
   if (!itemType) return null;
 
@@ -121,7 +121,7 @@ export async function getItemsByType(
     }),
   ]);
 
-  return { items, typeName: itemType.name, typeColor: itemType.color, totalCount };
+  return { items, typeName: itemType.name, typeColor: itemType.color, typeIcon: itemType.icon, totalCount };
 }
 
 export async function getItemById(

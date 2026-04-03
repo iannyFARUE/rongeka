@@ -7,6 +7,7 @@ import Navbar from "@/components/marketing/Navbar";
 import HeroChaosVisual from "@/components/marketing/HeroChaosVisual";
 import AiTagsDemo from "@/components/marketing/AiTagsDemo";
 import PricingSection from "@/components/marketing/PricingSection";
+import { Code, Sparkles, Search, Terminal, FolderOpen, Folder, Check } from "lucide-react";
 
 export default async function HomePage() {
   const session = await auth();
@@ -66,37 +67,37 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                icon: "💻",
+                Icon: Code,
                 color: "#3b82f6",
                 title: "Code Snippets",
                 desc: "Save reusable code with full syntax highlighting, language tags, and one-click copy.",
               },
               {
-                icon: "✨",
+                Icon: Sparkles,
                 color: "#f59e0b",
                 title: "AI Prompts",
                 desc: "Store your best system prompts and context files. Retrieve them instantly when you need them.",
               },
               {
-                icon: "⚡",
+                Icon: Search,
                 color: "#6366f1",
                 title: "Instant Search (⌘K)",
                 desc: "Cmd+K opens a fuzzy search palette. Find anything across all your items in milliseconds.",
               },
               {
-                icon: "⌨️",
+                Icon: Terminal,
                 color: "#06b6d4",
                 title: "Commands",
                 desc: "Never Google the same terminal command twice. Save, organize, and run them with context.",
               },
               {
-                icon: "📁",
+                Icon: FolderOpen,
                 color: "#94a3b8",
                 title: "Files & Docs",
                 desc: "Upload files, images, and documents alongside your text resources. Everything in one place.",
               },
               {
-                icon: "📂",
+                Icon: Folder,
                 color: "#22c55e",
                 title: "Collections",
                 desc: "Group related items into collections. React Patterns, Interview Prep, Context Files — you decide.",
@@ -107,10 +108,10 @@ export default async function HomePage() {
                 className="rounded-xl border border-border bg-muted/20 p-6 hover:bg-muted/40 transition-colors"
               >
                 <div
-                  className="w-11 h-11 rounded-lg flex items-center justify-center text-xl mb-4"
+                  className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
                   style={{ backgroundColor: feature.color + "20" }}
                 >
-                  {feature.icon}
+                  <feature.Icon className="w-5 h-5" style={{ color: feature.color }} />
                 </div>
                 <h3 className="font-semibold mb-2" style={{ color: feature.color }}>
                   {feature.title}
@@ -143,7 +144,7 @@ export default async function HomePage() {
                   "Context-aware search and recommendations",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3 text-sm text-muted-foreground">
-                    <span className="text-green-500 mt-0.5">✓</span>
+                    <Check className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
                     {item}
                   </li>
                 ))}

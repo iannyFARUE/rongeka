@@ -43,13 +43,13 @@ interface FavoritesListProps {
 function SortControl({ value, onChange }: { value: SortKey; onChange: (v: SortKey) => void }) {
   return (
     <Select value={value} onValueChange={(v) => onChange(v as SortKey)}>
-      <SelectTrigger className="h-6 w-28 font-mono text-xs px-2">
+      <SelectTrigger className="h-9 w-28 text-xs px-2">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="date" className="font-mono text-xs">Date</SelectItem>
-        <SelectItem value="name" className="font-mono text-xs">Name</SelectItem>
-        <SelectItem value="type" className="font-mono text-xs">Type</SelectItem>
+        <SelectItem value="date" className="text-xs">Date</SelectItem>
+        <SelectItem value="name" className="text-xs">Name</SelectItem>
+        <SelectItem value="type" className="text-xs">Type</SelectItem>
       </SelectContent>
     </Select>
   );
@@ -76,8 +76,8 @@ export default function FavoritesList({ items, collections }: FavoritesListProps
   if (!hasItems && !hasCollections) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
-        <p className="font-mono text-sm text-muted-foreground">No favorites yet.</p>
-        <p className="font-mono text-xs text-muted-foreground mt-1">
+        <p className="text-sm text-muted-foreground">No favorites yet.</p>
+        <p className="text-xs text-muted-foreground mt-1">
           Star items or collections to see them here.
         </p>
       </div>
@@ -90,7 +90,7 @@ export default function FavoritesList({ items, collections }: FavoritesListProps
         {hasItems && (
           <section>
             <div className="flex items-center justify-between mb-2">
-              <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
+              <p className="text-xs text-muted-foreground uppercase tracking-widest">
                 Items <span className="ml-1 opacity-60">({items.length})</span>
               </p>
               <SortControl value={itemSort} onChange={setItemSort} />
@@ -110,9 +110,9 @@ export default function FavoritesList({ items, collections }: FavoritesListProps
                         style={{ color: item.itemType.color }}
                       />
                     )}
-                    <span className="font-mono text-sm truncate flex-1">{item.title}</span>
+                    <span className="text-sm truncate flex-1">{item.title}</span>
                     <span
-                      className="font-mono text-[10px] px-1.5 py-0.5 rounded shrink-0"
+                      className="text-[10px] px-1.5 py-0.5 rounded shrink-0"
                       style={{
                         backgroundColor: `${item.itemType.color}22`,
                         color: item.itemType.color,
@@ -120,7 +120,7 @@ export default function FavoritesList({ items, collections }: FavoritesListProps
                     >
                       {item.itemType.name}
                     </span>
-                    <span className="font-mono text-xs text-muted-foreground shrink-0 tabular-nums w-20 text-right">
+                    <span className="text-xs text-muted-foreground shrink-0 tabular-nums w-20 text-right">
                       {formatDate(item.updatedAt)}
                     </span>
                   </button>
@@ -133,7 +133,7 @@ export default function FavoritesList({ items, collections }: FavoritesListProps
         {hasCollections && (
           <section>
             <div className="flex items-center justify-between mb-2">
-              <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
+              <p className="text-xs text-muted-foreground uppercase tracking-widest">
                 Collections <span className="ml-1 opacity-60">({collections.length})</span>
               </p>
               <SortControl value={collectionSort} onChange={setCollectionSort} />
@@ -149,11 +149,11 @@ export default function FavoritesList({ items, collections }: FavoritesListProps
                     className="h-3.5 w-3.5 shrink-0"
                     style={{ color: col.dominantColor }}
                   />
-                  <span className="font-mono text-sm truncate flex-1">{col.name}</span>
-                  <span className="font-mono text-xs text-muted-foreground shrink-0">
+                  <span className="text-sm truncate flex-1">{col.name}</span>
+                  <span className="text-xs text-muted-foreground shrink-0">
                     {col.itemCount} {col.itemCount === 1 ? "item" : "items"}
                   </span>
-                  <span className="font-mono text-xs text-muted-foreground shrink-0 tabular-nums w-20 text-right">
+                  <span className="text-xs text-muted-foreground shrink-0 tabular-nums w-20 text-right">
                     {formatDate(col.updatedAt)}
                   </span>
                 </button>

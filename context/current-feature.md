@@ -1,10 +1,22 @@
 # Current Feature
 
 ## Status
+In Progress
 
 ## Goals
+- Fix Navbar transparent initial state (add subtle bg before scroll)
+- Replace emoji icons in Features grid with Lucide icons
+- Replace `✓` span in AI section with `<Check>` Lucide component
+- Add `aria-hidden="true"` to chaos canvas in HeroChaosVisual
+- Remove `font-mono` from FavoritesList (use default sans-serif)
+- Increase sort dropdown touch target height to `h-9`
+- Replace tiny color pip on items type page header with Lucide type icon
+- Add visible `<label>` elements to all auth form inputs (sign-in + register)
+- Add `role="alert"` to auth form error messages
+- Add Rongeka logo + homepage link to auth layout
 
 ## Notes
+All fixes from the UI review. No new features, no DB changes.
 
 
 

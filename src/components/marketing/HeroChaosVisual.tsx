@@ -202,7 +202,7 @@ export default function HeroChaosVisual() {
           <div className="px-4 py-2 text-xs text-muted-foreground border-b border-border">
             Your knowledge today...
           </div>
-          <canvas ref={canvasRef} className="w-full h-48 block" />
+          <canvas ref={canvasRef} className="w-full h-48 block" aria-hidden="true" />
         </div>
 
         {/* Arrow */}

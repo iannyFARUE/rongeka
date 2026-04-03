@@ -5,6 +5,17 @@ import { ITEMS_PER_PAGE } from "@/lib/constants";
 import ItemsWithDrawer from "@/components/items/ItemsWithDrawer";
 import AddItemButton from "@/components/items/AddItemButton";
 import Pagination from "@/components/ui/Pagination";
+import { Code, Sparkles, Terminal, StickyNote, File, Image, Link, type LucideIcon } from "lucide-react";
+
+const TYPE_ICONS: Record<string, LucideIcon> = {
+  snippet: Code,
+  prompt: Sparkles,
+  command: Terminal,
+  note: StickyNote,
+  file: File,
+  image: Image,
+  link: Link,
+};
 
 interface PageProps {
   params: Promise<{ type: string }>;
@@ -23,6 +34,7 @@ export default async function ItemsTypePage({ params, searchParams }: PageProps)
   if (!result) notFound();
 
   const { items, typeName, typeColor, totalCount } = result;
+  const TypeIcon = TYPE_ICONS[typeName] ?? Code;
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
   if (totalCount > 0 && page > totalPages) redirect(`/dashboard/items/${type}?page=${totalPages}`);
 
@@ -30,10 +42,7 @@ export default async function ItemsTypePage({ params, searchParams }: PageProps)
     <div className="p-6 space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div
-            className="h-1 w-6 rounded-full self-start mt-2.5"
-            style={{ backgroundColor: typeColor }}
-          />
+          <TypeIcon className="w-5 h-5 shrink-0" style={{ color: typeColor }} />
           <div className="flex flex-col">
             <h1 className="text-lg font-semibold capitalize">{type}</h1>
             <span className="text-sm text-muted-foreground tabular-nums">
