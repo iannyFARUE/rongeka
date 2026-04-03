@@ -1,29 +1,10 @@
-# Current Feature: Homepage Mockup
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Create `prototypes/homepage/` with `index.html`, `styles.css`, `script.js`
-- Hero section with "chaos to order" concept: floating chaos icons (left), pulsing arrow (center), dashboard preview (right)
-- Chaos icons animate with requestAnimationFrame — drift, bounce off walls, repel from mouse cursor
-- Fixed top navbar with logo, nav links, Sign In / Get Started buttons (gets more opaque on scroll)
-- Hero text: headline with gradient, subheadline, CTA buttons
-- Features grid: 6 cards (Snippets, Prompts, Instant Search, Commands, Files & Docs, Collections) with item type accent colors
-- AI section: two columns — Pro feature checklist + code editor mockup with AI tag demo
-- Pricing section: Free vs Pro cards, yearly toggle ($8/mo or $72/yr), "Most Popular" badge on Pro
-- CTA section and footer with logo, link columns, copyright
-- Scroll fade-in animations for sections
-- Responsive: stack chaos/arrow/dashboard vertically on mobile, arrow rotates 90° on mobile
-
 ## Notes
-
-- Output is a standalone prototype, not part of the Next.js app
-- Dark theme with item type accent colors: Snippet `#3b82f6`, Prompt `#f59e0b`, Command `#06b6d4`, Note `#22c55e`, File `#64748b`, Image `#ec4899`, URL `#6366f1`
-- Dashboard preview on the right is a simplified mockup (sidebar + item cards with colored top borders)
-- Chaos icons represent: Notion, GitHub, Slack, VS Code logos + Browser tabs, Terminal, Text file, Bookmark
 
 
 
@@ -72,3 +53,4 @@ In Progress
 - **2026-03-31** — Completed Editor Preferences Settings: editorPreferences JSON column on User (migration); EditorPreferencesContext with useState for live updates; updateEditorPreferences server action (Zod validation, auth-scoped); EditorPreferencesForm with font size/tab size/theme dropdowns and word wrap/minimap toggles (auto-save on change, optimistic update, rollback on error); CodeEditor consumes context for theme/fontSize/tabSize/wordWrap/minimap; React cache() deduplicates DB fetch; 10 unit tests (72 total)
 - **2026-04-01** — Completed Pinned Items: toggleItemPin server action + DB function (userId-scoped); Pin button in ItemDrawer wired up with optimistic local state and toasts; pinned items sort to top of /dashboard/items/[type] listings; dashboard pinned section already used getPinnedItems(); 6 new unit tests (98 total)
 - **2026-04-01** — Completed Favorites Sorting: client-side sort (Date / Name / Type) on favorites page; separate sort dropdowns for Items and Collections sections; sort functions extracted to src/lib/favorites-sort.ts; dominantTypeName added to FavoriteCollection for type sorting; fixed nested button hydration bug in FileListRow; 8 unit tests (92 total)
+- **2026-04-02** — Completed Homepage Mockup: static prototype at prototypes/homepage/ (index.html, styles.css, script.js); chaos-to-order hero with canvas animation (brand icons via Simple Icons CDN, bounce + mouse repel), pulsing arrow, dashboard preview mockup; fixed navbar, gradient hero text, features grid, AI section with code editor mockup, pricing with monthly/yearly toggle, CTA, footer; scroll fade-in animations; fully responsive
