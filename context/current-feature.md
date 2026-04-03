@@ -9,6 +9,7 @@
 
 
 
+
 ## History
 
 - **2026-03-16** — Initial Next.js app scaffolded with Create Next App
@@ -54,3 +55,4 @@
 - **2026-04-01** — Completed Pinned Items: toggleItemPin server action + DB function (userId-scoped); Pin button in ItemDrawer wired up with optimistic local state and toasts; pinned items sort to top of /dashboard/items/[type] listings; dashboard pinned section already used getPinnedItems(); 6 new unit tests (98 total)
 - **2026-04-01** — Completed Favorites Sorting: client-side sort (Date / Name / Type) on favorites page; separate sort dropdowns for Items and Collections sections; sort functions extracted to src/lib/favorites-sort.ts; dominantTypeName added to FavoriteCollection for type sorting; fixed nested button hydration bug in FileListRow; 8 unit tests (92 total)
 - **2026-04-02** — Completed Homepage Mockup: static prototype at prototypes/homepage/ (index.html, styles.css, script.js); chaos-to-order hero with canvas animation (brand icons via Simple Icons CDN, bounce + mouse repel), pulsing arrow, dashboard preview mockup; fixed navbar, gradient hero text, features grid, AI section with code editor mockup, pricing with monthly/yearly toggle, CTA, footer; scroll fade-in animations; fully responsive
+- **2026-04-02** — Completed Homepage: public-facing marketing page at /; authenticated users redirected to /dashboard; Navbar (fixed, blur-on-scroll, mobile hamburger), Hero (gradient H1, two CTAs), HeroChaosVisual (canvas bouncing icons + dashboard mockup), Features Grid (6 cards, 3-col, type colors), AI Section (code mockup + IntersectionObserver tag animation), Pricing (monthly/yearly toggle, Free/Pro cards), CTA, Footer (dynamic year); buttonVariants extracted to server-safe button-variants.ts
