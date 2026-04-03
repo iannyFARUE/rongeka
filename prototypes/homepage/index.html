@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rongeka — Developer Knowledge Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ── Navbar ─────────────────────────────────────────────────── -->
+<nav class="navbar">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">⚡</div>
+    Rongeka
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#ai">AI</a>
+    <a href="#pricing">Pricing</a>
+  </div>
+  <div class="nav-actions">
+    <a href="#" class="btn btn-ghost">Sign In</a>
+    <a href="#" class="btn btn-primary">Get Started Free</a>
+  </div>
+</nav>
+
+<!-- ── Hero Text ──────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="container">
+    <span class="hero-eyebrow">Developer Knowledge Hub</span>
+    <h1>
+      Stop Losing Your<br />
+      <span class="gradient-text">Developer Knowledge</span>
+    </h1>
+    <p class="hero-sub">
+      Snippets, AI prompts, commands, notes, files, and links — all in one fast, searchable workspace. Built for developers who hate losing things.
+    </p>
+    <div class="hero-ctas">
+      <a href="#" class="btn btn-primary btn-lg">Start for Free</a>
+      <a href="#features" class="btn btn-outline btn-lg">See Features</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Chaos → Order Visual ───────────────────────────────────── -->
+<div class="hero-visual">
+  <div class="container">
+    <!-- Left: Chaos -->
+    <div class="visual-box chaos-box fade-in">
+      <div class="visual-box-label">Your knowledge today...</div>
+      <canvas id="chaosCanvas" class="chaos-canvas"></canvas>
+    </div>
+
+    <!-- Center: Arrow -->
+    <div class="arrow-container fade-in fade-in-delay-1">
+      <div class="arrow-pulse">
+        <svg width="48" height="24" viewBox="0 0 48 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 12H40M40 12L30 4M40 12L30 20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="arrow-label">Organize</span>
+    </div>
+
+    <!-- Right: Dashboard Preview -->
+    <div class="visual-box dashboard-box fade-in fade-in-delay-2">
+      <div class="visual-box-label">...with Rongeka</div>
+      <!-- Sidebar -->
+      <div class="dash-sidebar">
+        <div class="dash-nav-item active">
+          <div class="dash-nav-dot" style="background:#3b82f6"></div>
+          Snippets
+        </div>
+        <div class="dash-nav-item">
+          <div class="dash-nav-dot" style="background:#f59e0b"></div>
+          Prompts
+        </div>
+        <div class="dash-nav-item">
+          <div class="dash-nav-dot" style="background:#06b6d4"></div>
+          Commands
+        </div>
+        <div class="dash-nav-item">
+          <div class="dash-nav-dot" style="background:#22c55e"></div>
+          Notes
+        </div>
+        <div class="dash-nav-item">
+          <div class="dash-nav-dot" style="background:#ec4899"></div>
+          Images
+        </div>
+        <div class="dash-nav-item">
+          <div class="dash-nav-dot" style="background:#6366f1"></div>
+          Links
+        </div>
+      </div>
+      <!-- Item grid -->
+      <div class="dash-main">
+        <div class="dash-card" style="border-top-color:#3b82f6">
+          <div class="dash-card-title">useCallback hook</div>
+          <div class="dash-card-meta">#react #hooks</div>
+        </div>
+        <div class="dash-card" style="border-top-color:#f59e0b">
+          <div class="dash-card-title">GPT-4 system prompt</div>
+          <div class="dash-card-meta">#ai #prompt</div>
+        </div>
+        <div class="dash-card" style="border-top-color:#06b6d4">
+          <div class="dash-card-title">docker compose up</div>
+          <div class="dash-card-meta">#docker #dev</div>
+        </div>
+        <div class="dash-card" style="border-top-color:#22c55e">
+          <div class="dash-card-title">Interview notes</div>
+          <div class="dash-card-meta">#career</div>
+        </div>
+        <div class="dash-card" style="border-top-color:#3b82f6">
+          <div class="dash-card-title">Prisma relations</div>
+          <div class="dash-card-meta">#prisma #db</div>
+        </div>
+        <div class="dash-card" style="border-top-color:#6366f1">
+          <div class="dash-card-title">MDN Array docs</div>
+          <div class="dash-card-meta">#js #reference</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Features ───────────────────────────────────────────────── -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="section-eyebrow">Everything you need</span>
+      <h2>One hub. All your resources.</h2>
+      <p>Stop switching between 7 apps. Rongeka keeps everything accessible in seconds.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card fade-in">
+        <div class="feature-icon" style="background:rgba(59,130,246,0.12);">💻</div>
+        <h3 style="color:#3b82f6">Code Snippets</h3>
+        <p>Save reusable code with full syntax highlighting, language tags, and one-click copy.</p>
+      </div>
+      <div class="feature-card fade-in fade-in-delay-1">
+        <div class="feature-icon" style="background:rgba(245,158,11,0.12);">✨</div>
+        <h3 style="color:#f59e0b">AI Prompts</h3>
+        <p>Store your best system prompts and context files. Retrieve them instantly when you need them.</p>
+      </div>
+      <div class="feature-card fade-in fade-in-delay-2">
+        <div class="feature-icon" style="background:rgba(99,102,241,0.12);">⚡</div>
+        <h3 style="color:#6366f1">Instant Search</h3>
+        <p>Cmd+K opens a fuzzy search palette. Find anything across all your items in milliseconds.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon" style="background:rgba(6,182,212,0.12);">⌨</div>
+        <h3 style="color:#06b6d4">Commands</h3>
+        <p>Never Google the same terminal command twice. Save, organize, and run them with context.</p>
+      </div>
+      <div class="feature-card fade-in fade-in-delay-1">
+        <div class="feature-icon" style="background:rgba(100,116,139,0.12);">📁</div>
+        <h3 style="color:#94a3b8">Files &amp; Docs</h3>
+        <p>Upload files, images, and documents alongside your text resources. Everything in one place.</p>
+      </div>
+      <div class="feature-card fade-in fade-in-delay-2">
+        <div class="feature-icon" style="background:rgba(34,197,94,0.12);">📂</div>
+        <h3 style="color:#22c55e">Collections</h3>
+        <p>Group related items into collections. React Patterns, Interview Prep, Context Files — you decide.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── AI Section ─────────────────────────────────────────────── -->
+<section class="ai-section" id="ai">
+  <div class="container">
+    <div class="ai-left fade-in">
+      <div class="ai-badge">✨ Pro Feature</div>
+      <h2>Let AI do the heavy lifting</h2>
+      <ul class="ai-checklist">
+        <li>Auto-tag suggestions based on your content</li>
+        <li>Generate short summaries for any item</li>
+        <li>Explain code in plain language</li>
+        <li>Optimize and rewrite your AI prompts</li>
+        <li>Context-aware search and recommendations</li>
+      </ul>
+      <a href="#pricing" class="btn btn-primary btn-lg">Unlock AI Features →</a>
+    </div>
+
+    <div class="code-editor-mockup fade-in fade-in-delay-1">
+      <div class="editor-header">
+        <div class="editor-dots">
+          <div class="editor-dot" style="background:#ff5f56"></div>
+          <div class="editor-dot" style="background:#ffbd2e"></div>
+          <div class="editor-dot" style="background:#27c93f"></div>
+        </div>
+        <span class="editor-lang">typescript</span>
+      </div>
+      <div class="editor-body">
+        <div class="code-line">
+          <span class="code-num">1</span>
+          <span><span class="code-kw">async function</span> <span class="code-fn">fetchUserData</span>(<span class="code-param">userId</span>: string) {</span>
+        </div>
+        <div class="code-line">
+          <span class="code-num">2</span>
+          <span>&nbsp;&nbsp;<span class="code-kw">const</span> res = <span class="code-kw">await</span> fetch(<span class="code-str">`/api/users/<span style="color:#e06c75">${</span><span class="code-param">userId</span><span style="color:#e06c75">}</span>`</span>);</span>
+        </div>
+        <div class="code-line">
+          <span class="code-num">3</span>
+          <span>&nbsp;&nbsp;<span class="code-kw">if</span> (!res.ok) <span class="code-kw">throw new</span> <span class="code-fn">Error</span>(<span class="code-str">'Not found'</span>);</span>
+        </div>
+        <div class="code-line">
+          <span class="code-num">4</span>
+          <span>&nbsp;&nbsp;<span class="code-kw">return</span> res.<span class="code-fn">json</span>();</span>
+        </div>
+        <div class="code-line">
+          <span class="code-num">5</span>
+          <span>}</span>
+        </div>
+        <div class="code-line">
+          <span class="code-num">6</span>
+          <span class="code-comment">// Fetches user data with error handling</span>
+        </div>
+      </div>
+      <div class="ai-tags-demo">
+        <div class="ai-tags-label"><span>✨</span> AI Generated Tags</div>
+        <div class="ai-tags">
+          <span class="ai-tag" style="color:#3b82f6;border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.08);animation-delay:0.1s">#typescript</span>
+          <span class="ai-tag" style="color:#f59e0b;border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.08);animation-delay:0.25s">#async</span>
+          <span class="ai-tag" style="color:#22c55e;border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);animation-delay:0.4s">#fetch</span>
+          <span class="ai-tag" style="color:#ec4899;border-color:rgba(236,72,153,0.3);background:rgba(236,72,153,0.08);animation-delay:0.55s">#error-handling</span>
+          <span class="ai-tag" style="color:#6366f1;border-color:rgba(99,102,241,0.3);background:rgba(99,102,241,0.08);animation-delay:0.7s">#api</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Pricing ─────────────────────────────────────────────────── -->
+<section id="pricing" style="background:rgba(255,255,255,0.01)">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="section-eyebrow">Pricing</span>
+      <h2>Simple, transparent pricing</h2>
+      <p>Start free. Upgrade when you're ready for AI and unlimited resources.</p>
+    </div>
+
+    <div class="pricing-toggle fade-in">
+      <span class="toggle-label active" id="monthlyLabel">Monthly</span>
+      <button class="toggle-switch" id="pricingToggle" aria-label="Toggle yearly pricing">
+        <div class="toggle-knob"></div>
+      </button>
+      <span class="toggle-label" id="yearlyLabel">Yearly</span>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Free -->
+      <div class="pricing-card fade-in">
+        <div class="pricing-tier">Free</div>
+        <div class="pricing-price">
+          <span class="price-amount">$0</span>
+          <span class="price-period">/mo</span>
+        </div>
+        <p class="price-note">Always free. No credit card.</p>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> Up to 50 items</li>
+          <li><span class="check">✓</span> 3 collections</li>
+          <li><span class="check">✓</span> All text item types</li>
+          <li><span class="check">✓</span> Basic search</li>
+          <li><span class="check">✓</span> Command palette</li>
+          <li><span class="cross">✗</span> <span style="color:var(--text-muted)">File & image uploads</span></li>
+          <li><span class="cross">✗</span> <span style="color:var(--text-muted)">AI features</span></li>
+          <li><span class="cross">✗</span> <span style="color:var(--text-muted)">Unlimited items</span></li>
+        </ul>
+        <a href="#" class="btn btn-outline" style="width:100%;justify-content:center">Get Started Free</a>
+      </div>
+
+      <!-- Pro -->
+      <div class="pricing-card pro fade-in fade-in-delay-1">
+        <div class="popular-badge">✦ Most Popular</div>
+        <div class="pricing-tier" style="color:var(--snippet)">Pro</div>
+        <div class="pricing-price">
+          <span class="price-amount" id="proPrice">$8</span>
+          <span class="price-period" id="proPeriod">/mo</span>
+        </div>
+        <p class="price-note" id="proNote"></p>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> Unlimited items</li>
+          <li><span class="check">✓</span> Unlimited collections</li>
+          <li><span class="check">✓</span> File &amp; image uploads</li>
+          <li><span class="check">✓</span> AI auto-tagging</li>
+          <li><span class="check">✓</span> AI code explanation</li>
+          <li><span class="check">✓</span> Prompt optimizer</li>
+          <li><span class="check">✓</span> Export (JSON / ZIP)</li>
+          <li><span class="check">✓</span> Priority support</li>
+        </ul>
+        <a href="#" class="btn btn-primary" style="width:100%;justify-content:center">Get Pro</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ────────────────────────────────────────────────────── -->
+<section class="cta-section">
+  <div class="container">
+    <h2 class="fade-in">Ready to Organize Your Knowledge?</h2>
+    <p class="fade-in fade-in-delay-1">Join developers who stopped losing track of their best work.</p>
+    <a href="#" class="btn btn-primary fade-in fade-in-delay-2">Start for Free — No Credit Card</a>
+  </div>
+</section>
+
+<!-- ── Footer ────────────────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo" style="text-decoration:none">
+        <div class="nav-logo-icon">⚡</div>
+        Rongeka
+      </a>
+      <p>A developer knowledge hub for snippets, prompts, commands, notes, files, and links.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#ai">AI Features</a></li>
+        <li><a href="#">Changelog</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="#">Documentation</a></li>
+        <li><a href="#">API</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Status</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Privacy</a></li>
+        <li><a href="#">Terms</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="container">
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> Rongeka. All rights reserved.</span>
+      <span>Built for developers, by developers.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
