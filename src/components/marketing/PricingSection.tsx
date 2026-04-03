@@ -99,11 +99,11 @@ export default function PricingSection() {
           </div>
 
           {/* Pro */}
-          <div className="rounded-xl border-2 border-primary bg-background p-8 flex flex-col relative shadow-lg shadow-primary/10">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
+          <div className="rounded-xl border-2 border-[#3b82f6] bg-background p-8 flex flex-col relative shadow-lg shadow-blue-500/10">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] text-white text-xs font-semibold px-3 py-1 rounded-full">
               ✦ Most Popular
             </div>
-            <div className="text-lg font-semibold text-primary mb-1">Pro</div>
+            <div className="text-lg font-semibold text-[#3b82f6] mb-1">Pro</div>
             <div className="flex items-end gap-1 mb-1">
               <span className="text-4xl font-bold">${proMonthly}</span>
               <span className="text-muted-foreground mb-1">/mo</span>
@@ -118,7 +118,7 @@ export default function PricingSection() {
                 </li>
               ))}
             </ul>
-            <Link href="/register" className={cn(buttonVariants(), "w-full justify-center")}>
+            <Link href="/register" className={cn(buttonVariants(), "w-full justify-center bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] text-white border-0 hover:opacity-90")}>
               Get Pro
             </Link>
           </div>

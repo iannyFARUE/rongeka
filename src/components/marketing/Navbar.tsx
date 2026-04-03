@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button-variants";
+import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
@@ -58,7 +59,7 @@ export default function Navbar() {
           <Link href="/sign-in" className={buttonVariants({ variant: "ghost", size: "sm" })}>
             Sign In
           </Link>
-          <Link href="/register" className={buttonVariants({ size: "sm" })}>
+          <Link href="/register" className={cn(buttonVariants({ size: "sm" }), "bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] text-white border-0 hover:opacity-90")}>
             Get Started Free
           </Link>
         </div>
@@ -94,7 +95,7 @@ export default function Navbar() {
             <Link href="/sign-in" className={buttonVariants({ variant: "ghost", size: "sm" })}>
               Sign In
             </Link>
-            <Link href="/register" className={buttonVariants({ size: "sm" })}>
+            <Link href="/register" className={cn(buttonVariants({ size: "sm" }), "bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] text-white border-0 hover:opacity-90")}>
               Get Started Free
             </Link>
           </div>

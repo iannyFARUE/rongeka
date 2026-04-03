@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { buttonVariants } from "@/components/ui/button-variants";
+import { cn } from "@/lib/utils";
 import Navbar from "@/components/marketing/Navbar";
 import HeroChaosVisual from "@/components/marketing/HeroChaosVisual";
 import AiTagsDemo from "@/components/marketing/AiTagsDemo";
@@ -25,7 +26,7 @@ export default async function HomePage() {
           </span>
           <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
             Stop Losing Your{" "}
-            <span className="bg-gradient-to-r from-blue-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] bg-clip-text text-transparent">
               Developer Knowledge
             </span>
           </h1>
@@ -34,7 +35,7 @@ export default async function HomePage() {
             searchable workspace. Built for developers who hate losing things.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link href="/register" className={buttonVariants({ size: "lg" })}>
+            <Link href="/register" className={cn(buttonVariants({ size: "lg" }), "bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] text-white border-0 hover:opacity-90")}>
               Start for Free
             </Link>
             <a href="#features" className={buttonVariants({ size: "lg", variant: "outline" })}>
@@ -147,7 +148,7 @@ export default async function HomePage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/register" className={buttonVariants({ size: "lg" })}>
+              <Link href="/register" className={cn(buttonVariants({ size: "lg" }), "bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] text-white border-0 hover:opacity-90")}>
                 Unlock AI Features →
               </Link>
             </div>
@@ -170,7 +171,7 @@ export default async function HomePage() {
           <p className="text-muted-foreground mb-10">
             Join developers who stopped losing track of their best work.
           </p>
-          <Link href="/register" className={buttonVariants({ size: "lg" })}>
+          <Link href="/register" className={cn(buttonVariants({ size: "lg" }), "bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] text-white border-0 hover:opacity-90")}>
             Start for Free — No Credit Card
           </Link>
         </div>
