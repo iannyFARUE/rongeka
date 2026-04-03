@@ -1,22 +1,10 @@
 # Current Feature
 
 ## Status
-In Progress
 
 ## Goals
-- Fix Navbar transparent initial state (add subtle bg before scroll)
-- Replace emoji icons in Features grid with Lucide icons
-- Replace `✓` span in AI section with `<Check>` Lucide component
-- Add `aria-hidden="true"` to chaos canvas in HeroChaosVisual
-- Remove `font-mono` from FavoritesList (use default sans-serif)
-- Increase sort dropdown touch target height to `h-9`
-- Replace tiny color pip on items type page header with Lucide type icon
-- Add visible `<label>` elements to all auth form inputs (sign-in + register)
-- Add `role="alert"` to auth form error messages
-- Add Rongeka logo + homepage link to auth layout
 
 ## Notes
-All fixes from the UI review. No new features, no DB changes.
 
 
 
@@ -68,3 +56,4 @@ All fixes from the UI review. No new features, no DB changes.
 - **2026-04-01** — Completed Favorites Sorting: client-side sort (Date / Name / Type) on favorites page; separate sort dropdowns for Items and Collections sections; sort functions extracted to src/lib/favorites-sort.ts; dominantTypeName added to FavoriteCollection for type sorting; fixed nested button hydration bug in FileListRow; 8 unit tests (92 total)
 - **2026-04-02** — Completed Homepage Mockup: static prototype at prototypes/homepage/ (index.html, styles.css, script.js); chaos-to-order hero with canvas animation (brand icons via Simple Icons CDN, bounce + mouse repel), pulsing arrow, dashboard preview mockup; fixed navbar, gradient hero text, features grid, AI section with code editor mockup, pricing with monthly/yearly toggle, CTA, footer; scroll fade-in animations; fully responsive
 - **2026-04-02** — Completed Homepage: public-facing marketing page at /; authenticated users redirected to /dashboard; Navbar (fixed, blur-on-scroll, mobile hamburger), Hero (gradient H1, two CTAs), HeroChaosVisual (canvas bouncing icons + dashboard mockup), Features Grid (6 cards, 3-col, type colors), AI Section (code mockup + IntersectionObserver tag animation), Pricing (monthly/yearly toggle, Free/Pro cards), CTA, Footer (dynamic year); buttonVariants extracted to server-safe button-variants.ts
+- **2026-04-03** — Completed UI Review Fixes: Navbar initial bg-background/60 (legible before scroll); Features grid emoji → Lucide icons; AI section ✓ → Check icon; canvas aria-hidden; FavoritesList font-mono removed + sort dropdown h-9 touch target; auth layout Rongeka logo + homepage link; sign-in + register labels and role="alert" on errors; items type page header color pip → Lucide type icon
