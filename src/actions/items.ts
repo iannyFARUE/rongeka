@@ -5,6 +5,8 @@ import { auth } from "@/auth";
 import { updateItem as dbUpdateItem, deleteItem as dbDeleteItem, createItem as dbCreateItem, toggleFavoriteItem as dbToggleFavoriteItem, toggleItemPin as dbToggleItemPin } from "@/lib/db/items";
 import { deleteFromR2 } from "@/lib/r2";
 import type { ItemDetail } from "@/lib/db/items";
+import { hasReachedItemLimit, isProOnlyType } from "@/lib/usage-limits";
+import { FREE_TIER_ITEM_LIMIT } from "@/lib/constants";
 
 const ITEM_TYPES = ["snippet", "prompt", "command", "note", "link", "file", "image"] as const;
 type ItemTypeName = typeof ITEM_TYPES[number];
@@ -59,6 +61,22 @@ export async function createItem(payload: {
   }
 
   const { typeName, title, description, content, url, language, tags, collectionIds, fileKey, fileName, fileSize } = parsed.data;
+
+  const isPro = session.user.isPro;
+
+  if (!isPro && isProOnlyType(typeName)) {
+    return { success: false, error: "File and image uploads require Rongeka Pro." };
+  }
+
+  if (!isPro) {
+    const limited = await hasReachedItemLimit(session.user.id);
+    if (limited) {
+      return {
+        success: false,
+        error: `Free tier limit reached (${FREE_TIER_ITEM_LIMIT} items). Upgrade to Pro for unlimited items.`,
+      };
+    }
+  }
 
   try {
     const created = await dbCreateItem(session.user.id, {

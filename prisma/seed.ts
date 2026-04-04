@@ -23,9 +23,10 @@ async function main() {
     },
   });
 
-  // Delete existing items so the seed is safe to re-run without duplicates
+  // Delete existing items and collections so the seed is safe to re-run without duplicates
   await prisma.item.deleteMany({ where: { userId: user.id } });
-  console.log("✓ Cleared existing items for demo user");
+  await prisma.collection.deleteMany({ where: { userId: user.id } });
+  console.log("✓ Cleared existing items and collections for demo user");
 
   console.log("✓ Demo user seeded:", user.email);
 
@@ -96,8 +97,7 @@ async function main() {
   }
 
   // ─── React Patterns Collection ───────────────────────────────────
-  const existingReact = await prisma.collection.findFirst({ where: { name: "React Patterns", userId: user.id } });
-  const reactPatterns = existingReact ?? await prisma.collection.create({
+  const reactPatterns = await prisma.collection.create({
     data: {
       name: "React Patterns",
       description: "Reusable React patterns and hooks",
@@ -193,8 +193,51 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 }`,
   });
 
+  const reactItem4 = await createItem({
+    title: "Next.js Dockerfile",
+    description: "Multi-stage Dockerfile for a production Next.js app",
+    contentType: "TEXT",
+    typeName: "snippet",
+    language: "dockerfile",
+    tags: ["docker", "nextjs", "deployment"],
+    content: `FROM node:20-alpine AS base
+
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
+
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+USER nextjs
+EXPOSE 3000
+CMD ["node", "server.js"]`,
+  });
+
+  const reactItem5 = await createItem({
+    title: "Tailwind CSS Docs",
+    description: "Official Tailwind CSS v4 documentation",
+    contentType: "URL",
+    typeName: "link",
+    tags: ["tailwind", "css", "docs"],
+    url: "https://tailwindcss.com/docs",
+  });
+
   await prisma.itemCollection.createMany({
-    data: [reactItem1, reactItem2, reactItem3].map((item) => ({
+    data: [reactItem1, reactItem2, reactItem3, reactItem4, reactItem5].map((item) => ({
       itemId: item.id,
       collectionId: reactPatterns.id,
     })),
@@ -204,8 +247,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
   console.log("✓ React Patterns collection seeded");
 
   // ─── AI Workflows Collection ─────────────────────────────────────
-  const existingAi = await prisma.collection.findFirst({ where: { name: "AI Workflows", userId: user.id } });
-  const aiWorkflows = existingAi ?? await prisma.collection.create({
+  const aiWorkflows = await prisma.collection.create({
     data: {
       name: "AI Workflows",
       description: "AI prompts and workflow automations",
@@ -288,90 +330,8 @@ Show the refactored code and briefly explain each significant change.
 
   console.log("✓ AI Workflows collection seeded");
 
-  // ─── DevOps Collection ───────────────────────────────────────────
-  const existingDevops = await prisma.collection.findFirst({ where: { name: "DevOps", userId: user.id } });
-  const devops = existingDevops ?? await prisma.collection.create({
-    data: {
-      name: "DevOps",
-      description: "Infrastructure and deployment resources",
-      userId: user.id,
-    },
-  });
-
-  const devopsItem1 = await createItem({
-    title: "Next.js Dockerfile",
-    description: "Multi-stage Dockerfile for a production Next.js app",
-    contentType: "TEXT",
-    typeName: "snippet",
-    language: "dockerfile",
-    tags: ["docker", "nextjs", "deployment"],
-    content: `FROM node:20-alpine AS base
-
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
-
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN npm run build
-
-FROM base AS runner
-WORKDIR /app
-ENV NODE_ENV=production
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-USER nextjs
-EXPOSE 3000
-CMD ["node", "server.js"]`,
-  });
-
-  const devopsItem2 = await createItem({
-    title: "Deploy to Production",
-    description: "Run database migrations and restart the app in production",
-    contentType: "TEXT",
-    typeName: "command",
-    tags: ["deployment", "prisma", "production"],
-    content: `npx prisma migrate deploy && pm2 restart app`,
-  });
-
-  const devopsItem3 = await createItem({
-    title: "Neon Documentation",
-    description: "Official Neon serverless PostgreSQL documentation",
-    contentType: "URL",
-    typeName: "link",
-    tags: ["neon", "postgres", "docs"],
-    url: "https://neon.tech/docs",
-  });
-
-  const devopsItem4 = await createItem({
-    title: "Prisma Migrate Docs",
-    description: "Prisma migration workflow documentation",
-    contentType: "URL",
-    typeName: "link",
-    tags: ["prisma", "migrations", "docs"],
-    url: "https://www.prisma.io/docs/orm/prisma-migrate",
-  });
-
-  await prisma.itemCollection.createMany({
-    data: [devopsItem1, devopsItem2, devopsItem3, devopsItem4].map((item) => ({
-      itemId: item.id,
-      collectionId: devops.id,
-    })),
-    skipDuplicates: true,
-  });
-
-  console.log("✓ DevOps collection seeded");
-
   // ─── Terminal Commands Collection ────────────────────────────────
-  const existingTerminal = await prisma.collection.findFirst({ where: { name: "Terminal Commands", userId: user.id } });
-  const terminal = existingTerminal ?? await prisma.collection.create({
+  const terminal = await prisma.collection.create({
     data: {
       name: "Terminal Commands",
       description: "Useful shell commands for everyday development",
@@ -415,8 +375,17 @@ CMD ["node", "server.js"]`,
     content: `npm outdated`,
   });
 
+  const termItem5 = await createItem({
+    title: "Deploy to Production",
+    description: "Run database migrations and restart the app in production",
+    contentType: "TEXT",
+    typeName: "command",
+    tags: ["deployment", "prisma", "production"],
+    content: `npx prisma migrate deploy && pm2 restart app`,
+  });
+
   await prisma.itemCollection.createMany({
-    data: [termItem1, termItem2, termItem3, termItem4].map((item) => ({
+    data: [termItem1, termItem2, termItem3, termItem4, termItem5].map((item) => ({
       itemId: item.id,
       collectionId: terminal.id,
     })),
@@ -425,26 +394,26 @@ CMD ["node", "server.js"]`,
 
   console.log("✓ Terminal Commands collection seeded");
 
-  // ─── Design Resources Collection ─────────────────────────────────
-  const existingDesign = await prisma.collection.findFirst({ where: { name: "Design Resources", userId: user.id } });
-  const design = existingDesign ?? await prisma.collection.create({
-    data: {
-      name: "Design Resources",
-      description: "UI/UX resources and references",
-      userId: user.id,
-    },
-  });
-
-  const designItem1 = await createItem({
-    title: "Tailwind CSS Docs",
-    description: "Official Tailwind CSS v4 documentation",
+  // ─── Standalone Items (no collection) ────────────────────────────
+  await createItem({
+    title: "Neon Documentation",
+    description: "Official Neon serverless PostgreSQL documentation",
     contentType: "URL",
     typeName: "link",
-    tags: ["tailwind", "css", "docs"],
-    url: "https://tailwindcss.com/docs",
+    tags: ["neon", "postgres", "docs"],
+    url: "https://neon.tech/docs",
   });
 
-  const designItem2 = await createItem({
+  await createItem({
+    title: "Prisma Migrate Docs",
+    description: "Prisma migration workflow documentation",
+    contentType: "URL",
+    typeName: "link",
+    tags: ["prisma", "migrations", "docs"],
+    url: "https://www.prisma.io/docs/orm/prisma-migrate",
+  });
+
+  await createItem({
     title: "shadcn/ui Components",
     description: "Beautifully designed components built with Radix and Tailwind",
     contentType: "URL",
@@ -453,16 +422,7 @@ CMD ["node", "server.js"]`,
     url: "https://ui.shadcn.com",
   });
 
-  const designItem3 = await createItem({
-    title: "Radix UI Primitives",
-    description: "Unstyled, accessible UI component primitives",
-    contentType: "URL",
-    typeName: "link",
-    tags: ["radix", "accessibility", "ui"],
-    url: "https://www.radix-ui.com",
-  });
-
-  const designItem4 = await createItem({
+  await createItem({
     title: "Lucide Icons",
     description: "Beautiful & consistent open-source icon library",
     contentType: "URL",
@@ -471,16 +431,21 @@ CMD ["node", "server.js"]`,
     url: "https://lucide.dev/icons",
   });
 
-  await prisma.itemCollection.createMany({
-    data: [designItem1, designItem2, designItem3, designItem4].map((item) => ({
-      itemId: item.id,
-      collectionId: design.id,
-    })),
-    skipDuplicates: true,
+  await createItem({
+    title: "Quick Dev Note",
+    description: "Scratch pad for short notes during development",
+    contentType: "TEXT",
+    typeName: "note",
+    tags: ["notes"],
+    content: `## Dev Notes
+
+- Check Neon dashboard for query performance
+- Remember to run \`prisma migrate deploy\` before pushing to prod
+- Stripe webhook secret must be updated when switching environments`,
   });
 
-  console.log("✓ Design Resources collection seeded");
-  console.log("\n✅ Database seeded successfully");
+  console.log("✓ Standalone items seeded");
+  console.log("\n✅ Database seeded successfully (3 collections, 18 items)");
 }
 
 main()

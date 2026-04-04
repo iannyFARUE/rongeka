@@ -8,6 +8,7 @@ vi.mock("@/lib/db/collections", () => ({
   deleteCollection: vi.fn(),
   toggleFavoriteCollection: vi.fn(),
 }));
+vi.mock("@/lib/usage-limits", () => ({ hasReachedCollectionLimit: vi.fn() }));
 
 import { auth } from "@/auth";
 import {
@@ -16,12 +17,14 @@ import {
   deleteCollection as dbDeleteCollection,
   toggleFavoriteCollection as dbToggleFavoriteCollection,
 } from "@/lib/db/collections";
+import { hasReachedCollectionLimit } from "@/lib/usage-limits";
 
 const mockAuth = vi.mocked(auth);
 const mockDbCreate = vi.mocked(dbCreateCollection);
 const mockDbUpdate = vi.mocked(dbUpdateCollection);
 const mockDbDelete = vi.mocked(dbDeleteCollection);
 const mockDbToggleFavorite = vi.mocked(dbToggleFavoriteCollection);
+const mockHasReachedCollectionLimit = vi.mocked(hasReachedCollectionLimit);
 
 const mockCollection = { id: "col-1", name: "React Patterns" };
 
@@ -130,6 +133,7 @@ describe("deleteCollection server action", () => {
 describe("createCollection server action", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockHasReachedCollectionLimit.mockResolvedValue(false);
   });
 
   it("returns error when not authenticated", async () => {
@@ -192,6 +196,17 @@ describe("createCollection server action", () => {
     const result = await createCollection({ name: "React Patterns", description: "" });
 
     expect(result).toEqual({ success: false, error: "Failed to create collection." });
+  });
+
+  it("returns error when free user has reached the collection limit", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1", isPro: false } } as never);
+    mockHasReachedCollectionLimit.mockResolvedValue(true);
+
+    const result = await createCollection({ name: "New Collection", description: "" });
+
+    expect(result.success).toBe(false);
+    expect((result as { success: false; error: string }).error).toContain("Free tier limit reached");
+    expect(mockDbCreate).not.toHaveBeenCalled();
   });
 });
 

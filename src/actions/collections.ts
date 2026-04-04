@@ -2,6 +2,8 @@
 
 import { z } from "zod";
 import { auth } from "@/auth";
+import { hasReachedCollectionLimit } from "@/lib/usage-limits";
+import { FREE_TIER_COLLECTION_LIMIT } from "@/lib/constants";
 import {
   createCollection as dbCreateCollection,
   updateCollection as dbUpdateCollection,
@@ -34,6 +36,18 @@ export async function createCollection(payload: {
   const session = await auth();
   if (!session?.user?.id) {
     return { success: false, error: "Not authenticated." };
+  }
+
+  const isPro = session.user.isPro;
+
+  if (!isPro) {
+    const limited = await hasReachedCollectionLimit(session.user.id);
+    if (limited) {
+      return {
+        success: false,
+        error: `Free tier limit reached (${FREE_TIER_COLLECTION_LIMIT} collections). Upgrade to Pro for unlimited collections.`,
+      };
+    }
   }
 
   const parsed = CollectionSchema.safeParse(payload);

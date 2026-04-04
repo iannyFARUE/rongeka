@@ -1,14 +1,26 @@
-# Current Feature
+# Current Feature — Stripe Integration Phase 2: Webhooks, Feature Gating & UI
 
 ## Status
 
+In Progress
+
 ## Goals
+
+- Stripe webhook handler for `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`
+- Free tier limits enforced in `createItem` (50 item cap, Pro-only types blocked)
+- Free tier limits enforced in `createCollection` (3 collection cap)
+- Billing page at `/dashboard/billing` with checkout and portal buttons
+- "Billing" link added to sidebar user dropdown
 
 ## Notes
 
-
-
-
+- Webhook route must NOT be intercepted by auth middleware — Stripe sends unauthenticated POSTs
+- Raw body must be read via `req.text()` (not `req.json()`) for signature verification
+- Billing page reads `isPro` from DB directly (not session) for accuracy post-webhook
+- Do not expose Stripe price IDs or internal Stripe data in the UI
+- Stripe CLI required for end-to-end webhook testing (not covered by `npm test`)
+- Stripe Customer Portal must be enabled in Stripe Dashboard before portal redirect works
+- Error toasts from limit checks should include upgrade hint (action message string is sufficient)
 
 ## History
 

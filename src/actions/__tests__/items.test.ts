@@ -4,10 +4,12 @@ import { updateItem, deleteItem, createItem, cancelUpload, toggleFavoriteItem, t
 vi.mock("@/auth", () => ({ auth: vi.fn() }));
 vi.mock("@/lib/db/items", () => ({ updateItem: vi.fn(), deleteItem: vi.fn(), createItem: vi.fn(), toggleFavoriteItem: vi.fn(), toggleItemPin: vi.fn() }));
 vi.mock("@/lib/r2", () => ({ deleteFromR2: vi.fn() }));
+vi.mock("@/lib/usage-limits", () => ({ hasReachedItemLimit: vi.fn(), isProOnlyType: vi.fn() }));
 
 import { auth } from "@/auth";
 import { updateItem as dbUpdateItem, deleteItem as dbDeleteItem, createItem as dbCreateItem, toggleFavoriteItem as dbToggleFavoriteItem, toggleItemPin as dbToggleItemPin } from "@/lib/db/items";
 import { deleteFromR2 } from "@/lib/r2";
+import { hasReachedItemLimit, isProOnlyType } from "@/lib/usage-limits";
 
 const mockAuth = vi.mocked(auth);
 const mockDbUpdateItem = vi.mocked(dbUpdateItem);
@@ -16,6 +18,8 @@ const mockDbCreateItem = vi.mocked(dbCreateItem);
 const mockDbToggleFavoriteItem = vi.mocked(dbToggleFavoriteItem);
 const mockDbToggleItemPin = vi.mocked(dbToggleItemPin);
 const mockDeleteFromR2 = vi.mocked(deleteFromR2);
+const mockHasReachedItemLimit = vi.mocked(hasReachedItemLimit);
+const mockIsProOnlyType = vi.mocked(isProOnlyType);
 
 const validPayload = {
   title: "My Snippet",
@@ -208,6 +212,8 @@ describe("createItem server action", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockIsProOnlyType.mockReturnValue(false);
+    mockHasReachedItemLimit.mockResolvedValue(false);
   });
 
   it("returns error when not authenticated", async () => {
@@ -265,7 +271,7 @@ describe("createItem server action", () => {
   });
 
   it("returns validation error when file type has no fileKey", async () => {
-    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+    mockAuth.mockResolvedValue({ user: { id: "user-1", isPro: true } } as never);
 
     const result = await createItem({ ...basePayload, typeName: "file", fileKey: null });
 
@@ -275,7 +281,7 @@ describe("createItem server action", () => {
   });
 
   it("returns validation error when image type has no fileKey", async () => {
-    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+    mockAuth.mockResolvedValue({ user: { id: "user-1", isPro: true } } as never);
 
     const result = await createItem({ ...basePayload, typeName: "image", fileKey: null });
 
@@ -284,7 +290,7 @@ describe("createItem server action", () => {
   });
 
   it("accepts a file type with a valid fileKey", async () => {
-    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+    mockAuth.mockResolvedValue({ user: { id: "user-1", isPro: true } } as never);
     mockDbCreateItem.mockResolvedValue(mockItem as never);
 
     const result = await createItem({
@@ -308,7 +314,7 @@ describe("createItem server action", () => {
   });
 
   it("accepts an image type with a valid fileKey", async () => {
-    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never);
+    mockAuth.mockResolvedValue({ user: { id: "user-1", isPro: true } } as never);
     mockDbCreateItem.mockResolvedValue(mockItem as never);
 
     const result = await createItem({
@@ -320,6 +326,27 @@ describe("createItem server action", () => {
     });
 
     expect(result).toEqual({ success: true, data: mockItem });
+  });
+
+  it("returns error when free user tries to create a pro-only item type", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1", isPro: false } } as never);
+    mockIsProOnlyType.mockReturnValue(true);
+
+    const result = await createItem({ ...basePayload, typeName: "file", fileKey: "uploads/user-1/f.pdf", fileName: "f.pdf", fileSize: 100 });
+
+    expect(result).toEqual({ success: false, error: "File and image uploads require Rongeka Pro." });
+    expect(mockDbCreateItem).not.toHaveBeenCalled();
+  });
+
+  it("returns error when free user has reached the item limit", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1", isPro: false } } as never);
+    mockHasReachedItemLimit.mockResolvedValue(true);
+
+    const result = await createItem(basePayload);
+
+    expect(result.success).toBe(false);
+    expect((result as { success: false; error: string }).error).toContain("Free tier limit reached");
+    expect(mockDbCreateItem).not.toHaveBeenCalled();
   });
 
   it("calls dbCreateItem with correct userId and payload", async () => {

@@ -1,16 +1,22 @@
 import { auth } from "@/auth";
+import { prisma } from "@/lib/db";
 import { getProfileData } from "@/lib/db/profile";
 import { getEditorPreferences } from "@/lib/db/editor-preferences";
 import { ChangePasswordDialog } from "@/components/profile/ChangePasswordDialog";
 import { DeleteAccountDialog } from "@/components/profile/DeleteAccountDialog";
 import { EditorPreferencesForm } from "@/components/settings/EditorPreferencesForm";
+import { BillingActions } from "@/components/billing/BillingActions";
 
 export default async function SettingsPage() {
   const session = await auth();
   const userId = session!.user.id;
-  const [profile, editorPreferences] = await Promise.all([
+  const [profile, editorPreferences, billingUser] = await Promise.all([
     getProfileData(userId),
     getEditorPreferences(userId),
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { isPro: true, stripeSubscriptionId: true },
+    }),
   ]);
 
   return (
@@ -26,6 +32,17 @@ export default async function SettingsPage() {
           Editor
         </h2>
         <EditorPreferencesForm initial={editorPreferences} />
+      </section>
+
+      {/* Billing */}
+      <section>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+          Billing
+        </h2>
+        <BillingActions
+          isPro={billingUser?.isPro ?? false}
+          hasSubscription={!!billingUser?.stripeSubscriptionId}
+        />
       </section>
 
       {/* Account Actions */}
