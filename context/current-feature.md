@@ -1,28 +1,10 @@
-# Current Feature: Stripe Integration — Phase 1: Core Infrastructure
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Install Stripe SDK and add all required environment variables
-- Create `src/lib/stripe.ts` singleton with price ID constants
-- Extend `Session` and `JWT` types with `isPro` field
-- Update JWT callback in `src/auth.ts` to sync `isPro` from DB on every session validation
-- Add `FREE_TIER_ITEM_LIMIT` and `FREE_TIER_COLLECTION_LIMIT` constants to `src/lib/constants.ts`
-- Create `src/lib/usage-limits.ts` with `hasReachedItemLimit`, `hasReachedCollectionLimit`, and `isProOnlyType`
-- Create `src/actions/billing.ts` with `createCheckoutSession` and `createPortalSession` server actions
-- Write unit tests for usage-limits and billing action guard clauses
-- `npm run build` and `npm test` both pass
-
 ## Notes
-
-- No billing page or webhook handler in this phase — those are Phase 2
-- `STRIPE_WEBHOOK_SECRET` env var should be added to `.env.local` now even though the webhook route isn't built yet
-- `src/types/next-auth.d.ts` may already exist — check before creating
-- JWT callback always syncs `isPro` from DB (not just on `trigger === "update"`) so webhook-driven updates are reflected after reload
-- `isPro` defaults to `false` if user not found
 
 
 
@@ -76,3 +58,4 @@ In Progress
 - **2026-04-02** — Completed Homepage: public-facing marketing page at /; authenticated users redirected to /dashboard; Navbar (fixed, blur-on-scroll, mobile hamburger), Hero (gradient H1, two CTAs), HeroChaosVisual (canvas bouncing icons + dashboard mockup), Features Grid (6 cards, 3-col, type colors), AI Section (code mockup + IntersectionObserver tag animation), Pricing (monthly/yearly toggle, Free/Pro cards), CTA, Footer (dynamic year); buttonVariants extracted to server-safe button-variants.ts
 - **2026-04-03** — Completed UI Review Fixes: Navbar initial bg-background/60 (legible before scroll); Features grid emoji → Lucide icons; AI section ✓ → Check icon; canvas aria-hidden; FavoritesList font-mono removed + sort dropdown h-9 touch target; auth layout Rongeka logo + homepage link; sign-in + register labels and role="alert" on errors; items type page header color pip → Lucide type icon
 - **2026-04-03** — Completed Auth Pages Navbar + Dashboard Logo Icon: marketing Navbar added to auth layout (replaces simple logo); Navbar section links updated to /#features etc. so they work from any page; dashboard TopBar violet R badge replaced with ⚡ emoji matching the homepage Navbar
+- **2026-04-04** — Completed Stripe Integration Phase 1: Stripe SDK installed; src/lib/stripe.ts singleton + STRIPE_PRICES constants; isPro added to Session/JWT types; JWT callback syncs isPro from DB on every validation; FREE_TIER_ITEM_LIMIT (50) + FREE_TIER_COLLECTION_LIMIT (3) in constants.ts; src/lib/usage-limits.ts with hasReachedItemLimit, hasReachedCollectionLimit, isProOnlyType; src/actions/billing.ts with createCheckoutSession + createPortalSession; 15 new tests (113 total)
