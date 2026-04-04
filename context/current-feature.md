@@ -1,10 +1,28 @@
-# Current Feature
+# Current Feature: Stripe Integration — Phase 1: Core Infrastructure
 
 ## Status
 
+In Progress
+
 ## Goals
 
+- Install Stripe SDK and add all required environment variables
+- Create `src/lib/stripe.ts` singleton with price ID constants
+- Extend `Session` and `JWT` types with `isPro` field
+- Update JWT callback in `src/auth.ts` to sync `isPro` from DB on every session validation
+- Add `FREE_TIER_ITEM_LIMIT` and `FREE_TIER_COLLECTION_LIMIT` constants to `src/lib/constants.ts`
+- Create `src/lib/usage-limits.ts` with `hasReachedItemLimit`, `hasReachedCollectionLimit`, and `isProOnlyType`
+- Create `src/actions/billing.ts` with `createCheckoutSession` and `createPortalSession` server actions
+- Write unit tests for usage-limits and billing action guard clauses
+- `npm run build` and `npm test` both pass
+
 ## Notes
+
+- No billing page or webhook handler in this phase — those are Phase 2
+- `STRIPE_WEBHOOK_SECRET` env var should be added to `.env.local` now even though the webhook route isn't built yet
+- `src/types/next-auth.d.ts` may already exist — check before creating
+- JWT callback always syncs `isPro` from DB (not just on `trigger === "update"`) so webhook-driven updates are reflected after reload
+- `isPro` defaults to `false` if user not found
 
 
 
