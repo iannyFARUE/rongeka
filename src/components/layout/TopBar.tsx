@@ -19,9 +19,7 @@ export default function TopBar({ onSearchClick, onMenuClick }: { onSearchClick?:
           <Menu className="h-4 w-4" />
         </Button>
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-foreground shrink-0">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-violet-600 text-xs font-bold text-white">
-            R
-          </div>
+          <span className="text-xl">⚡</span>
           <span className="text-base">Rongeka</span>
         </Link>
         <div className="relative flex-1 max-w-lg">

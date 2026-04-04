@@ -17,11 +17,14 @@ export default function Navbar() {
   }, []);
 
   function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
-    if (href.startsWith("#")) {
-      e.preventDefault();
-      setMenuOpen(false);
-      const el = document.querySelector(href);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+    const hash = href.startsWith("/") ? href.slice(1) : href;
+    if (hash.startsWith("#")) {
+      const el = document.querySelector(hash);
+      if (el) {
+        e.preventDefault();
+        setMenuOpen(false);
+        el.scrollIntoView({ behavior: "smooth" });
+      }
     }
   }
 
@@ -42,14 +45,14 @@ export default function Navbar() {
 
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-          {(["#features", "#ai", "#pricing"] as const).map((href) => (
+          {(["/#features", "/#ai", "/#pricing"] as const).map((href) => (
             <a
               key={href}
               href={href}
               onClick={(e) => handleNavClick(e, href)}
               className="hover:text-foreground transition-colors"
             >
-              {href === "#features" ? "Features" : href === "#ai" ? "AI" : "Pricing"}
+              {href === "/#features" ? "Features" : href === "/#ai" ? "AI" : "Pricing"}
             </a>
           ))}
         </div>
@@ -78,9 +81,9 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden bg-background/95 backdrop-blur-md border-b border-border px-6 pb-6 flex flex-col gap-4">
           {[
-            { href: "#features", label: "Features" },
-            { href: "#ai", label: "AI" },
-            { href: "#pricing", label: "Pricing" },
+            { href: "/#features", label: "Features" },
+            { href: "/#ai", label: "AI" },
+            { href: "/#pricing", label: "Pricing" },
           ].map(({ href, label }) => (
             <a
               key={href}

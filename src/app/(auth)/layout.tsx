@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Navbar from "@/components/marketing/Navbar";
 
 export default function AuthLayout({
   children,
@@ -7,13 +7,8 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <div className="p-6">
-        <Link href="/" className="flex items-center gap-2 font-semibold text-lg w-fit">
-          <span className="text-xl">⚡</span>
-          <span>Rongeka</span>
-        </Link>
-      </div>
-      <div className="flex-1 flex items-center justify-center">
+      <Navbar />
+      <div className="flex-1 flex items-center justify-center pt-16">
         {children}
       </div>
     </div>
