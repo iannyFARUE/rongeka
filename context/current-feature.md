@@ -1,26 +1,10 @@
-# Current Feature — Stripe Integration Phase 2: Webhooks, Feature Gating & UI
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Stripe webhook handler for `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`
-- Free tier limits enforced in `createItem` (50 item cap, Pro-only types blocked)
-- Free tier limits enforced in `createCollection` (3 collection cap)
-- Billing page at `/dashboard/billing` with checkout and portal buttons
-- "Billing" link added to sidebar user dropdown
-
 ## Notes
-
-- Webhook route must NOT be intercepted by auth middleware — Stripe sends unauthenticated POSTs
-- Raw body must be read via `req.text()` (not `req.json()`) for signature verification
-- Billing page reads `isPro` from DB directly (not session) for accuracy post-webhook
-- Do not expose Stripe price IDs or internal Stripe data in the UI
-- Stripe CLI required for end-to-end webhook testing (not covered by `npm test`)
-- Stripe Customer Portal must be enabled in Stripe Dashboard before portal redirect works
-- Error toasts from limit checks should include upgrade hint (action message string is sufficient)
 
 ## History
 
@@ -71,3 +55,4 @@ In Progress
 - **2026-04-03** — Completed UI Review Fixes: Navbar initial bg-background/60 (legible before scroll); Features grid emoji → Lucide icons; AI section ✓ → Check icon; canvas aria-hidden; FavoritesList font-mono removed + sort dropdown h-9 touch target; auth layout Rongeka logo + homepage link; sign-in + register labels and role="alert" on errors; items type page header color pip → Lucide type icon
 - **2026-04-03** — Completed Auth Pages Navbar + Dashboard Logo Icon: marketing Navbar added to auth layout (replaces simple logo); Navbar section links updated to /#features etc. so they work from any page; dashboard TopBar violet R badge replaced with ⚡ emoji matching the homepage Navbar
 - **2026-04-04** — Completed Stripe Integration Phase 1: Stripe SDK installed; src/lib/stripe.ts singleton + STRIPE_PRICES constants; isPro added to Session/JWT types; JWT callback syncs isPro from DB on every validation; FREE_TIER_ITEM_LIMIT (50) + FREE_TIER_COLLECTION_LIMIT (3) in constants.ts; src/lib/usage-limits.ts with hasReachedItemLimit, hasReachedCollectionLimit, isProOnlyType; src/actions/billing.ts with createCheckoutSession + createPortalSession; 15 new tests (113 total)
+- **2026-04-04** — Completed Stripe Integration Phase 2: Stripe webhook handler (checkout.session.completed, customer.subscription.updated, customer.subscription.deleted) with signature verification and stripeCustomerId sync; free tier enforced in createItem (Pro-only types + 50-item cap) and createCollection (3-collection cap); BillingActions component (monthly/yearly plan cards, Manage Subscription for Pro); Billing section added to Settings page; ProUpgradeGate shown on /dashboard/items/files and /dashboard/items/images for free users; Stripe singleton refactored to lazy Proxy; seed updated to 3 collections / 18 items; 25 new tests (138 total)
