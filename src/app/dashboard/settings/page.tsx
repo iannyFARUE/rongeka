@@ -15,7 +15,7 @@ export default async function SettingsPage() {
     getEditorPreferences(userId),
     prisma.user.findUnique({
       where: { id: userId },
-      select: { isPro: true, stripeSubscriptionId: true },
+      select: { isPro: true, stripeSubscriptionId: true, subscriptionCancelAt: true },
     }),
   ]);
 
@@ -42,6 +42,7 @@ export default async function SettingsPage() {
         <BillingActions
           isPro={billingUser?.isPro ?? false}
           hasSubscription={!!billingUser?.stripeSubscriptionId}
+          cancelAt={billingUser?.subscriptionCancelAt ?? null}
         />
       </section>
 

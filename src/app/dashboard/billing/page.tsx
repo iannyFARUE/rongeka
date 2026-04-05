@@ -9,7 +9,7 @@ export default async function BillingPage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { isPro: true, stripeSubscriptionId: true },
+    select: { isPro: true, stripeSubscriptionId: true, subscriptionCancelAt: true },
   });
 
   return (
@@ -23,6 +23,7 @@ export default async function BillingPage() {
       <BillingActions
         isPro={user?.isPro ?? false}
         hasSubscription={!!user?.stripeSubscriptionId}
+        cancelAt={user?.subscriptionCancelAt ?? null}
       />
     </div>
   );

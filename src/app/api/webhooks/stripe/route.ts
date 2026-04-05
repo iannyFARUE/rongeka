@@ -49,7 +49,14 @@ export async function POST(req: Request) {
       if (user) {
         await prisma.user.update({
           where: { id: user.id },
-          data: { isPro, stripeSubscriptionId: sub.id },
+          data: {
+            isPro,
+            stripeSubscriptionId: sub.id,
+            subscriptionCancelAt:
+              sub.cancel_at_period_end && sub.cancel_at
+                ? new Date(sub.cancel_at * 1000)
+                : null,
+          },
         });
       }
       break;

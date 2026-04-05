@@ -10,9 +10,10 @@ import { createCheckoutSession, createPortalSession } from "@/actions/billing";
 interface BillingActionsProps {
   isPro: boolean;
   hasSubscription: boolean;
+  cancelAt: Date | null;
 }
 
-export function BillingActions({ isPro, hasSubscription }: BillingActionsProps) {
+export function BillingActions({ isPro, hasSubscription, cancelAt }: BillingActionsProps) {
   const [loading, setLoading] = useState<"monthly" | "yearly" | "portal" | null>(null);
 
   async function handleCheckout(plan: "monthly" | "yearly") {
@@ -44,11 +45,16 @@ export function BillingActions({ isPro, hasSubscription }: BillingActionsProps) 
       <div className="rounded-lg border border-border p-6 space-y-4">
         <div className="flex items-center gap-3">
           <h2 className="text-lg font-medium">Current Plan</h2>
-          <Badge className="bg-violet-600/20 text-violet-400 border-0">Pro</Badge>
+          <Badge className="bg-violet-500/30 text-violet-300 border-0">Pro</Badge>
         </div>
         <p className="text-sm text-muted-foreground">
           You have access to all Pro features including unlimited items, collections, file uploads, and AI tools.
         </p>
+        {cancelAt && (
+          <p className="text-sm text-amber-400">
+            Cancels on {cancelAt.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+          </p>
+        )}
         {hasSubscription && (
           <Button
             variant="outline"
