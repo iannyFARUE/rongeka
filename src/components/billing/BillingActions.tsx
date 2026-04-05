@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createCheckoutSession, createPortalSession } from "@/actions/billing";
@@ -18,7 +19,8 @@ export function BillingActions({ isPro, hasSubscription }: BillingActionsProps) 
     setLoading(plan);
     try {
       await createCheckoutSession(plan);
-    } catch {
+    } catch (e) {
+      if (isRedirectError(e)) throw e;
       toast.error("Failed to start checkout. Please try again.");
     } finally {
       setLoading(null);
@@ -29,7 +31,8 @@ export function BillingActions({ isPro, hasSubscription }: BillingActionsProps) 
     setLoading("portal");
     try {
       await createPortalSession();
-    } catch {
+    } catch (e) {
+      if (isRedirectError(e)) throw e;
       toast.error("Failed to open billing portal. Please try again.");
     } finally {
       setLoading(null);
