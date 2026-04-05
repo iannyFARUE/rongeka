@@ -10,11 +10,6 @@ import {
   Trash2,
   FolderOpen,
   Download,
-  type LucideIcon,
-} from "lucide-react"
-import CodeEditor from "@/components/items/CodeEditor"
-import MarkdownEditor from "@/components/items/MarkdownEditor"
-import {
   Code,
   Sparkles,
   Terminal,
@@ -22,7 +17,10 @@ import {
   File,
   Image,
   Link,
+  type LucideIcon,
 } from "lucide-react"
+import CodeEditor from "@/components/items/CodeEditor"
+import MarkdownEditor from "@/components/items/MarkdownEditor"
 import {
   Sheet,
   SheetContent,
