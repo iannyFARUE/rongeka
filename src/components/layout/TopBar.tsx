@@ -4,11 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, FolderPlus, Star, Menu } from "lucide-react";
+import { Search, Plus, FolderPlus, Star, Menu, Zap } from "lucide-react";
 import NewItemDialog from "@/components/items/NewItemDialog";
 import NewCollectionDialog from "@/components/collections/NewCollectionDialog";
 
-export default function TopBar({ onSearchClick, onMenuClick }: { onSearchClick?: () => void; onMenuClick?: () => void }) {
+export default function TopBar({ onSearchClick, onMenuClick, isPro }: { onSearchClick?: () => void; onMenuClick?: () => void; isPro?: boolean }) {
   const [itemDialogOpen, setItemDialogOpen] = useState(false);
   const [collectionDialogOpen, setCollectionDialogOpen] = useState(false);
 
@@ -33,6 +33,14 @@ export default function TopBar({ onSearchClick, onMenuClick }: { onSearchClick?:
           />
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          {!isPro && (
+            <Link href="/dashboard/upgrade">
+              <Button size="sm" variant="outline" className="border-[#3b82f6] text-[#3b82f6] hover:bg-[#3b82f6]/10 gap-1.5">
+                <Zap className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Upgrade</span>
+              </Button>
+            </Link>
+          )}
           <Link href="/dashboard/favorites">
             <Button size="sm" variant="ghost" aria-label="Favorites">
               <Star className="h-4 w-4" />

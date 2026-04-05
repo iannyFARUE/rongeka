@@ -5,7 +5,6 @@ import { ITEMS_PER_PAGE } from "@/lib/constants";
 import ItemsWithDrawer from "@/components/items/ItemsWithDrawer";
 import AddItemButton from "@/components/items/AddItemButton";
 import Pagination from "@/components/ui/Pagination";
-import ProUpgradeGate from "@/components/billing/ProUpgradeGate";
 import { Code, Sparkles, Terminal, StickyNote, File, Image, Link, type LucideIcon } from "lucide-react";
 
 const TYPE_ICONS: Record<string, LucideIcon> = {
@@ -33,7 +32,7 @@ export default async function ItemsTypePage({ params, searchParams }: PageProps)
 
   const PRO_SLUGS: Record<string, string> = { files: "Files", images: "Images" };
   if (PRO_SLUGS[type] && !session!.user.isPro) {
-    return <ProUpgradeGate feature={PRO_SLUGS[type]} />;
+    redirect("/dashboard/upgrade");
   }
 
   const result = await getItemsByType(userId, type, page);

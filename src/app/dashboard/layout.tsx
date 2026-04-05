@@ -26,6 +26,7 @@ export default async function DashboardLayout({
           sidebarData={sidebarData}
           searchData={searchData}
           user={{ name: session!.user.name, image: session!.user.image }}
+          isPro={session!.user.isPro ?? false}
         >
           {children}
         </DashboardShell>

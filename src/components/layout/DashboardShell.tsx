@@ -16,11 +16,13 @@ export default function DashboardShell({
   sidebarData,
   searchData,
   user,
+  isPro,
   children,
 }: {
   sidebarData: SidebarData;
   searchData: SearchData;
   user: SidebarUser;
+  isPro: boolean;
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -32,7 +34,7 @@ export default function DashboardShell({
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
-      <TopBar onSearchClick={() => setOpen(true)} onMenuClick={() => setSidebarOpen(true)} />
+      <TopBar onSearchClick={() => setOpen(true)} onMenuClick={() => setSidebarOpen(true)} isPro={isPro} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           isOpen={sidebarOpen}
