@@ -1,6 +1,12 @@
 "use client"
 
-import { FolderOpen } from "lucide-react"
+import { FolderOpen, ChevronDown } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+} from "@/components/ui/dropdown-menu"
 
 interface Collection {
   id: string
@@ -28,26 +34,35 @@ export default function CollectionPicker({ collections, selected, onChange }: Co
     }
   }
 
+  const label =
+    selected.length === 0
+      ? "None"
+      : selected.length === 1
+      ? collections.find((c) => c.id === selected[0])?.name ?? "1 selected"
+      : `${selected.length} selected`
+
   return (
-    <div className="flex flex-wrap gap-1.5">
-      {collections.map((col) => {
-        const isSelected = selected.includes(col.id)
-        return (
-          <button
+    <DropdownMenu>
+      <DropdownMenuTrigger className="flex w-full items-center justify-between gap-2 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm text-left transition-colors hover:bg-muted focus:outline-none focus-visible:border-foreground">
+        <span className="flex items-center gap-2 text-sm">
+          <FolderOpen className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <span className={selected.length === 0 ? "text-muted-foreground" : "text-foreground"}>
+            {label}
+          </span>
+        </span>
+        <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-full min-w-[200px]">
+        {collections.map((col) => (
+          <DropdownMenuCheckboxItem
             key={col.id}
-            type="button"
-            onClick={() => toggle(col.id)}
-            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs border transition-colors ${
-              isSelected
-                ? "bg-primary/10 border-primary text-primary"
-                : "bg-transparent border-border text-muted-foreground hover:border-foreground hover:text-foreground"
-            }`}
+            checked={selected.includes(col.id)}
+            onCheckedChange={() => toggle(col.id)}
           >
-            <FolderOpen className="h-3 w-3 shrink-0" />
             {col.name}
-          </button>
-        )
-      })}
-    </div>
+          </DropdownMenuCheckboxItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

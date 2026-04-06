@@ -17,6 +17,8 @@ import {
   File,
   Image,
   Link,
+  Check,
+  X,
   type LucideIcon,
 } from "lucide-react"
 import CodeEditor from "@/components/items/CodeEditor"
@@ -39,6 +41,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { updateItem, deleteItem, toggleFavoriteItem, toggleItemPin } from "@/actions/items"
+import { generateAutoTags } from "@/actions/ai"
 import { getCollectionsForPicker } from "@/actions/collections"
 import type { ItemDetail } from "@/lib/db/items"
 import { formatBytes } from "@/lib/format"
@@ -120,6 +123,10 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
+  // AI tag suggestion state
+  const [suggestedTags, setSuggestedTags] = useState<string[]>([])
+  const [suggestingTags, setSuggestingTags] = useState(false)
+
   useEffect(() => {
     if (!itemId || !open) {
       setItem(null)
@@ -177,6 +184,39 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
   function handleEditCancel() {
     setIsEditing(false)
     setEditState(null)
+    setSuggestedTags([])
+  }
+
+  async function handleSuggestTags() {
+    if (!editState?.title.trim()) {
+      toast.error("Add a title before suggesting tags.")
+      return
+    }
+    setSuggestingTags(true)
+    const result = await generateAutoTags({
+      title: editState.title,
+      content: editState.content || undefined,
+    })
+    setSuggestingTags(false)
+    if (!result.success) {
+      toast.error(result.error)
+      return
+    }
+    setSuggestedTags(result.tags)
+  }
+
+  function acceptTag(tag: string) {
+    if (!editState) return
+    const existing = editState.tags.split(",").map((t) => t.trim()).filter(Boolean)
+    if (!existing.includes(tag)) {
+      const newTags = existing.length > 0 ? `${editState.tags.trimEnd().replace(/,\s*$/, "")}, ${tag}` : tag
+      setField("tags", newTags)
+    }
+    setSuggestedTags((prev) => prev.filter((t) => t !== tag))
+  }
+
+  function rejectTag(tag: string) {
+    setSuggestedTags((prev) => prev.filter((t) => t !== tag))
   }
 
   async function handleEditSave() {
@@ -628,9 +668,22 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
 
               {/* Tags */}
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Tags
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    Tags
+                  </label>
+                  {editState.title.trim() && (
+                    <button
+                      type="button"
+                      onClick={handleSuggestTags}
+                      disabled={suggestingTags}
+                      className="flex items-center gap-1 px-2 py-0.5 rounded text-xs text-violet-400 hover:text-violet-300 hover:bg-violet-500/10 transition-colors disabled:opacity-50"
+                    >
+                      <Sparkles className="h-3 w-3" />
+                      {suggestingTags ? "Suggesting…" : "Suggest Tags"}
+                    </button>
+                  )}
+                </div>
                 <input
                   className="w-full bg-muted/50 border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
                   value={editState.tags}
@@ -638,6 +691,34 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
                   placeholder="react, hooks, typescript"
                 />
                 <p className="text-xs text-muted-foreground">Comma-separated</p>
+                {suggestedTags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-0.5">
+                    {suggestedTags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-muted border border-border"
+                      >
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => acceptTag(tag)}
+                          className="text-green-500 hover:text-green-400 transition-colors"
+                          aria-label={`Accept tag ${tag}`}
+                        >
+                          <Check className="h-3 w-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => rejectTag(tag)}
+                          className="text-muted-foreground hover:text-foreground transition-colors"
+                          aria-label={`Reject tag ${tag}`}
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Collections */}

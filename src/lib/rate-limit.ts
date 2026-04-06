@@ -4,10 +4,11 @@ import { Redis } from "@upstash/redis";
 // ─── Limits ─────────────────────────────────────────────────────────────────
 
 const LIMITERS = {
-  login:          { requests: 5, window: "15 m" },
-  register:       { requests: 3, window: "1 h"  },
-  forgotPassword: { requests: 3, window: "1 h"  },
-  resetPassword:  { requests: 5, window: "15 m" },
+  login:          { requests: 5,  window: "15 m" },
+  register:       { requests: 3,  window: "1 h"  },
+  forgotPassword: { requests: 3,  window: "1 h"  },
+  resetPassword:  { requests: 5,  window: "15 m" },
+  aiSuggestTags:  { requests: 20, window: "1 h"  },
 } as const;
 
 type LimiterKey = keyof typeof LIMITERS;
