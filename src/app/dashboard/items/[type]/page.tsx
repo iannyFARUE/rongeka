@@ -74,6 +74,7 @@ export default async function ItemsTypePage({ params, searchParams }: PageProps)
                 : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
             }
             variant={typeName === "image" ? "gallery" : typeName === "file" ? "file-list" : "list"}
+
           />
           <Pagination currentPage={page} totalPages={totalPages} />
         </>
