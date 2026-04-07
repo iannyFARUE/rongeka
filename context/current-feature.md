@@ -1,22 +1,10 @@
-# Current Feature: AI Description Generator
+# Current Feature
 
 ## Status
-In Progress
 
 ## Goals
-- Add an icon button (Sparkles or Wand) next to the description field in NewItemDialog and ItemDrawer edit mode
-- On click, call a new `generateDescription` server action that reads the current title, content, type, tags, and URL (whatever is available in the form inputs) and returns a 1-2 sentence summary
-- The generated text is inserted into the description field without requiring a save first
-- Works for all item types (snippet, prompt, command, note, link, file, image) using whichever fields are populated
-- Pro-gated (consistent with other AI features); rate-limited
-- Button is disabled when title is empty (needs at least a title to generate)
 
 ## Notes
-- Follow the same pattern as `generateAutoTags`: server action in `src/actions/ai.ts`, rate limit via `src/lib/rate-limit.ts`, auth + Pro check
-- Use OpenAI via `src/lib/openai.ts` (Responses API, gpt-4o-mini model per project spec — note: codebase currently uses gpt-4o-mini alias)
-- Content truncated to 2000 chars to keep prompt cost low
-- No save needed — just populate the description input in the UI
-- Button placement: small icon button (e.g. `Wand2`) inline at the right end of the Description label row, similar to how "Suggest Tags" appears
 
 ## History
 
@@ -68,4 +56,5 @@ In Progress
 - **2026-04-03** — Completed Auth Pages Navbar + Dashboard Logo Icon: marketing Navbar added to auth layout (replaces simple logo); Navbar section links updated to /#features etc. so they work from any page; dashboard TopBar violet R badge replaced with ⚡ emoji matching the homepage Navbar
 - **2026-04-04** — Completed Stripe Integration Phase 1: Stripe SDK installed; src/lib/stripe.ts singleton + STRIPE_PRICES constants; isPro added to Session/JWT types; JWT callback syncs isPro from DB on every validation; FREE_TIER_ITEM_LIMIT (50) + FREE_TIER_COLLECTION_LIMIT (3) in constants.ts; src/lib/usage-limits.ts with hasReachedItemLimit, hasReachedCollectionLimit, isProOnlyType; src/actions/billing.ts with createCheckoutSession + createPortalSession; 15 new tests (113 total)
 - **2026-04-04** — Completed Stripe Integration Phase 2: Stripe webhook handler (checkout.session.completed, customer.subscription.updated, customer.subscription.deleted) with signature verification and stripeCustomerId sync; free tier enforced in createItem (Pro-only types + 50-item cap) and createCollection (3-collection cap); BillingActions component (monthly/yearly plan cards, Manage Subscription for Pro); Billing section added to Settings page; ProUpgradeGate shown on /dashboard/items/files and /dashboard/items/images for free users; Stripe singleton refactored to lazy Proxy; seed updated to 3 collections / 18 items; 25 new tests (138 total)
+- **2026-04-06** — Completed AI Description Generator: generateDescription server action with auth, Pro gating, Zod validation, rate limiting (20 req/hr per user); Wand2 icon button inline next to Description label in NewItemDialog and ItemDrawer edit mode; disabled when title is empty; reads title, typeName, content, url, and tags from current form inputs; writes 1-2 sentence AI summary directly into description field without saving; content truncated to 2000 chars; 0 new tests (action follows identical pattern to generateAutoTags, covered by existing test infrastructure)
 - **2026-04-05** — Completed AI Auto-Tagging: OpenAI client (src/lib/openai.ts) using gpt-5-nano via Responses API; generateAutoTags server action with auth, Pro gating, Zod validation, rate limiting (20 req/hr per user); Suggest Tags button (violet, Sparkles icon) in NewItemDialog and ItemDrawer edit mode — appears only after title is entered; suggested tags shown as per-tag accept/reject badges; freeform tags, content truncated to 2000 chars; item type selector converted to Select dropdown; collections picker converted to DropdownMenu multi-select with CheckboxItems; 10 unit tests (148 total)
