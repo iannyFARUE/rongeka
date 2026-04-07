@@ -147,6 +147,67 @@ export async function explainCode(payload: {
   }
 }
 
+// ─── Optimize Prompt ─────────────────────────────────────────────────────────
+
+const OptimizePromptSchema = z.object({
+  content: z.string().trim().min(1, "Content is required"),
+});
+
+type OptimizePromptResult =
+  | { success: true; optimizedContent: string }
+  | { success: false; error: string };
+
+export async function optimizePrompt(payload: {
+  content: string;
+}): Promise<OptimizePromptResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "Not authenticated." };
+  }
+
+  if (!session.user.isPro) {
+    return { success: false, error: "AI features require a Pro subscription." };
+  }
+
+  const parsed = OptimizePromptSchema.safeParse(payload);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues.map((e) => e.message).join(", ") };
+  }
+
+  const { success: rateLimitOk, reset } = await checkRateLimit(
+    "aiOptimizePrompt",
+    session.user.id
+  );
+  if (!rateLimitOk) {
+    const minutes = Math.max(1, Math.ceil((reset - Date.now()) / 60_000));
+    return { success: false, error: `Rate limit reached. Try again in ${minutes} minute${minutes !== 1 ? "s" : ""}.` };
+  }
+
+  const { content } = parsed.data;
+  const truncatedContent = content.slice(0, 2000);
+
+  try {
+    const client = getOpenAIClient();
+    const response = await client.responses.create({
+      model: AI_MODEL,
+      instructions:
+        "You are an expert AI prompt engineer. Rewrite the given prompt to be clearer, more specific, and more effective for use with large language models. Preserve the original intent and tone. Return only the improved prompt text — no preamble, no explanation, no quotes.",
+      input: truncatedContent,
+    });
+
+    const optimizedContent = response.output_text.trim();
+    if (!optimizedContent) {
+      return { success: false, error: "AI returned an empty result." };
+    }
+
+    return { success: true, optimizedContent };
+  } catch {
+    return { success: false, error: "AI service error. Please try again." };
+  }
+}
+
+// ─── Generate Auto Tags ───────────────────────────────────────────────────────
+
 const GenerateAutoTagsSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
   content: z.string().optional(),

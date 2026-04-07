@@ -42,7 +42,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { updateItem, deleteItem, toggleFavoriteItem, toggleItemPin } from "@/actions/items"
-import { generateAutoTags, generateDescription, explainCode } from "@/actions/ai"
+import { generateAutoTags, generateDescription, explainCode, optimizePrompt } from "@/actions/ai"
 import { getCollectionsForPicker } from "@/actions/collections"
 import type { ItemDetail } from "@/lib/db/items"
 import { formatBytes } from "@/lib/format"
@@ -136,12 +136,17 @@ export default function ItemDrawer({ itemId, open, onClose, isPro }: ItemDrawerP
   const [explanation, setExplanation] = useState<string | null>(null)
   const [isExplaining, setIsExplaining] = useState(false)
 
+  // AI optimize prompt state
+  const [optimizedContent, setOptimizedContent] = useState<string | null>(null)
+  const [isOptimizing, setIsOptimizing] = useState(false)
+
   useEffect(() => {
     if (!itemId || !open) {
       setItem(null)
       setIsEditing(false)
       setEditState(null)
       setExplanation(null)
+      setOptimizedContent(null)
       return
     }
 
@@ -211,6 +216,26 @@ export default function ItemDrawer({ itemId, open, onClose, isPro }: ItemDrawerP
       return
     }
     setExplanation(result.explanation)
+  }
+
+  async function handleOptimize() {
+    if (!item?.content) return
+    setIsOptimizing(true)
+    const result = await optimizePrompt({ content: item.content })
+    setIsOptimizing(false)
+    if (!result.success) {
+      toast.error(result.error)
+      return
+    }
+    setOptimizedContent(result.optimizedContent)
+  }
+
+  function handleAcceptOptimized(content: string) {
+    if (!item) return
+    setEditState({ ...itemToEditState(item), content })
+    setIsEditing(true)
+    setOptimizedContent(null)
+    getCollectionsForPicker().then(setCollections)
   }
 
   async function handleGenerateDescription() {
@@ -579,7 +604,16 @@ export default function ItemDrawer({ itemId, open, onClose, isPro }: ItemDrawerP
                       explanation={explanation}
                     />
                   ) : MARKDOWN_TYPES.has(typeName) ? (
-                    <MarkdownEditor value={item.content} readOnly />
+                    <MarkdownEditor
+                      value={item.content}
+                      readOnly
+                      isPro={isPro}
+                      onOptimize={typeName === "prompt" ? handleOptimize : undefined}
+                      isOptimizing={isOptimizing}
+                      optimizedContent={optimizedContent}
+                      onAcceptOptimized={handleAcceptOptimized}
+                      onDiscardOptimized={() => setOptimizedContent(null)}
+                    />
                   ) : (
                     <pre className="text-xs text-foreground whitespace-pre-wrap font-mono leading-relaxed bg-muted/50 rounded-md p-4 overflow-x-auto">
                       {item.content}
