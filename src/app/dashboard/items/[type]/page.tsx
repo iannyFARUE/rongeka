@@ -29,6 +29,7 @@ export default async function ItemsTypePage({ params, searchParams }: PageProps)
 
   const session = await auth();
   const userId = session!.user.id;
+  const isPro = session!.user.isPro ?? false;
 
   const PRO_SLUGS: Record<string, string> = { files: "Files", images: "Images" };
   if (PRO_SLUGS[type] && !session!.user.isPro) {
@@ -66,6 +67,7 @@ export default async function ItemsTypePage({ params, searchParams }: PageProps)
         <>
           <ItemsWithDrawer
             items={items}
+            isPro={isPro}
             className={
               typeName === "image"
                 ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"

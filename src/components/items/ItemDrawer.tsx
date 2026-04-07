@@ -42,7 +42,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { updateItem, deleteItem, toggleFavoriteItem, toggleItemPin } from "@/actions/items"
-import { generateAutoTags, generateDescription } from "@/actions/ai"
+import { generateAutoTags, generateDescription, explainCode } from "@/actions/ai"
 import { getCollectionsForPicker } from "@/actions/collections"
 import type { ItemDetail } from "@/lib/db/items"
 import { formatBytes } from "@/lib/format"
@@ -81,6 +81,7 @@ interface ItemDrawerProps {
   itemId: string | null
   open: boolean
   onClose: () => void
+  isPro?: boolean
 }
 
 interface EditState {
@@ -105,7 +106,7 @@ function itemToEditState(item: ItemDetail): EditState {
   }
 }
 
-export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
+export default function ItemDrawer({ itemId, open, onClose, isPro }: ItemDrawerProps) {
   const router = useRouter()
   const [item, setItem] = useState<ItemDetail | null>(null)
   const [loading, setLoading] = useState(false)
@@ -131,11 +132,16 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
   // AI description generation state
   const [generatingDescription, setGeneratingDescription] = useState(false)
 
+  // AI explain state
+  const [explanation, setExplanation] = useState<string | null>(null)
+  const [isExplaining, setIsExplaining] = useState(false)
+
   useEffect(() => {
     if (!itemId || !open) {
       setItem(null)
       setIsEditing(false)
       setEditState(null)
+      setExplanation(null)
       return
     }
 
@@ -189,6 +195,22 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
     setIsEditing(false)
     setEditState(null)
     setSuggestedTags([])
+  }
+
+  async function handleExplain() {
+    if (!item?.content) return
+    setIsExplaining(true)
+    const result = await explainCode({
+      content: item.content,
+      language: item.language ?? undefined,
+      typeName: item.itemType.name,
+    })
+    setIsExplaining(false)
+    if (!result.success) {
+      toast.error(result.error)
+      return
+    }
+    setExplanation(result.explanation)
   }
 
   async function handleGenerateDescription() {
@@ -551,6 +573,10 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
                       value={item.content}
                       language={item.language ?? "plaintext"}
                       readOnly
+                      isPro={isPro}
+                      onExplain={handleExplain}
+                      isExplaining={isExplaining}
+                      explanation={explanation}
                     />
                   ) : MARKDOWN_TYPES.has(typeName) ? (
                     <MarkdownEditor value={item.content} readOnly />

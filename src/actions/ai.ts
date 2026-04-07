@@ -79,6 +79,74 @@ export async function generateDescription(payload: {
   }
 }
 
+// ─── Explain Code ────────────────────────────────────────────────────────────
+
+const ExplainCodeSchema = z.object({
+  content: z.string().trim().min(1, "Content is required"),
+  language: z.string().optional(),
+  typeName: z.string().optional(),
+});
+
+type ExplainCodeResult =
+  | { success: true; explanation: string }
+  | { success: false; error: string };
+
+export async function explainCode(payload: {
+  content: string;
+  language?: string;
+  typeName?: string;
+}): Promise<ExplainCodeResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "Not authenticated." };
+  }
+
+  if (!session.user.isPro) {
+    return { success: false, error: "AI features require a Pro subscription." };
+  }
+
+  const parsed = ExplainCodeSchema.safeParse(payload);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues.map((e) => e.message).join(", ") };
+  }
+
+  const { success: rateLimitOk, reset } = await checkRateLimit(
+    "aiExplainCode",
+    session.user.id
+  );
+  if (!rateLimitOk) {
+    const minutes = Math.max(1, Math.ceil((reset - Date.now()) / 60_000));
+    return { success: false, error: `Rate limit reached. Try again in ${minutes} minute${minutes !== 1 ? "s" : ""}.` };
+  }
+
+  const { content, language, typeName } = parsed.data;
+  const truncatedContent = content.slice(0, 2000);
+
+  const parts: string[] = [];
+  if (typeName) parts.push(`Type: ${typeName}`);
+  if (language) parts.push(`Language: ${language}`);
+  parts.push(`Code:\n${truncatedContent}`);
+
+  try {
+    const client = getOpenAIClient();
+    const response = await client.responses.create({
+      model: AI_MODEL,
+      instructions:
+        "You are a developer tool assistant. Explain the provided code or command concisely in 200-300 words. Cover what it does, key concepts it uses, and any important caveats. Use plain prose — no markdown headings, no bullet lists. Return only the explanation text.",
+      input: parts.join("\n"),
+    });
+
+    const explanation = response.output_text.trim();
+    if (!explanation) {
+      return { success: false, error: "AI returned an empty explanation." };
+    }
+
+    return { success: true, explanation };
+  } catch {
+    return { success: false, error: "AI service error. Please try again." };
+  }
+}
+
 const GenerateAutoTagsSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
   content: z.string().optional(),
