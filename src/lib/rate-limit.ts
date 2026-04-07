@@ -11,6 +11,7 @@ const LIMITERS = {
   aiSuggestTags:       { requests: 20, window: "1 h"  },
   aiGenerateDescription: { requests: 20, window: "1 h"  },
   aiExplainCode:         { requests: 20, window: "1 h"  },
+  aiOptimizePrompt:      { requests: 20, window: "1 h"  },
 } as const;
 
 type LimiterKey = keyof typeof LIMITERS;

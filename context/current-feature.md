@@ -1,10 +1,26 @@
-# Current Feature
+# Current Feature: AI Prompt Optimizer
 
 ## Status
 
+In Progress
+
 ## Goals
 
+- Add an "Optimize" button in the MarkdownEditor header for prompt-type items (read view only in ItemDrawer), mirroring the "Explain" button pattern on CodeEditor
+- Implement `optimizePrompt` server action with auth, Pro gating, Zod validation, and rate limiting (20 req/hr per user)
+- Send the current prompt content to OpenAI and return a refined version
+- After optimization returns, show a diff/preview UI asking the user whether to accept or reject the updated prompt (similar to the auto-tag accept/reject badge pattern)
+- Free users see a Crown icon + tooltip instead of the active button
+- Thread `isPro` through to MarkdownEditor the same way it is threaded to CodeEditor
+
 ## Notes
+
+- Follow the exact same pattern as `explainCode` (src/actions/ai.ts) and the Explain button in CodeEditor
+- Button placement: inside the MarkdownEditor header, right side (next to the existing Copy button)
+- Only show in read (non-edit) mode inside ItemDrawer, and only for `prompt` item type
+- Use OpenAI `gpt-4o-mini` via the Responses API (same as other AI actions)
+- Accept/reject UX: after optimization arrives, show two buttons — "Use this" (replaces content and exits read mode into edit mode with new content pre-filled) and "Discard" (closes the suggestion)
+- Write unit tests for the server action (validation, auth, Pro gate, rate limit branches)
 
 ## History
 
