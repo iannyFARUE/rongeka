@@ -1,10 +1,22 @@
-# Current Feature
+# Current Feature: AI Description Generator
 
 ## Status
+In Progress
 
 ## Goals
+- Add an icon button (Sparkles or Wand) next to the description field in NewItemDialog and ItemDrawer edit mode
+- On click, call a new `generateDescription` server action that reads the current title, content, type, tags, and URL (whatever is available in the form inputs) and returns a 1-2 sentence summary
+- The generated text is inserted into the description field without requiring a save first
+- Works for all item types (snippet, prompt, command, note, link, file, image) using whichever fields are populated
+- Pro-gated (consistent with other AI features); rate-limited
+- Button is disabled when title is empty (needs at least a title to generate)
 
 ## Notes
+- Follow the same pattern as `generateAutoTags`: server action in `src/actions/ai.ts`, rate limit via `src/lib/rate-limit.ts`, auth + Pro check
+- Use OpenAI via `src/lib/openai.ts` (Responses API, gpt-4o-mini model per project spec — note: codebase currently uses gpt-4o-mini alias)
+- Content truncated to 2000 chars to keep prompt cost low
+- No save needed — just populate the description input in the UI
+- Button placement: small icon button (e.g. `Wand2`) inline at the right end of the Description label row, similar to how "Suggest Tags" appears
 
 ## History
 

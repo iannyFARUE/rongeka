@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { Sparkles, Check, X } from "lucide-react"
+import { Sparkles, Check, X, Wand2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { createItem, cancelUpload } from "@/actions/items"
-import { generateAutoTags } from "@/actions/ai"
+import { generateAutoTags, generateDescription } from "@/actions/ai"
 import { getCollectionsForPicker } from "@/actions/collections"
 import MarkdownEditor from "@/components/items/MarkdownEditor"
 import FileUpload, { type UploadedFile } from "@/components/items/FileUpload"
@@ -63,6 +63,7 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
   const [collectionIds, setCollectionIds] = useState<string[]>([])
   const [suggestedTags, setSuggestedTags] = useState<string[]>([])
   const [suggestingTags, setSuggestingTags] = useState(false)
+  const [generatingDescription, setGeneratingDescription] = useState(false)
 
   useEffect(() => {
     if (open) {
@@ -123,6 +124,28 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
     toast.success("Item created")
     router.refresh()
     handleClose()
+  }
+
+  async function handleGenerateDescription() {
+    if (!title.trim()) {
+      toast.error("Add a title before generating a description.")
+      return
+    }
+    setGeneratingDescription(true)
+    const tagList = tags.split(",").map((t) => t.trim()).filter(Boolean)
+    const result = await generateDescription({
+      title,
+      typeName,
+      content: content || undefined,
+      url: url || undefined,
+      tags: tagList.length > 0 ? tagList : undefined,
+    })
+    setGeneratingDescription(false)
+    if (!result.success) {
+      toast.error(result.error)
+      return
+    }
+    setDescription(result.description)
   }
 
   async function handleSuggestTags() {
@@ -205,9 +228,21 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
 
           {/* Description */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Description
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                Description
+              </label>
+              <button
+                type="button"
+                onClick={handleGenerateDescription}
+                disabled={generatingDescription || !title.trim()}
+                className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                title="Generate description with AI"
+              >
+                <Wand2 className="h-3 w-3" />
+                {generatingDescription ? "Generating…" : "Generate"}
+              </button>
+            </div>
             <textarea
               className={`${inputClass} resize-none`}
               rows={2}

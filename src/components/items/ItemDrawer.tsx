@@ -19,6 +19,7 @@ import {
   Link,
   Check,
   X,
+  Wand2,
   type LucideIcon,
 } from "lucide-react"
 import CodeEditor from "@/components/items/CodeEditor"
@@ -41,7 +42,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { updateItem, deleteItem, toggleFavoriteItem, toggleItemPin } from "@/actions/items"
-import { generateAutoTags } from "@/actions/ai"
+import { generateAutoTags, generateDescription } from "@/actions/ai"
 import { getCollectionsForPicker } from "@/actions/collections"
 import type { ItemDetail } from "@/lib/db/items"
 import { formatBytes } from "@/lib/format"
@@ -127,6 +128,9 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
   const [suggestedTags, setSuggestedTags] = useState<string[]>([])
   const [suggestingTags, setSuggestingTags] = useState(false)
 
+  // AI description generation state
+  const [generatingDescription, setGeneratingDescription] = useState(false)
+
   useEffect(() => {
     if (!itemId || !open) {
       setItem(null)
@@ -185,6 +189,28 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
     setIsEditing(false)
     setEditState(null)
     setSuggestedTags([])
+  }
+
+  async function handleGenerateDescription() {
+    if (!editState?.title.trim()) {
+      toast.error("Add a title before generating a description.")
+      return
+    }
+    setGeneratingDescription(true)
+    const tagList = editState.tags.split(",").map((t) => t.trim()).filter(Boolean)
+    const result = await generateDescription({
+      title: editState.title,
+      typeName: item?.itemType.name,
+      content: editState.content || undefined,
+      url: editState.url || undefined,
+      tags: tagList.length > 0 ? tagList : undefined,
+    })
+    setGeneratingDescription(false)
+    if (!result.success) {
+      toast.error(result.error)
+      return
+    }
+    setField("description", result.description)
   }
 
   async function handleSuggestTags() {
@@ -595,9 +621,21 @@ export default function ItemDrawer({ itemId, open, onClose }: ItemDrawerProps) {
 
               {/* Description */}
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Description
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    Description
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleGenerateDescription}
+                    disabled={generatingDescription || !editState.title.trim()}
+                    className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    title="Generate description with AI"
+                  >
+                    <Wand2 className="h-3 w-3" />
+                    {generatingDescription ? "Generating…" : "Generate"}
+                  </button>
+                </div>
                 <textarea
                   className="w-full bg-muted/50 border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors resize-none"
                   rows={2}
