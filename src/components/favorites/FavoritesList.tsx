@@ -37,6 +37,7 @@ function formatDate(date: Date): string {
 interface FavoritesListProps {
   items: FavoriteItem[];
   collections: FavoriteCollection[];
+  isPro?: boolean;
 }
 
 
@@ -55,7 +56,7 @@ function SortControl({ value, onChange }: { value: SortKey; onChange: (v: SortKe
   );
 }
 
-export default function FavoritesList({ items, collections }: FavoritesListProps) {
+export default function FavoritesList({ items, collections, isPro }: FavoritesListProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [itemSort, setItemSort] = useState<SortKey>("date");
@@ -163,7 +164,7 @@ export default function FavoritesList({ items, collections }: FavoritesListProps
         )}
       </div>
 
-      <ItemDrawer itemId={selectedId} open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <ItemDrawer itemId={selectedId} open={drawerOpen} onClose={() => setDrawerOpen(false)} isPro={isPro} />
     </>
   );
 }

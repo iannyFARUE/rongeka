@@ -19,6 +19,7 @@ export default async function CollectionDetailPage({ params, searchParams }: Pag
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in");
   const userId = session.user.id;
+  const isPro = session.user.isPro ?? false;
 
   const collection = await getCollectionWithItems(userId, id, page);
   if (!collection) notFound();
@@ -71,7 +72,7 @@ export default async function CollectionDetailPage({ params, searchParams }: Pag
                       items={images}
                       className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
                       variant="gallery"
-
+                      isPro={isPro}
                     />
                   </section>
                 )}
@@ -82,7 +83,7 @@ export default async function CollectionDetailPage({ params, searchParams }: Pag
                       items={files}
                       className="flex flex-col gap-1"
                       variant="file-list"
-
+                      isPro={isPro}
                     />
                   </section>
                 )}
@@ -94,7 +95,7 @@ export default async function CollectionDetailPage({ params, searchParams }: Pag
                     <ItemsWithDrawer
                       items={text}
                       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-
+                      isPro={isPro}
                     />
                   </section>
                 )}

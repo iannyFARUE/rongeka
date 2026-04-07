@@ -11,9 +11,10 @@ interface ItemsWithDrawerProps {
   items: ItemWithMeta[]
   className?: string
   variant?: "list" | "gallery" | "file-list"
+  isPro?: boolean
 }
 
-export default function ItemsWithDrawer({ items, className, variant = "list" }: ItemsWithDrawerProps) {
+export default function ItemsWithDrawer({ items, className, variant = "list", isPro }: ItemsWithDrawerProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [open, setOpen] = useState(false)
 
@@ -51,7 +52,7 @@ export default function ItemsWithDrawer({ items, className, variant = "list" }: 
           )
         )}
       </div>
-      <ItemDrawer itemId={selectedId} open={open} onClose={handleClose} />
+      <ItemDrawer itemId={selectedId} open={open} onClose={handleClose} isPro={isPro} />
     </>
   )
 }
