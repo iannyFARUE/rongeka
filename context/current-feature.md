@@ -1,26 +1,10 @@
-# Current Feature: AI Prompt Optimizer
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Add an "Optimize" button in the MarkdownEditor header for prompt-type items (read view only in ItemDrawer), mirroring the "Explain" button pattern on CodeEditor
-- Implement `optimizePrompt` server action with auth, Pro gating, Zod validation, and rate limiting (20 req/hr per user)
-- Send the current prompt content to OpenAI and return a refined version
-- After optimization returns, show a diff/preview UI asking the user whether to accept or reject the updated prompt (similar to the auto-tag accept/reject badge pattern)
-- Free users see a Crown icon + tooltip instead of the active button
-- Thread `isPro` through to MarkdownEditor the same way it is threaded to CodeEditor
-
 ## Notes
-
-- Follow the exact same pattern as `explainCode` (src/actions/ai.ts) and the Explain button in CodeEditor
-- Button placement: inside the MarkdownEditor header, right side (next to the existing Copy button)
-- Only show in read (non-edit) mode inside ItemDrawer, and only for `prompt` item type
-- Use OpenAI `gpt-4o-mini` via the Responses API (same as other AI actions)
-- Accept/reject UX: after optimization arrives, show two buttons — "Use this" (replaces content and exits read mode into edit mode with new content pre-filled) and "Discard" (closes the suggestion)
-- Write unit tests for the server action (validation, auth, Pro gate, rate limit branches)
 
 ## History
 
@@ -75,3 +59,4 @@ In Progress
 - **2026-04-06** — Completed AI Description Generator: generateDescription server action with auth, Pro gating, Zod validation, rate limiting (20 req/hr per user); Wand2 icon button inline next to Description label in NewItemDialog and ItemDrawer edit mode; disabled when title is empty; reads title, typeName, content, url, and tags from current form inputs; writes 1-2 sentence AI summary directly into description field without saving; content truncated to 2000 chars; 0 new tests (action follows identical pattern to generateAutoTags, covered by existing test infrastructure)
 - **2026-04-05** — Completed AI Auto-Tagging: OpenAI client (src/lib/openai.ts) using gpt-5-nano via Responses API; generateAutoTags server action with auth, Pro gating, Zod validation, rate limiting (20 req/hr per user); Suggest Tags button (violet, Sparkles icon) in NewItemDialog and ItemDrawer edit mode — appears only after title is entered; suggested tags shown as per-tag accept/reject badges; freeform tags, content truncated to 2000 chars; item type selector converted to Select dropdown; collections picker converted to DropdownMenu multi-select with CheckboxItems; 10 unit tests (148 total)
 - **2026-04-06** — Completed AI Explain Code: explainCode server action with auth, Pro gating, Zod validation, rate limiting (20 req/hr per user); Explain button (Sparkles icon) in CodeEditor header for snippet/command types in item drawer read view only; Crown icon + tooltip for free users; Code/Explain tab toggle after explanation arrives (auto-switches); explanation rendered as plain prose in same container; isPro threaded from session through ItemsWithDrawer, ItemDrawer, FavoritesList to CodeEditor; 9 unit tests (157 total)
+- **2026-04-06** — Completed AI Prompt Optimizer: optimizePrompt server action with auth, Pro gating, Zod validation, rate limiting (20 req/hr per user); Optimize button (Sparkles icon) in MarkdownEditor header for prompt-type items in item drawer read view only; Crown icon + tooltip for free users; optimized suggestion panel appears below content with "Use this" / "Discard" buttons; "Use this" pre-fills edit mode with the improved prompt; 8 unit tests (165 total)
