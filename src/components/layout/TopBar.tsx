@@ -44,6 +44,7 @@ export default function TopBar({ onSearchClick, onMenuClick, isPro }: { onSearch
           <Link href="/dashboard/favorites">
             <Button size="sm" variant="ghost" aria-label="Favorites">
               <Star className="h-4 w-4" />
+              <span className="hidden md:inline">Favorites</span>
             </Button>
           </Link>
           <Button size="sm" variant="outline" onClick={() => setCollectionDialogOpen(true)} aria-label="New Collection">

@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import ItemRow from "@/components/items/ItemRow"
 import ImageThumbnailCard from "@/components/items/ImageThumbnailCard"
 import FileListRow from "@/components/items/FileListRow"
@@ -15,8 +16,25 @@ interface ItemsWithDrawerProps {
 }
 
 export default function ItemsWithDrawer({ items, className, variant = "list", isPro }: ItemsWithDrawerProps) {
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [open, setOpen] = useState(false)
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
+  const openParam = searchParams.get("open")
+
+  const [selectedId, setSelectedId] = useState<string | null>(openParam)
+  const [open, setOpen] = useState(!!openParam)
+
+  useEffect(() => {
+    if (openParam) {
+      setSelectedId(openParam)
+      setOpen(true)
+      // Clear the ?open param from the URL without a navigation
+      const params = new URLSearchParams(searchParams.toString())
+      params.delete("open")
+      const newUrl = params.size > 0 ? `${pathname}?${params}` : pathname
+      router.replace(newUrl, { scroll: false })
+    }
+  }, [openParam]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleItemClick(id: string) {
     setSelectedId(id)

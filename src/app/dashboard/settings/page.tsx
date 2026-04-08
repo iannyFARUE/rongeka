@@ -61,9 +61,9 @@ export default async function SettingsPage() {
               <ChangePasswordDialog />
             </div>
           )}
-          <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-destructive/20 bg-destructive/5 rounded-b-lg">
             <div>
-              <p className="text-sm font-medium">Delete Account</p>
+              <p className="text-sm font-medium text-destructive">Delete Account</p>
               <p className="text-xs text-muted-foreground">
                 Permanently delete your account and all data
               </p>

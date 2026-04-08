@@ -14,7 +14,7 @@ export default async function FavoritesPage() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="font-mono text-lg font-semibold mb-6">Favorites</h1>
+      <h1 className="text-lg font-semibold mb-6">Favorites</h1>
       <FavoritesList items={items} collections={collections} isPro={isPro} />
     </div>
   );

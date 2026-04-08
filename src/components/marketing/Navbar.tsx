@@ -6,7 +6,7 @@ import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
 
-export default function Navbar() {
+export default function Navbar({ hideLinks = false }: { hideLinks?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -45,7 +45,7 @@ export default function Navbar() {
 
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-          {(["/#features", "/#ai", "/#pricing"] as const).map((href) => (
+          {!hideLinks && (["/#features", "/#ai", "/#pricing"] as const).map((href) => (
             <a
               key={href}
               href={href}
@@ -80,7 +80,7 @@ export default function Navbar() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden bg-background/95 backdrop-blur-md border-b border-border px-6 pb-6 flex flex-col gap-4">
-          {[
+          {!hideLinks && [
             { href: "/#features", label: "Features" },
             { href: "/#ai", label: "AI" },
             { href: "/#pricing", label: "Pricing" },

@@ -18,7 +18,7 @@ export type SidebarCollection = {
 export type SidebarRecentItem = {
   id: string;
   title: string;
-  itemType: { icon: string; color: string };
+  itemType: { icon: string; color: string; name: string };
 };
 
 export type SidebarData = {
@@ -51,7 +51,7 @@ export async function getSidebarData(userId: string): Promise<SidebarData> {
       select: {
         id: true,
         title: true,
-        itemType: { select: { icon: true, color: true } },
+        itemType: { select: { icon: true, color: true, name: true } },
       },
     }),
   ]);

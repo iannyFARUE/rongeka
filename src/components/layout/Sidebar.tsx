@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
   Code,
@@ -90,6 +91,7 @@ export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const pathname = usePathname();
   const { itemTypes, collections, recentItems } = data;
 
   useEffect(() => {
@@ -145,12 +147,17 @@ export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) 
             {itemTypes.map((type) => {
               const Icon = ICON_MAP[type.icon];
               const slug = TYPE_SLUGS[type.name];
+              const isActive = pathname === `/dashboard/items/${slug}`;
               return Icon ? (
                 <Link
                   key={type.id}
                   href={`/dashboard/items/${slug}`}
                   title={type.name}
-                  className="flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent transition-colors mx-auto"
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent transition-colors mx-auto",
+                    isActive && "bg-accent"
+                  )}
                 >
                   <Icon className="h-4 w-4" style={{ color: type.color }} />
                 </Link>
@@ -200,12 +207,17 @@ export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) 
                     const Icon = ICON_MAP[type.icon];
                     const slug = TYPE_SLUGS[type.name];
                     const isPro = PRO_TYPES.has(type.name);
+                    const isActive = pathname === `/dashboard/items/${slug}`;
 
                     return (
                       <Link
                         key={type.id}
                         href={`/dashboard/items/${slug}`}
-                        className="flex items-center gap-2.5 px-3 mx-1 py-1.5 text-sm rounded-sm hover:bg-accent group transition-colors"
+                        aria-current={isActive ? "page" : undefined}
+                        className={cn(
+                          "flex items-center gap-2.5 px-3 mx-1 py-1.5 text-sm rounded-sm hover:bg-accent group transition-colors",
+                          isActive && "bg-accent"
+                        )}
                       >
                         {Icon && (
                           <Icon
@@ -213,7 +225,7 @@ export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) 
                             style={{ color: type.color }}
                           />
                         )}
-                        <span className="flex-1 capitalize text-foreground/80 group-hover:text-foreground transition-colors">
+                        <span className={cn("flex-1 capitalize transition-colors", isActive ? "text-foreground" : "text-foreground/80 group-hover:text-foreground")}>
                           {slug}
                         </span>
                         {isPro && (
@@ -242,24 +254,31 @@ export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) 
               />
               {collectionsOpen && (
                 <nav>
-                  {collections.map((col) => (
-                    <Link
-                      key={col.id}
-                      href={`/dashboard/collections/${col.id}`}
-                      className="flex items-center gap-2.5 px-3 mx-1 py-1.5 text-sm rounded-sm hover:bg-accent group transition-colors"
-                    >
-                      <div
-                        className="h-2 w-2 rounded-full shrink-0"
-                        style={{ backgroundColor: col.dominantColor }}
-                      />
-                      <span className="flex-1 truncate text-foreground/80 group-hover:text-foreground transition-colors">
-                        {col.name}
-                      </span>
-                      {col.isFavorite && (
-                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 shrink-0" />
-                      )}
-                    </Link>
-                  ))}
+                  {collections.map((col) => {
+                    const isActive = pathname === `/dashboard/collections/${col.id}`;
+                    return (
+                      <Link
+                        key={col.id}
+                        href={`/dashboard/collections/${col.id}`}
+                        aria-current={isActive ? "page" : undefined}
+                        className={cn(
+                          "flex items-center gap-2.5 px-3 mx-1 py-1.5 text-sm rounded-sm hover:bg-accent group transition-colors",
+                          isActive && "bg-accent"
+                        )}
+                      >
+                        <div
+                          className="h-2 w-2 rounded-full shrink-0"
+                          style={{ backgroundColor: col.dominantColor }}
+                        />
+                        <span className={cn("flex-1 truncate transition-colors", isActive ? "text-foreground" : "text-foreground/80 group-hover:text-foreground")}>
+                          {col.name}
+                        </span>
+                        {col.isFavorite && (
+                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 shrink-0" />
+                        )}
+                      </Link>
+                    );
+                  })}
                   <Link
                     href="/dashboard/collections"
                     className="flex items-center gap-2.5 px-3 mx-1 py-1.5 text-xs rounded-sm hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
@@ -283,9 +302,11 @@ export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) 
                   <div>
                     {recentItems.map((item) => {
                       const Icon = ICON_MAP[item.itemType.icon];
+                      const slug = TYPE_SLUGS[item.itemType.name];
                       return (
-                        <button
+                        <Link
                           key={item.id}
+                          href={`/dashboard/items/${slug}?open=${item.id}`}
                           className="w-full flex items-center gap-2.5 px-3 mx-1 py-1.5 text-sm rounded-sm hover:bg-accent group transition-colors text-left"
                         >
                           {Icon && (
@@ -297,7 +318,7 @@ export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) 
                           <span className="flex-1 truncate text-foreground/80 group-hover:text-foreground transition-colors">
                             {item.title}
                           </span>
-                        </button>
+                        </Link>
                       );
                     })}
                   </div>

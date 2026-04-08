@@ -129,8 +129,8 @@ export default async function HomePage() {
           <div className="grid md:grid-cols-2 gap-16 items-center">
             {/* Text */}
             <div>
-              <span className="inline-block text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full mb-6">
-                ✨ Pro Feature
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full mb-6">
+                <Sparkles className="h-3 w-3" /> Pro Feature
               </span>
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
                 Let AI do the heavy lifting
@@ -198,7 +198,7 @@ export default async function HomePage() {
               <li><a href="#features" className="hover:text-foreground transition-colors">Features</a></li>
               <li><a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a></li>
               <li><a href="#ai" className="hover:text-foreground transition-colors">AI Features</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Changelog</a></li>
+              <li><span className="opacity-50 cursor-not-allowed">Changelog</span></li>
             </ul>
           </div>
 
@@ -208,7 +208,7 @@ export default async function HomePage() {
             <ul className="space-y-2.5 text-sm text-muted-foreground">
               {["Documentation", "API", "Blog", "Status"].map((l) => (
                 <li key={l}>
-                  <a href="#" className="hover:text-foreground transition-colors">{l}</a>
+                  <span className="opacity-50 cursor-not-allowed">{l}</span>
                 </li>
               ))}
             </ul>
@@ -220,7 +220,7 @@ export default async function HomePage() {
             <ul className="space-y-2.5 text-sm text-muted-foreground">
               {["About", "Privacy", "Terms", "Contact"].map((l) => (
                 <li key={l}>
-                  <a href="#" className="hover:text-foreground transition-colors">{l}</a>
+                  <span className="opacity-50 cursor-not-allowed">{l}</span>
                 </li>
               ))}
             </ul>
