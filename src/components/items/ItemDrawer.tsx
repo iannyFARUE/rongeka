@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import {
   Star,
@@ -106,6 +106,18 @@ function itemToEditState(item: ItemDetail): EditState {
   }
 }
 
+const DRAWER_WIDTH_KEY = "rongeka:drawer-width"
+const DRAWER_DEFAULT_WIDTH = 448
+const DRAWER_MIN_WIDTH = 380
+const DRAWER_MAX_FRACTION = 0.92
+
+function getInitialWidth() {
+  if (typeof window === "undefined") return DRAWER_DEFAULT_WIDTH
+  const stored = localStorage.getItem(DRAWER_WIDTH_KEY)
+  const parsed = stored ? parseInt(stored, 10) : NaN
+  return isNaN(parsed) ? DRAWER_DEFAULT_WIDTH : Math.max(DRAWER_MIN_WIDTH, Math.min(parsed, window.innerWidth * DRAWER_MAX_FRACTION))
+}
+
 export default function ItemDrawer({ itemId, open, onClose, isPro }: ItemDrawerProps) {
   const router = useRouter()
   const [item, setItem] = useState<ItemDetail | null>(null)
@@ -139,6 +151,45 @@ export default function ItemDrawer({ itemId, open, onClose, isPro }: ItemDrawerP
   // AI optimize prompt state
   const [optimizedContent, setOptimizedContent] = useState<string | null>(null)
   const [isOptimizing, setIsOptimizing] = useState(false)
+
+  // Drawer resize state
+  const [drawerWidth, setDrawerWidth] = useState(DRAWER_DEFAULT_WIDTH)
+  const isDragging = useRef(false)
+
+  useEffect(() => {
+    setDrawerWidth(getInitialWidth())
+  }, [])
+
+  const handleResizeMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    isDragging.current = true
+    document.body.style.cursor = "col-resize"
+    document.body.style.userSelect = "none"
+
+    function onMouseMove(ev: MouseEvent) {
+      if (!isDragging.current) return
+      const newWidth = Math.max(
+        DRAWER_MIN_WIDTH,
+        Math.min(window.innerWidth - ev.clientX, window.innerWidth * DRAWER_MAX_FRACTION)
+      )
+      setDrawerWidth(newWidth)
+    }
+
+    function onMouseUp() {
+      isDragging.current = false
+      document.body.style.cursor = ""
+      document.body.style.userSelect = ""
+      setDrawerWidth((w) => {
+        localStorage.setItem(DRAWER_WIDTH_KEY, String(w))
+        return w
+      })
+      document.removeEventListener("mousemove", onMouseMove)
+      document.removeEventListener("mouseup", onMouseUp)
+    }
+
+    document.addEventListener("mousemove", onMouseMove)
+    document.addEventListener("mouseup", onMouseUp)
+  }, [])
 
   useEffect(() => {
     if (!itemId || !open) {
@@ -375,7 +426,17 @@ export default function ItemDrawer({ itemId, open, onClose, isPro }: ItemDrawerP
   return (
     <>
     <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent showCloseButton={false}>
+      <SheetContent
+        showCloseButton={false}
+        className="sm:max-w-none"
+        style={{ width: drawerWidth }}
+      >
+        {/* Resize handle */}
+        <div
+          onMouseDown={handleResizeMouseDown}
+          className="absolute left-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-border/60 transition-colors z-10"
+          title="Drag to resize"
+        />
         {/* 1. Header: icon + title + tags */}
         <SheetHeader className="border-b-0 px-5 pt-5 pb-0 pr-12 shrink-0">
           {loading ? (
