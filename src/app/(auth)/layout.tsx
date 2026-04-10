@@ -7,7 +7,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
+      <Navbar hideLinks />
       <div className="flex-1 flex items-center justify-center pt-16">
         {children}
       </div>
