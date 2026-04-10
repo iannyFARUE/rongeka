@@ -3,18 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
-import {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image,
-  Link as LinkIcon,
-  Folder,
-  Search,
-  type LucideIcon,
-} from "lucide-react";
+import { Folder, Search } from "lucide-react";
+import { ICON_MAP } from "@/lib/item-icons";
 import {
   Command,
   CommandInput,
@@ -27,15 +17,6 @@ import {
 import ItemDrawer from "@/components/items/ItemDrawer";
 import type { SearchData } from "@/lib/db/search";
 
-const ICON_MAP: Record<string, LucideIcon> = {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image,
-  Link: LinkIcon,
-};
 
 interface CommandPaletteProps {
   open: boolean;

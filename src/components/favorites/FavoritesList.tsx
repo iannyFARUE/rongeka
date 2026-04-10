@@ -2,10 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Code, Sparkles, Terminal, StickyNote, File, Image, Link, Folder,
-  type LucideIcon,
-} from "lucide-react";
+import { Folder } from "lucide-react";
 import ItemDrawer from "@/components/items/ItemDrawer";
 import {
   Select,
@@ -16,23 +13,8 @@ import {
 } from "@/components/ui/select";
 import type { FavoriteItem, FavoriteCollection } from "@/lib/db/favorites";
 import { sortItems, sortCollections, type SortKey } from "@/lib/favorites-sort";
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  Code, Sparkles, Terminal, StickyNote, File, Image, Link,
-};
-
-function formatDate(date: Date): string {
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-  const days = Math.floor(diff / 86400000);
-  if (days === 0) return "Today";
-  if (days === 1) return "Yesterday";
-  const weeks = Math.floor(days / 7);
-  if (weeks < 4) return `${days}d ago`;
-  const months = Math.floor(days / 30);
-  if (months < 12) return `${months}mo ago`;
-  return `${Math.floor(months / 12)}y ago`;
-}
+import { ICON_MAP } from "@/lib/item-icons";
+import { formatRelativeDate } from "@/lib/format";
 
 interface FavoritesListProps {
   items: FavoriteItem[];
@@ -122,7 +104,7 @@ export default function FavoritesList({ items, collections, isPro }: FavoritesLi
                       {item.itemType.name}
                     </span>
                     <span className="text-xs text-muted-foreground shrink-0 tabular-nums w-20 text-right">
-                      {formatDate(item.updatedAt)}
+                      {formatRelativeDate(item.updatedAt)}
                     </span>
                   </button>
                 );
@@ -155,7 +137,7 @@ export default function FavoritesList({ items, collections, isPro }: FavoritesLi
                     {col.itemCount} {col.itemCount === 1 ? "item" : "items"}
                   </span>
                   <span className="text-xs text-muted-foreground shrink-0 tabular-nums w-20 text-right">
-                    {formatDate(col.updatedAt)}
+                    {formatRelativeDate(col.updatedAt)}
                   </span>
                 </button>
               ))}

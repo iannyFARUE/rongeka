@@ -19,8 +19,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { createItem, cancelUpload } from "@/actions/items"
-import { generateAutoTags, generateDescription } from "@/actions/ai"
 import { getCollectionsForPicker } from "@/actions/collections"
+import { CONTENT_TYPES, LANGUAGE_TYPES, MARKDOWN_TYPES, FILE_TYPES } from "@/lib/item-types"
+import { useItemAI } from "@/hooks/useItemAI"
 import MarkdownEditor from "@/components/items/MarkdownEditor"
 import FileUpload, { type UploadedFile } from "@/components/items/FileUpload"
 import CollectionPicker from "@/components/items/CollectionPicker"
@@ -36,11 +37,6 @@ const ITEM_TYPES = [
 ] as const
 
 type ItemTypeName = typeof ITEM_TYPES[number]["name"]
-
-const CONTENT_TYPES = new Set<ItemTypeName>(["snippet", "prompt", "command", "note"])
-const LANGUAGE_TYPES = new Set<ItemTypeName>(["snippet", "command"])
-const MARKDOWN_TYPES = new Set<ItemTypeName>(["note", "prompt"])
-const FILE_TYPES = new Set<ItemTypeName>(["file", "image"])
 
 interface NewItemDialogProps {
   open: boolean
@@ -61,9 +57,24 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
   const [saving, setSaving] = useState(false)
   const [collections, setCollections] = useState<{ id: string; name: string }[]>([])
   const [collectionIds, setCollectionIds] = useState<string[]>([])
-  const [suggestedTags, setSuggestedTags] = useState<string[]>([])
-  const [suggestingTags, setSuggestingTags] = useState(false)
-  const [generatingDescription, setGeneratingDescription] = useState(false)
+
+  const {
+    suggestedTags,
+    suggestingTags,
+    generatingDescription,
+    handleSuggestTags,
+    handleGenerateDescription,
+    acceptTag,
+    rejectTag,
+  } = useItemAI({
+    getTitle: () => title,
+    getContent: () => content || undefined,
+    getUrl: () => url || undefined,
+    getTypeName: () => typeName,
+    getTags: () => tags,
+    onTagsChange: setTags,
+    onDescriptionChange: setDescription,
+  })
 
   useEffect(() => {
     if (open) {
@@ -82,12 +93,10 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
     setTags("")
     setUploadedFile(null)
     setCollectionIds([])
-    setSuggestedTags([])
   }
 
   function handleClose() {
     if (uploadedFile) {
-      // File was uploaded to R2 but item was never saved — clean up asynchronously
       cancelUpload(uploadedFile.key).catch(() => {})
     }
     reset()
@@ -119,60 +128,10 @@ export default function NewItemDialog({ open, onClose, defaultType = "snippet" }
       return
     }
 
-    // Clear before handleClose so the cancel-cleanup guard doesn't fire
     setUploadedFile(null)
     toast.success("Item created")
     router.refresh()
     handleClose()
-  }
-
-  async function handleGenerateDescription() {
-    if (!title.trim()) {
-      toast.error("Add a title before generating a description.")
-      return
-    }
-    setGeneratingDescription(true)
-    const tagList = tags.split(",").map((t) => t.trim()).filter(Boolean)
-    const result = await generateDescription({
-      title,
-      typeName,
-      content: content || undefined,
-      url: url || undefined,
-      tags: tagList.length > 0 ? tagList : undefined,
-    })
-    setGeneratingDescription(false)
-    if (!result.success) {
-      toast.error(result.error)
-      return
-    }
-    setDescription(result.description)
-  }
-
-  async function handleSuggestTags() {
-    if (!title.trim()) {
-      toast.error("Add a title before suggesting tags.")
-      return
-    }
-    setSuggestingTags(true)
-    const result = await generateAutoTags({ title, content: content || undefined })
-    setSuggestingTags(false)
-    if (!result.success) {
-      toast.error(result.error)
-      return
-    }
-    setSuggestedTags(result.tags)
-  }
-
-  function acceptTag(tag: string) {
-    const existing = tags.split(",").map((t) => t.trim()).filter(Boolean)
-    if (!existing.includes(tag)) {
-      setTags(existing.length > 0 ? `${tags.trimEnd().replace(/,\s*$/, "")}, ${tag}` : tag)
-    }
-    setSuggestedTags((prev) => prev.filter((t) => t !== tag))
-  }
-
-  function rejectTag(tag: string) {
-    setSuggestedTags((prev) => prev.filter((t) => t !== tag))
   }
 
   const isFileType = FILE_TYPES.has(typeName)

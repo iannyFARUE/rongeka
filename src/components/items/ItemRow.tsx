@@ -1,44 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Pin, Star, Copy, Check, type LucideIcon } from "lucide-react";
-import {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image,
-  Link,
-} from "lucide-react";
+import { Pin, Star, Copy, Check } from "lucide-react";
 import type { ItemWithMeta } from "@/lib/db/items";
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image,
-  Link,
-};
-
-function formatDate(date: Date): string {
-  const now = new Date();
-  if (
-    date.getFullYear() === now.getFullYear() &&
-    date.getMonth() === now.getMonth() &&
-    date.getDate() === now.getDate()
-  ) {
-    return "Today";
-  }
-  const diff = Date.now() - date.getTime();
-  const days = Math.floor(diff / 86400000);
-  const weeks = Math.floor(days / 7);
-  if (weeks > 0) return `${weeks}w ago`;
-  if (days > 0) return `${days}d ago`;
-  return "Today";
-}
+import { ICON_MAP } from "@/lib/item-icons";
+import { formatRelativeDate } from "@/lib/format";
 
 export default function ItemRow({
   item,
@@ -81,7 +47,7 @@ export default function ItemRow({
           {item.isPinned && <Pin className="h-3 w-3 text-muted-foreground" />}
           {item.isFavorite && <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />}
           <span className="text-xs text-muted-foreground tabular-nums">
-            {item.lastUsedAt ? formatDate(item.lastUsedAt) : "Today"}
+            {item.lastUsedAt ? formatRelativeDate(item.lastUsedAt) : "Today"}
           </span>
         </div>
       </div>

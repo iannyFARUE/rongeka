@@ -2,9 +2,22 @@
 
 ## Status
 
+In Progress
+
 ## Goals
 
+- Extract ICON_MAP (icon name → LucideIcon) to `src/lib/item-icons.ts`, consumed by all 7 files
+- Extract CONTENT_TYPES, LANGUAGE_TYPES, MARKDOWN_TYPES, FILE_TYPES to `src/lib/item-types.ts`
+- Extend `src/lib/format.ts` with `formatRelativeDate()` and `pluralise()`
+- Extract drawer resize logic into `src/hooks/useDrawerResize.ts`
+- Extract AI tag + description logic into `src/hooks/useItemAI.ts`
+- Extract collection actions into `src/hooks/useCollectionActions.ts` + `CollectionEditDeleteDialogs.tsx`
+- All consumers updated; build passes
+
 ## Notes
+
+- Refactor only — no new features, no behaviour changes
+- All existing tests must continue to pass
 
 ## History
 
