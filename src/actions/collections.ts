@@ -1,7 +1,6 @@
 "use server";
 
 import { z } from "zod";
-import { auth } from "@/auth";
 import { hasReachedCollectionLimit } from "@/lib/usage-limits";
 import { FREE_TIER_COLLECTION_LIMIT } from "@/lib/constants";
 import {
@@ -11,6 +10,7 @@ import {
   toggleFavoriteCollection as dbToggleFavoriteCollection,
   getSimpleCollections,
 } from "@/lib/db/collections";
+import { requireAuth, formatZodError } from "@/lib/action-utils";
 
 const CollectionSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
@@ -24,24 +24,20 @@ type CollectionResult =
 type DeleteResult = { success: true } | { success: false; error: string };
 
 export async function getCollectionsForPicker(): Promise<{ id: string; name: string }[]> {
-  const session = await auth();
-  if (!session?.user?.id) return [];
-  return getSimpleCollections(session.user.id);
+  const user = await requireAuth();
+  if (!user) return [];
+  return getSimpleCollections(user.userId);
 }
 
 export async function createCollection(payload: {
   name: string;
   description: string;
 }): Promise<CollectionResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "Not authenticated." };
-  }
+  const user = await requireAuth();
+  if (!user) return { success: false, error: "Not authenticated." };
 
-  const isPro = session.user.isPro;
-
-  if (!isPro) {
-    const limited = await hasReachedCollectionLimit(session.user.id);
+  if (!user.isPro) {
+    const limited = await hasReachedCollectionLimit(user.userId);
     if (limited) {
       return {
         success: false,
@@ -51,15 +47,12 @@ export async function createCollection(payload: {
   }
 
   const parsed = CollectionSchema.safeParse(payload);
-  if (!parsed.success) {
-    const message = parsed.error.issues.map((e) => e.message).join(", ");
-    return { success: false, error: message };
-  }
+  if (!parsed.success) return { success: false, error: formatZodError(parsed.error) };
 
   const { name, description } = parsed.data;
 
   try {
-    const created = await dbCreateCollection(session.user.id, {
+    const created = await dbCreateCollection(user.userId, {
       name,
       description: description || null,
     });
@@ -73,21 +66,16 @@ export async function updateCollection(
   collectionId: string,
   payload: { name: string; description: string }
 ): Promise<CollectionResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "Not authenticated." };
-  }
+  const user = await requireAuth();
+  if (!user) return { success: false, error: "Not authenticated." };
 
   const parsed = CollectionSchema.safeParse(payload);
-  if (!parsed.success) {
-    const message = parsed.error.issues.map((e) => e.message).join(", ");
-    return { success: false, error: message };
-  }
+  if (!parsed.success) return { success: false, error: formatZodError(parsed.error) };
 
   const { name, description } = parsed.data;
 
   try {
-    const updated = await dbUpdateCollection(session.user.id, collectionId, {
+    const updated = await dbUpdateCollection(user.userId, collectionId, {
       name,
       description: description || null,
     });
@@ -102,25 +90,20 @@ type ToggleFavoriteResult =
   | { success: false; error: string };
 
 export async function toggleFavoriteCollection(collectionId: string): Promise<ToggleFavoriteResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "Not authenticated." };
-  }
-  const result = await dbToggleFavoriteCollection(session.user.id, collectionId);
-  if (!result) {
-    return { success: false, error: "Collection not found or access denied." };
-  }
+  const user = await requireAuth();
+  if (!user) return { success: false, error: "Not authenticated." };
+
+  const result = await dbToggleFavoriteCollection(user.userId, collectionId);
+  if (!result) return { success: false, error: "Collection not found or access denied." };
   return { success: true, isFavorite: result.isFavorite };
 }
 
 export async function deleteCollection(collectionId: string): Promise<DeleteResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "Not authenticated." };
-  }
+  const user = await requireAuth();
+  if (!user) return { success: false, error: "Not authenticated." };
 
   try {
-    await dbDeleteCollection(session.user.id, collectionId);
+    await dbDeleteCollection(user.userId, collectionId);
     return { success: true };
   } catch {
     return { success: false, error: "Failed to delete collection." };

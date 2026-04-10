@@ -1,9 +1,8 @@
 "use server";
 
 import { z } from "zod";
-import { auth } from "@/auth";
 import { getOpenAIClient, AI_MODEL } from "@/lib/openai";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { requireAuth, requireProWithRateLimit, formatZodError } from "@/lib/action-utils";
 
 // ─── Generate Description ────────────────────────────────────────────────────
 
@@ -26,28 +25,14 @@ export async function generateDescription(payload: {
   url?: string;
   tags?: string[];
 }): Promise<GenerateDescriptionResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "Not authenticated." };
-  }
+  const user = await requireAuth();
+  if (!user) return { success: false, error: "Not authenticated." };
 
-  if (!session.user.isPro) {
-    return { success: false, error: "AI features require a Pro subscription." };
-  }
+  const gateError = await requireProWithRateLimit(user.userId, user.isPro, "aiGenerateDescription");
+  if (gateError) return { success: false, error: gateError };
 
   const parsed = GenerateDescriptionSchema.safeParse(payload);
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.issues.map((e) => e.message).join(", ") };
-  }
-
-  const { success: rateLimitOk, reset } = await checkRateLimit(
-    "aiGenerateDescription",
-    session.user.id
-  );
-  if (!rateLimitOk) {
-    const minutes = Math.max(1, Math.ceil((reset - Date.now()) / 60_000));
-    return { success: false, error: `Rate limit reached. Try again in ${minutes} minute${minutes !== 1 ? "s" : ""}.` };
-  }
+  if (!parsed.success) return { success: false, error: formatZodError(parsed.error) };
 
   const { title, typeName, content, url, tags } = parsed.data;
 
@@ -57,22 +42,17 @@ export async function generateDescription(payload: {
   if (tags && tags.length > 0) parts.push(`Tags: ${tags.join(", ")}`);
   if (content) parts.push(`Content:\n${content.slice(0, 2000)}`);
 
-  const input = parts.join("\n");
-
   try {
     const client = getOpenAIClient();
     const response = await client.responses.create({
       model: AI_MODEL,
       instructions:
         "You are a developer tool assistant. Write a concise 1-2 sentence description for the given item. Be specific and useful. Return only the description text, no quotes or extra formatting.",
-      input,
+      input: parts.join("\n"),
     });
 
     const description = response.output_text.trim();
-    if (!description) {
-      return { success: false, error: "AI returned an empty description." };
-    }
-
+    if (!description) return { success: false, error: "AI returned an empty description." };
     return { success: true, description };
   } catch {
     return { success: false, error: "AI service error. Please try again." };
@@ -96,28 +76,14 @@ export async function explainCode(payload: {
   language?: string;
   typeName?: string;
 }): Promise<ExplainCodeResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "Not authenticated." };
-  }
+  const user = await requireAuth();
+  if (!user) return { success: false, error: "Not authenticated." };
 
-  if (!session.user.isPro) {
-    return { success: false, error: "AI features require a Pro subscription." };
-  }
+  const gateError = await requireProWithRateLimit(user.userId, user.isPro, "aiExplainCode");
+  if (gateError) return { success: false, error: gateError };
 
   const parsed = ExplainCodeSchema.safeParse(payload);
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.issues.map((e) => e.message).join(", ") };
-  }
-
-  const { success: rateLimitOk, reset } = await checkRateLimit(
-    "aiExplainCode",
-    session.user.id
-  );
-  if (!rateLimitOk) {
-    const minutes = Math.max(1, Math.ceil((reset - Date.now()) / 60_000));
-    return { success: false, error: `Rate limit reached. Try again in ${minutes} minute${minutes !== 1 ? "s" : ""}.` };
-  }
+  if (!parsed.success) return { success: false, error: formatZodError(parsed.error) };
 
   const { content, language, typeName } = parsed.data;
   const truncatedContent = content.slice(0, 2000);
@@ -137,10 +103,7 @@ export async function explainCode(payload: {
     });
 
     const explanation = response.output_text.trim();
-    if (!explanation) {
-      return { success: false, error: "AI returned an empty explanation." };
-    }
-
+    if (!explanation) return { success: false, error: "AI returned an empty explanation." };
     return { success: true, explanation };
   } catch {
     return { success: false, error: "AI service error. Please try again." };
@@ -160,31 +123,16 @@ type OptimizePromptResult =
 export async function optimizePrompt(payload: {
   content: string;
 }): Promise<OptimizePromptResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "Not authenticated." };
-  }
+  const user = await requireAuth();
+  if (!user) return { success: false, error: "Not authenticated." };
 
-  if (!session.user.isPro) {
-    return { success: false, error: "AI features require a Pro subscription." };
-  }
+  const gateError = await requireProWithRateLimit(user.userId, user.isPro, "aiOptimizePrompt");
+  if (gateError) return { success: false, error: gateError };
 
   const parsed = OptimizePromptSchema.safeParse(payload);
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.issues.map((e) => e.message).join(", ") };
-  }
+  if (!parsed.success) return { success: false, error: formatZodError(parsed.error) };
 
-  const { success: rateLimitOk, reset } = await checkRateLimit(
-    "aiOptimizePrompt",
-    session.user.id
-  );
-  if (!rateLimitOk) {
-    const minutes = Math.max(1, Math.ceil((reset - Date.now()) / 60_000));
-    return { success: false, error: `Rate limit reached. Try again in ${minutes} minute${minutes !== 1 ? "s" : ""}.` };
-  }
-
-  const { content } = parsed.data;
-  const truncatedContent = content.slice(0, 2000);
+  const truncatedContent = parsed.data.content.slice(0, 2000);
 
   try {
     const client = getOpenAIClient();
@@ -196,10 +144,7 @@ export async function optimizePrompt(payload: {
     });
 
     const optimizedContent = response.output_text.trim();
-    if (!optimizedContent) {
-      return { success: false, error: "AI returned an empty result." };
-    }
-
+    if (!optimizedContent) return { success: false, error: "AI returned an empty result." };
     return { success: true, optimizedContent };
   } catch {
     return { success: false, error: "AI service error. Please try again." };
@@ -221,28 +166,14 @@ export async function generateAutoTags(payload: {
   title: string;
   content?: string;
 }): Promise<GenerateAutoTagsResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "Not authenticated." };
-  }
+  const user = await requireAuth();
+  if (!user) return { success: false, error: "Not authenticated." };
 
-  if (!session.user.isPro) {
-    return { success: false, error: "AI features require a Pro subscription." };
-  }
+  const gateError = await requireProWithRateLimit(user.userId, user.isPro, "aiSuggestTags");
+  if (gateError) return { success: false, error: gateError };
 
   const parsed = GenerateAutoTagsSchema.safeParse(payload);
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.issues.map((e) => e.message).join(", ") };
-  }
-
-  const { success: rateLimitOk, reset } = await checkRateLimit(
-    "aiSuggestTags",
-    session.user.id
-  );
-  if (!rateLimitOk) {
-    const minutes = Math.max(1, Math.ceil((reset - Date.now()) / 60_000));
-    return { success: false, error: `Rate limit reached. Try again in ${minutes} minute${minutes !== 1 ? "s" : ""}.` };
-  }
+  if (!parsed.success) return { success: false, error: formatZodError(parsed.error) };
 
   const { title, content } = parsed.data;
   const truncatedContent = content ? content.slice(0, 2000) : "";
@@ -263,23 +194,23 @@ export async function generateAutoTags(payload: {
     });
 
     const raw = response.output_text;
-    let parsed: unknown;
+    let parsedResponse: unknown;
     try {
-      parsed = JSON.parse(raw);
+      parsedResponse = JSON.parse(raw);
     } catch {
       return { success: false, error: "Failed to parse AI response." };
     }
 
     let tags: string[];
-    if (Array.isArray(parsed)) {
-      tags = parsed;
+    if (Array.isArray(parsedResponse)) {
+      tags = parsedResponse;
     } else if (
-      parsed &&
-      typeof parsed === "object" &&
-      "tags" in parsed &&
-      Array.isArray((parsed as { tags: unknown }).tags)
+      parsedResponse &&
+      typeof parsedResponse === "object" &&
+      "tags" in parsedResponse &&
+      Array.isArray((parsedResponse as { tags: unknown }).tags)
     ) {
-      tags = (parsed as { tags: unknown[] }).tags as string[];
+      tags = (parsedResponse as { tags: unknown[] }).tags as string[];
     } else {
       return { success: false, error: "Unexpected AI response format." };
     }

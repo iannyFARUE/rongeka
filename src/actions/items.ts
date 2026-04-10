@@ -1,12 +1,12 @@
 "use server";
 
 import { z } from "zod";
-import { auth } from "@/auth";
 import { updateItem as dbUpdateItem, deleteItem as dbDeleteItem, createItem as dbCreateItem, toggleFavoriteItem as dbToggleFavoriteItem, toggleItemPin as dbToggleItemPin } from "@/lib/db/items";
 import { deleteFromR2 } from "@/lib/r2";
 import type { ItemDetail } from "@/lib/db/items";
 import { hasReachedItemLimit, isProOnlyType } from "@/lib/usage-limits";
 import { FREE_TIER_ITEM_LIMIT } from "@/lib/constants";
+import { requireAuth, formatZodError } from "@/lib/action-utils";
 
 const ITEM_TYPES = ["snippet", "prompt", "command", "note", "link", "file", "image"] as const;
 type ItemTypeName = typeof ITEM_TYPES[number];
@@ -49,27 +49,20 @@ export async function createItem(payload: {
   fileName: string | null;
   fileSize: number | null;
 }): Promise<CreateItemResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "Not authenticated." };
-  }
+  const user = await requireAuth();
+  if (!user) return { success: false, error: "Not authenticated." };
 
   const parsed = CreateItemSchema.safeParse(payload);
-  if (!parsed.success) {
-    const message = parsed.error.issues.map((e) => e.message).join(", ");
-    return { success: false, error: message };
-  }
+  if (!parsed.success) return { success: false, error: formatZodError(parsed.error) };
 
   const { typeName, title, description, content, url, language, tags, collectionIds, fileKey, fileName, fileSize } = parsed.data;
 
-  const isPro = session.user.isPro;
-
-  if (!isPro && isProOnlyType(typeName)) {
+  if (!user.isPro && isProOnlyType(typeName)) {
     return { success: false, error: "File and image uploads require Rongeka Pro." };
   }
 
-  if (!isPro) {
-    const limited = await hasReachedItemLimit(session.user.id);
+  if (!user.isPro) {
+    const limited = await hasReachedItemLimit(user.userId);
     if (limited) {
       return {
         success: false,
@@ -79,7 +72,7 @@ export async function createItem(payload: {
   }
 
   try {
-    const created = await dbCreateItem(session.user.id, {
+    const created = await dbCreateItem(user.userId, {
       typeName,
       title,
       description: description || null,
@@ -93,10 +86,7 @@ export async function createItem(payload: {
       collectionIds,
     });
 
-    if (!created) {
-      return { success: false, error: "Item type not found." };
-    }
-
+    if (!created) return { success: false, error: "Item type not found." };
     return { success: true, data: created };
   } catch {
     return { success: false, error: "Failed to create item." };
@@ -122,37 +112,31 @@ type TogglePinResult =
   | { success: false; error: string };
 
 export async function toggleItemPin(itemId: string): Promise<TogglePinResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "Not authenticated." };
-  }
-  const result = await dbToggleItemPin(session.user.id, itemId);
-  if (!result) {
-    return { success: false, error: "Item not found or access denied." };
-  }
+  const user = await requireAuth();
+  if (!user) return { success: false, error: "Not authenticated." };
+
+  const result = await dbToggleItemPin(user.userId, itemId);
+  if (!result) return { success: false, error: "Item not found or access denied." };
   return { success: true, isPinned: result.isPinned };
 }
 
 export async function toggleFavoriteItem(itemId: string): Promise<ToggleFavoriteResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "Not authenticated." };
-  }
-  const result = await dbToggleFavoriteItem(session.user.id, itemId);
-  if (!result) {
-    return { success: false, error: "Item not found or access denied." };
-  }
+  const user = await requireAuth();
+  if (!user) return { success: false, error: "Not authenticated." };
+
+  const result = await dbToggleFavoriteItem(user.userId, itemId);
+  if (!result) return { success: false, error: "Item not found or access denied." };
   return { success: true, isFavorite: result.isFavorite };
 }
 
 type DeleteItemResult = { success: true } | { success: false; error: string };
 
 export async function cancelUpload(key: string): Promise<void> {
-  const session = await auth();
-  if (!session?.user?.id) return;
+  const user = await requireAuth();
+  if (!user) return;
 
   // Only allow deletion of the requesting user's own keys
-  if (!key.startsWith(`uploads/${session.user.id}/`)) return;
+  if (!key.startsWith(`uploads/${user.userId}/`)) return;
 
   try {
     await deleteFromR2(key);
@@ -162,15 +146,11 @@ export async function cancelUpload(key: string): Promise<void> {
 }
 
 export async function deleteItem(itemId: string): Promise<DeleteItemResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "Not authenticated." };
-  }
+  const user = await requireAuth();
+  if (!user) return { success: false, error: "Not authenticated." };
 
-  const deleted = await dbDeleteItem(session.user.id, itemId);
-  if (!deleted) {
-    return { success: false, error: "Item not found or access denied." };
-  }
+  const deleted = await dbDeleteItem(user.userId, itemId);
+  if (!deleted) return { success: false, error: "Item not found or access denied." };
 
   if (deleted.fileUrl) {
     try {
@@ -199,21 +179,16 @@ export async function updateItem(
     collectionIds: string[];
   }
 ): Promise<UpdateItemResult> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "Not authenticated." };
-  }
+  const user = await requireAuth();
+  if (!user) return { success: false, error: "Not authenticated." };
 
   const parsed = UpdateItemSchema.safeParse(payload);
-  if (!parsed.success) {
-    const message = parsed.error.issues.map((e) => e.message).join(", ");
-    return { success: false, error: message };
-  }
+  if (!parsed.success) return { success: false, error: formatZodError(parsed.error) };
 
   const { title, description, content, url, language, tags, collectionIds } = parsed.data;
 
   try {
-    const updated = await dbUpdateItem(session.user.id, itemId, {
+    const updated = await dbUpdateItem(user.userId, itemId, {
       title,
       description: description ?? null,
       content: content ?? null,
@@ -223,10 +198,7 @@ export async function updateItem(
       collectionIds,
     });
 
-    if (!updated) {
-      return { success: false, error: "Item not found or access denied." };
-    }
-
+    if (!updated) return { success: false, error: "Item not found or access denied." };
     return { success: true, data: updated };
   } catch {
     return { success: false, error: "Failed to save item." };

@@ -2,15 +2,16 @@
 
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
-import { auth, signOut } from "@/auth";
+import { signOut } from "@/auth";
 import { prisma } from "@/lib/db";
+import { requireAuth } from "@/lib/action-utils";
 
 export async function changePassword(
   _prevState: string | null | undefined,
   formData: FormData
 ): Promise<string | null> {
-  const session = await auth();
-  if (!session?.user?.id) return "Not authenticated.";
+  const user = await requireAuth();
+  if (!user) return "Not authenticated.";
 
   const currentPassword = formData.get("currentPassword") as string;
   const newPassword = formData.get("newPassword") as string;
@@ -26,23 +27,23 @@ export async function changePassword(
     return "Passwords do not match.";
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.userId },
     select: { password: true },
   });
 
-  if (!user?.password) {
+  if (!dbUser?.password) {
     return "Password change is not available for this account.";
   }
 
-  const passwordsMatch = await bcrypt.compare(currentPassword, user.password);
+  const passwordsMatch = await bcrypt.compare(currentPassword, dbUser.password);
   if (!passwordsMatch) {
     return "Current password is incorrect.";
   }
 
   const hashed = await bcrypt.hash(newPassword, 12);
   await prisma.user.update({
-    where: { id: session.user.id },
+    where: { id: user.userId },
     data: { password: hashed },
   });
 
@@ -50,10 +51,10 @@ export async function changePassword(
 }
 
 export async function deleteAccount(): Promise<void> {
-  const session = await auth();
-  if (!session?.user?.id) return;
+  const user = await requireAuth();
+  if (!user) return;
 
-  await prisma.user.delete({ where: { id: session.user.id } });
+  await prisma.user.delete({ where: { id: user.userId } });
   await signOut({ redirect: false });
   redirect("/sign-in");
 }

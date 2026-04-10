@@ -1,29 +1,27 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
 import { stripe, STRIPE_PRICES } from "@/lib/stripe";
 import { prisma } from "@/lib/db";
+import { requireAuth } from "@/lib/action-utils";
 
 export async function createCheckoutSession(plan: "monthly" | "yearly") {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "Not authenticated." };
-  }
+  const user = await requireAuth();
+  if (!user) return { success: false, error: "Not authenticated." };
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.userId },
     select: { email: true, stripeCustomerId: true },
   });
 
-  if (!user) return { success: false, error: "User not found." };
+  if (!dbUser) return { success: false, error: "User not found." };
 
-  let customerId = user.stripeCustomerId;
+  let customerId = dbUser.stripeCustomerId;
   if (!customerId) {
-    const customer = await stripe.customers.create({ email: user.email! });
+    const customer = await stripe.customers.create({ email: dbUser.email! });
     customerId = customer.id;
     await prisma.user.update({
-      where: { id: session.user.id },
+      where: { id: user.userId },
       data: { stripeCustomerId: customerId },
     });
   }
@@ -34,29 +32,27 @@ export async function createCheckoutSession(plan: "monthly" | "yearly") {
     line_items: [{ price: STRIPE_PRICES[plan], quantity: 1 }],
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing?success=1`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing?canceled=1`,
-    metadata: { userId: session.user.id },
+    metadata: { userId: user.userId },
   });
 
   redirect(checkoutSession.url!);
 }
 
 export async function createPortalSession() {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false, error: "Not authenticated." };
-  }
+  const user = await requireAuth();
+  if (!user) return { success: false, error: "Not authenticated." };
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.userId },
     select: { stripeCustomerId: true },
   });
 
-  if (!user?.stripeCustomerId) {
+  if (!dbUser?.stripeCustomerId) {
     return { success: false, error: "No billing account found." };
   }
 
   const portalSession = await stripe.billingPortal.sessions.create({
-    customer: user.stripeCustomerId,
+    customer: dbUser.stripeCustomerId,
     return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing`,
   });
 
