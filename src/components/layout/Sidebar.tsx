@@ -5,34 +5,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image,
-  Link as LinkIcon,
   Star,
   ChevronRight,
   ChevronDown,
   PanelLeft,
   LogOut,
-  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/layout/UserAvatar";
 import type { SidebarData } from "@/lib/db/sidebar";
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image,
-  Link: LinkIcon,
-};
+import { ICON_MAP } from "@/lib/item-icons";
 
 const TYPE_SLUGS: Record<string, string> = {
   snippet: "snippets",

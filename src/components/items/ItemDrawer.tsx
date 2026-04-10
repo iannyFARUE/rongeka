@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
   Star,
@@ -10,17 +10,10 @@ import {
   Trash2,
   FolderOpen,
   Download,
-  Code,
   Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image,
-  Link,
   Check,
   X,
   Wand2,
-  type LucideIcon,
 } from "lucide-react"
 import CodeEditor from "@/components/items/CodeEditor"
 import MarkdownEditor from "@/components/items/MarkdownEditor"
@@ -42,40 +35,15 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { updateItem, deleteItem, toggleFavoriteItem, toggleItemPin } from "@/actions/items"
-import { generateAutoTags, generateDescription, explainCode, optimizePrompt } from "@/actions/ai"
+import { explainCode, optimizePrompt } from "@/actions/ai"
 import { getCollectionsForPicker } from "@/actions/collections"
 import type { ItemDetail } from "@/lib/db/items"
-import { formatBytes } from "@/lib/format"
+import { formatBytes, formatRelativeDate } from "@/lib/format"
+import { ICON_MAP } from "@/lib/item-icons"
+import { CONTENT_TYPES, LANGUAGE_TYPES, MARKDOWN_TYPES } from "@/lib/item-types"
+import { useDrawerResize } from "@/hooks/useDrawerResize"
+import { useItemAI } from "@/hooks/useItemAI"
 import CollectionPicker from "@/components/items/CollectionPicker"
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image,
-  Link,
-}
-
-// Item types that have a content field
-const CONTENT_TYPES = new Set(["snippet", "prompt", "command", "note"])
-// Item types that have a language field
-const LANGUAGE_TYPES = new Set(["snippet", "command"])
-// Item types that use the markdown editor
-const MARKDOWN_TYPES = new Set(["note", "prompt"])
-
-function timeAgo(date: Date): string {
-  const diff = Date.now() - new Date(date).getTime()
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
-  const weeks = Math.floor(days / 7)
-  if (weeks > 0) return `${weeks} week${weeks > 1 ? "s" : ""} ago`
-  if (days > 0) return `${days} day${days > 1 ? "s" : ""} ago`
-  if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""} ago`
-  return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`
-}
 
 interface ItemDrawerProps {
   itemId: string | null
@@ -106,18 +74,6 @@ function itemToEditState(item: ItemDetail): EditState {
   }
 }
 
-const DRAWER_WIDTH_KEY = "rongeka:drawer-width"
-const DRAWER_DEFAULT_WIDTH = 448
-const DRAWER_MIN_WIDTH = 380
-const DRAWER_MAX_FRACTION = 0.92
-
-function getInitialWidth() {
-  if (typeof window === "undefined") return DRAWER_DEFAULT_WIDTH
-  const stored = localStorage.getItem(DRAWER_WIDTH_KEY)
-  const parsed = stored ? parseInt(stored, 10) : NaN
-  return isNaN(parsed) ? DRAWER_DEFAULT_WIDTH : Math.max(DRAWER_MIN_WIDTH, Math.min(parsed, window.innerWidth * DRAWER_MAX_FRACTION))
-}
-
 export default function ItemDrawer({ itemId, open, onClose, isPro }: ItemDrawerProps) {
   const router = useRouter()
   const [item, setItem] = useState<ItemDetail | null>(null)
@@ -137,13 +93,6 @@ export default function ItemDrawer({ itemId, open, onClose, isPro }: ItemDrawerP
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
-  // AI tag suggestion state
-  const [suggestedTags, setSuggestedTags] = useState<string[]>([])
-  const [suggestingTags, setSuggestingTags] = useState(false)
-
-  // AI description generation state
-  const [generatingDescription, setGeneratingDescription] = useState(false)
-
   // AI explain state
   const [explanation, setExplanation] = useState<string | null>(null)
   const [isExplaining, setIsExplaining] = useState(false)
@@ -152,44 +101,32 @@ export default function ItemDrawer({ itemId, open, onClose, isPro }: ItemDrawerP
   const [optimizedContent, setOptimizedContent] = useState<string | null>(null)
   const [isOptimizing, setIsOptimizing] = useState(false)
 
-  // Drawer resize state
-  const [drawerWidth, setDrawerWidth] = useState(DRAWER_DEFAULT_WIDTH)
-  const isDragging = useRef(false)
+  // Drawer resize
+  const { width: drawerWidth, onMouseDown: handleResizeMouseDown } = useDrawerResize({
+    storageKey: "rongeka:drawer-width",
+    defaultWidth: 448,
+    minWidth: 380,
+    maxFraction: 0.92,
+  })
 
-  useEffect(() => {
-    setDrawerWidth(getInitialWidth())
-  }, [])
-
-  const handleResizeMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    isDragging.current = true
-    document.body.style.cursor = "col-resize"
-    document.body.style.userSelect = "none"
-
-    function onMouseMove(ev: MouseEvent) {
-      if (!isDragging.current) return
-      const newWidth = Math.max(
-        DRAWER_MIN_WIDTH,
-        Math.min(window.innerWidth - ev.clientX, window.innerWidth * DRAWER_MAX_FRACTION)
-      )
-      setDrawerWidth(newWidth)
-    }
-
-    function onMouseUp() {
-      isDragging.current = false
-      document.body.style.cursor = ""
-      document.body.style.userSelect = ""
-      setDrawerWidth((w) => {
-        localStorage.setItem(DRAWER_WIDTH_KEY, String(w))
-        return w
-      })
-      document.removeEventListener("mousemove", onMouseMove)
-      document.removeEventListener("mouseup", onMouseUp)
-    }
-
-    document.addEventListener("mousemove", onMouseMove)
-    document.addEventListener("mouseup", onMouseUp)
-  }, [])
+  // AI tag + description
+  const {
+    suggestedTags,
+    suggestingTags,
+    generatingDescription,
+    handleSuggestTags,
+    handleGenerateDescription,
+    acceptTag,
+    rejectTag,
+  } = useItemAI({
+    getTitle: () => editState?.title ?? "",
+    getContent: () => editState?.content || undefined,
+    getUrl: () => editState?.url || undefined,
+    getTypeName: () => item?.itemType.name,
+    getTags: () => editState?.tags ?? "",
+    onTagsChange: (tags) => setField("tags", tags),
+    onDescriptionChange: (desc) => setField("description", desc),
+  })
 
   useEffect(() => {
     if (!itemId || !open) {
@@ -250,7 +187,6 @@ export default function ItemDrawer({ itemId, open, onClose, isPro }: ItemDrawerP
   function handleEditCancel() {
     setIsEditing(false)
     setEditState(null)
-    setSuggestedTags([])
   }
 
   async function handleExplain() {
@@ -287,60 +223,6 @@ export default function ItemDrawer({ itemId, open, onClose, isPro }: ItemDrawerP
     setIsEditing(true)
     setOptimizedContent(null)
     getCollectionsForPicker().then(setCollections)
-  }
-
-  async function handleGenerateDescription() {
-    if (!editState?.title.trim()) {
-      toast.error("Add a title before generating a description.")
-      return
-    }
-    setGeneratingDescription(true)
-    const tagList = editState.tags.split(",").map((t) => t.trim()).filter(Boolean)
-    const result = await generateDescription({
-      title: editState.title,
-      typeName: item?.itemType.name,
-      content: editState.content || undefined,
-      url: editState.url || undefined,
-      tags: tagList.length > 0 ? tagList : undefined,
-    })
-    setGeneratingDescription(false)
-    if (!result.success) {
-      toast.error(result.error)
-      return
-    }
-    setField("description", result.description)
-  }
-
-  async function handleSuggestTags() {
-    if (!editState?.title.trim()) {
-      toast.error("Add a title before suggesting tags.")
-      return
-    }
-    setSuggestingTags(true)
-    const result = await generateAutoTags({
-      title: editState.title,
-      content: editState.content || undefined,
-    })
-    setSuggestingTags(false)
-    if (!result.success) {
-      toast.error(result.error)
-      return
-    }
-    setSuggestedTags(result.tags)
-  }
-
-  function acceptTag(tag: string) {
-    if (!editState) return
-    const existing = editState.tags.split(",").map((t) => t.trim()).filter(Boolean)
-    if (!existing.includes(tag)) {
-      const newTags = existing.length > 0 ? `${editState.tags.trimEnd().replace(/,\s*$/, "")}, ${tag}` : tag
-      setField("tags", newTags)
-    }
-    setSuggestedTags((prev) => prev.filter((t) => t !== tag))
-  }
-
-  function rejectTag(tag: string) {
-    setSuggestedTags((prev) => prev.filter((t) => t !== tag))
   }
 
   async function handleEditSave() {
@@ -632,8 +514,8 @@ export default function ItemDrawer({ itemId, open, onClose, isPro }: ItemDrawerP
 
                 <p className="text-xs text-muted-foreground">
                   {item.lastUsedAt
-                    ? `Last used ${timeAgo(item.lastUsedAt)}`
-                    : `Created ${timeAgo(item.createdAt)}`}
+                    ? `Last used ${formatRelativeDate(item.lastUsedAt)}`
+                    : `Created ${formatRelativeDate(item.createdAt)}`}
                 </p>
               </div>
 

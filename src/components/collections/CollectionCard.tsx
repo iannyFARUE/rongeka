@@ -1,27 +1,9 @@
 import Link from "next/link";
-import {
-  Star,
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image,
-  Link as LinkIcon,
-  type LucideIcon,
-} from "lucide-react";
+import { Star } from "lucide-react";
 import type { CollectionWithMeta } from "@/lib/db/collections";
 import CollectionActionsDropdown from "./CollectionActionsDropdown";
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  File,
-  Image,
-  Link: LinkIcon,
-};
+import { ICON_MAP } from "@/lib/item-icons";
+import { pluralise } from "@/lib/format";
 
 export default function CollectionCard({
   collection,
@@ -71,7 +53,7 @@ export default function CollectionCard({
             })}
           </div>
           <span className="text-xs text-muted-foreground">
-            {collection.itemCount} {collection.itemCount === 1 ? "item" : "items"}
+            {pluralise(collection.itemCount, "item")}
           </span>
         </div>
       </Link>
