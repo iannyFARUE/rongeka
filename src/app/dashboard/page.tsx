@@ -4,7 +4,7 @@ import {
   FolderOpen,
   Star,
   BookMarked,
-  ChevronRight,
+  ArrowRight,
 } from "lucide-react";
 import { auth } from "@/auth";
 import { getCollections, getDashboardStats } from "@/lib/db/collections";
@@ -25,30 +25,31 @@ export default async function DashboardPage() {
   ]);
 
   const statCards = [
-    { label: "Items", value: stats.totalItems, icon: Layers, color: "#3b82f6" },
+    { label: "Total Items", value: stats.totalItems, icon: Layers, color: "#3b82f6" },
     { label: "Collections", value: stats.totalCollections, icon: FolderOpen, color: "#8b5cf6" },
-    { label: "Favorite Items", value: stats.favoriteItems, icon: Star, color: "#fde047" },
-    { label: "Favorite Collections", value: stats.favoriteCollections, icon: BookMarked, color: "#10b981" },
+    { label: "Starred Items", value: stats.favoriteItems, icon: Star, color: "#f59e0b" },
+    { label: "Starred Collections", value: stats.favoriteCollections, icon: BookMarked, color: "#10b981" },
   ];
 
   return (
-    <div className="p-6 space-y-6 max-w-5xl mx-auto">
+    <div className="p-6 md:p-8 max-w-6xl mx-auto space-y-10">
+
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {statCards.map(({ label, value, icon: Icon, color }) => (
           <div
             key={label}
-            className="flex items-center gap-3 rounded-lg border border-border bg-card p-4"
+            className="rounded-xl border border-white/6 bg-[#111113] p-5 flex flex-col gap-3 hover:border-white/10 transition-colors"
           >
             <div
-              className="flex h-9 w-9 items-center justify-center rounded-md shrink-0"
-              style={{ backgroundColor: `${color}18` }}
+              className="w-9 h-9 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: `${color}15` }}
             >
               <Icon className="h-4 w-4" style={{ color }} />
             </div>
             <div>
-              <p className="text-xl font-bold leading-none">{value}</p>
-              <p className="text-xs text-muted-foreground mt-1">{label}</p>
+              <p className="text-2xl font-bold tracking-tight text-white/90">{value}</p>
+              <p className="text-xs text-white/35 mt-0.5 font-medium">{label}</p>
             </div>
           </div>
         ))}
@@ -56,15 +57,25 @@ export default async function DashboardPage() {
 
       {/* Collections */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold">Collections</h2>
-          <Link href="/dashboard/collections" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            View All
-            <ChevronRight className="h-3.5 w-3.5" />
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="text-base font-semibold text-white/85">Collections</h2>
+            <p className="text-xs text-white/35 mt-0.5">Your organized resource groups</p>
+          </div>
+          <Link
+            href="/dashboard/collections"
+            className="flex items-center gap-1 text-xs text-white/35 hover:text-white/60 transition-colors group"
+          >
+            View all
+            <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
         {collections.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No collections yet.</p>
+          <div className="rounded-xl border border-white/5 border-dashed p-10 text-center">
+            <FolderOpen className="h-8 w-8 text-white/15 mx-auto mb-3" />
+            <p className="text-sm text-white/30">No collections yet.</p>
+            <p className="text-xs text-white/20 mt-1">Create one to group your items.</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {collections.map((col) => (
@@ -77,7 +88,10 @@ export default async function DashboardPage() {
       {/* Pinned Items */}
       {pinnedItems.length > 0 && (
         <section>
-          <h2 className="text-base font-semibold mb-4">Pinned</h2>
+          <div className="mb-5">
+            <h2 className="text-base font-semibold text-white/85">Pinned</h2>
+            <p className="text-xs text-white/35 mt-0.5">Your most important items</p>
+          </div>
           <ItemsWithDrawer items={pinnedItems} className="space-y-2" isPro={isPro} />
         </section>
       )}
@@ -85,7 +99,10 @@ export default async function DashboardPage() {
       {/* Recent Items */}
       {recentItems.length > 0 && (
         <section>
-          <h2 className="text-base font-semibold mb-4">Recent Items</h2>
+          <div className="mb-5">
+            <h2 className="text-base font-semibold text-white/85">Recent Items</h2>
+            <p className="text-xs text-white/35 mt-0.5">Items you've used lately</p>
+          </div>
           <ItemsWithDrawer items={recentItems} className="space-y-2" isPro={isPro} />
         </section>
       )}

@@ -2,16 +2,15 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button-variants";
+import { Zap, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
 
 export default function Navbar({ hideLinks = false }: { hideLinks?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -28,82 +27,109 @@ export default function Navbar({ hideLinks = false }: { hideLinks?: boolean }) {
     }
   }
 
+  const navLinks = [
+    { href: "/#features", label: "Features" },
+    { href: "/#ai", label: "AI" },
+    { href: "/#pricing", label: "Pricing" },
+  ];
+
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
-        scrolled
-          ? "bg-background/90 backdrop-blur-md border-b border-border"
-          : "bg-background/60 backdrop-blur-sm"
-      }`}
-    >
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 font-semibold text-lg">
-          <span className="text-xl">⚡</span>
-          <span>Rongeka</span>
-        </Link>
-
-        {/* Desktop nav links */}
-        <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-          {!hideLinks && (["/#features", "/#ai", "/#pricing"] as const).map((href) => (
-            <a
-              key={href}
-              href={href}
-              onClick={(e) => handleNavClick(e, href)}
-              className="hover:text-foreground transition-colors"
-            >
-              {href === "/#features" ? "Features" : href === "/#ai" ? "AI" : "Pricing"}
-            </a>
-          ))}
-        </div>
-
-        {/* Desktop actions */}
-        <div className="hidden md:flex items-center gap-3">
-          <Link href="/sign-in" className={buttonVariants({ variant: "ghost", size: "sm" })}>
-            Sign In
-          </Link>
-          <Link href="/register" className={cn(buttonVariants({ size: "sm" }), "bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] text-white border-0 hover:opacity-90")}>
-            Get Started Free
-          </Link>
-        </div>
-
-        {/* Mobile hamburger */}
-        <button
-          className="md:hidden p-2 rounded-md hover:bg-muted transition-colors"
-          onClick={() => setMenuOpen((o) => !o)}
-          aria-label="Toggle menu"
+    <>
+      {/* Desktop pill navbar */}
+      <nav className="fixed top-4 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
+        <div
+          className={cn(
+            "pointer-events-auto flex items-center gap-1 px-2 py-2 rounded-2xl border transition-all duration-300",
+            scrolled
+              ? "bg-[#0D0D0F]/90 backdrop-blur-xl border-white/8 shadow-xl shadow-black/40"
+              : "bg-[#0D0D0F]/70 backdrop-blur-md border-white/5"
+          )}
         >
-          {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
-      </div>
+          {/* Logo */}
+          <Link
+            href="/"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-white/5 transition-colors"
+          >
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center">
+              <Zap className="w-3.5 h-3.5 text-white fill-white" />
+            </div>
+            <span className="font-semibold text-sm text-white/90">Rongeka</span>
+          </Link>
+
+          {/* Divider */}
+          {!hideLinks && (
+            <div className="hidden md:flex items-center">
+              <div className="w-px h-4 bg-white/8 mx-2" />
+              {navLinks.map(({ href, label }) => (
+                <a
+                  key={href}
+                  href={href}
+                  onClick={(e) => handleNavClick(e, href)}
+                  className="text-sm text-white/45 hover:text-white/80 transition-colors px-3 py-1.5 rounded-xl hover:bg-white/5"
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="hidden md:flex items-center gap-1 ml-2">
+            <Link
+              href="/sign-in"
+              className="text-sm text-white/45 hover:text-white/80 transition-colors px-3 py-1.5 rounded-xl hover:bg-white/5"
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/register"
+              className="text-sm bg-violet-600 hover:bg-violet-500 text-white px-4 py-1.5 rounded-xl transition-colors font-medium"
+            >
+              Get Started
+            </Link>
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            className="md:hidden p-2 rounded-xl hover:bg-white/5 transition-colors text-white/60"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          </button>
+        </div>
+      </nav>
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden bg-background/95 backdrop-blur-md border-b border-border px-6 pb-6 flex flex-col gap-4">
-          {!hideLinks && [
-            { href: "/#features", label: "Features" },
-            { href: "/#ai", label: "AI" },
-            { href: "/#pricing", label: "Pricing" },
-          ].map(({ href, label }) => (
-            <a
-              key={href}
-              href={href}
-              onClick={(e) => handleNavClick(e, href)}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+        <div className="fixed inset-x-4 top-20 z-40 md:hidden bg-[#0D0D0F]/95 backdrop-blur-xl border border-white/8 rounded-2xl p-4 shadow-2xl shadow-black/60 flex flex-col gap-1">
+          {!hideLinks &&
+            navLinks.map(({ href, label }) => (
+              <a
+                key={href}
+                href={href}
+                onClick={(e) => handleNavClick(e, href)}
+                className="text-sm text-white/60 hover:text-white/90 transition-colors px-3 py-2.5 rounded-xl hover:bg-white/5"
+              >
+                {label}
+              </a>
+            ))}
+          <div className="border-t border-white/5 mt-2 pt-2 flex flex-col gap-1">
+            <Link
+              href="/sign-in"
+              className="text-sm text-white/60 hover:text-white/90 transition-colors px-3 py-2.5 rounded-xl hover:bg-white/5"
             >
-              {label}
-            </a>
-          ))}
-          <div className="flex flex-col gap-2 pt-2 border-t border-border">
-            <Link href="/sign-in" className={buttonVariants({ variant: "ghost", size: "sm" })}>
-              Sign In
+              Sign in
             </Link>
-            <Link href="/register" className={cn(buttonVariants({ size: "sm" }), "bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] text-white border-0 hover:opacity-90")}>
+            <Link
+              href="/register"
+              className="text-sm bg-violet-600 hover:bg-violet-500 text-white px-4 py-2.5 rounded-xl transition-colors font-medium text-center"
+            >
               Get Started Free
             </Link>
           </div>
         </div>
       )}
-    </nav>
+    </>
   );
 }
