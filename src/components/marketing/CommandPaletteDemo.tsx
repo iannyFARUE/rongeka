@@ -45,11 +45,6 @@ export default function CommandPaletteDemo() {
 
   return (
     <div className="relative">
-      {/* Glow */}
-      <div
-        className="absolute -inset-4 rounded-3xl opacity-20 blur-2xl pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at center, #7c3aed, transparent 70%)" }}
-      />
 
       <div className="relative rounded-2xl border border-white/8 bg-[#0D0D0F] overflow-hidden shadow-2xl">
         {/* Title bar */}
@@ -69,7 +64,7 @@ export default function CommandPaletteDemo() {
             <Search className="w-4 h-4 text-white/25 shrink-0" />
             <span className="font-mono text-sm text-white/70 flex-1">
               {typed}
-              <span className="animate-pulse text-violet-400">|</span>
+              <span className="animate-pulse text-white/50">|</span>
             </span>
           </div>
         </div>
@@ -85,7 +80,7 @@ export default function CommandPaletteDemo() {
                 key={item.title}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${
                   i === 0
-                    ? "bg-violet-500/12 border border-violet-500/20"
+                    ? "bg-white/6 border border-white/10"
                     : "hover:bg-white/4"
                 }`}
               >

@@ -32,24 +32,11 @@ export default async function HomePage() {
 
       {/* ── Hero ──────────────────────────────────────────────────── */}
       <section className="relative pt-36 pb-24 px-6">
-        {/* Background mesh gradient */}
-        <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] opacity-15 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse at center top, #7c3aed 0%, #4c1d95 40%, transparent 70%)",
-          }}
-        />
-        <div
-          className="absolute top-40 right-1/4 w-[300px] h-[300px] opacity-8 pointer-events-none blur-3xl"
-          style={{ background: "#3b82f6" }}
-        />
-
         <div className="relative max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
             {/* Left: Text */}
             <div>
-              <div className="inline-flex items-center gap-2 text-xs font-medium bg-violet-500/10 text-violet-400 border border-violet-500/20 px-3 py-1.5 rounded-full mb-8">
+              <div className="inline-flex items-center gap-2 text-xs font-medium bg-white/6 text-white/50 border border-white/10 px-3 py-1.5 rounded-full mb-8">
                 <Sparkles className="w-3 h-3" />
                 AI-powered developer memory
               </div>
@@ -57,16 +44,7 @@ export default async function HomePage() {
               <h1 className="text-5xl lg:text-6xl font-bold leading-[1.07] tracking-tight mb-6">
                 Your second brain,
                 <br />
-                <span
-                  style={{
-                    background: "linear-gradient(135deg, #a78bfa 0%, #7c3aed 50%, #6d28d9 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}
-                >
-                  built for code.
-                </span>
+                <span className="text-white/90">built for code.</span>
               </h1>
 
               <p className="text-lg text-white/45 max-w-md mb-10 leading-relaxed">
@@ -81,7 +59,7 @@ export default async function HomePage() {
               <div className="flex flex-wrap items-center gap-4 mb-14">
                 <Link
                   href="/register"
-                  className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-6 py-3 rounded-xl font-medium transition-all hover:shadow-lg hover:shadow-violet-500/25 text-sm"
+                  className="inline-flex items-center gap-2 bg-white hover:bg-white/90 text-[#09090B] px-6 py-3 rounded-xl font-medium transition-all text-sm"
                 >
                   Start for free
                   <ArrowRight className="w-4 h-4" />
@@ -147,7 +125,7 @@ export default async function HomePage() {
       <section id="features" className="py-28 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <span className="text-xs font-semibold uppercase tracking-widest text-violet-400 mb-4 block">
+            <span className="text-xs font-semibold uppercase tracking-widest text-white/35 mb-4 block">
               Everything you need
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
@@ -161,10 +139,10 @@ export default async function HomePage() {
           {/* Bento grid */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             {/* ⌘K Search — large card */}
-            <div className="md:col-span-5 rounded-2xl border border-white/6 bg-[#0D0D0F] p-6 flex flex-col gap-5 group hover:border-violet-500/30 transition-colors">
+            <div className="md:col-span-5 rounded-2xl border border-white/6 bg-[#0D0D0F] p-6 flex flex-col gap-5 group hover:border-white/12 transition-colors">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4 group-hover:bg-violet-500/15 transition-colors">
-                  <Search className="w-5 h-5 text-violet-400" />
+                <div className="w-10 h-10 rounded-xl bg-white/6 flex items-center justify-center mb-4 group-hover:bg-white/8 transition-colors">
+                  <Search className="w-5 h-5 text-white/60" />
                 </div>
                 <h3 className="font-semibold text-white/85 mb-1.5">Instant Search ⌘K</h3>
                 <p className="text-sm text-white/35 leading-relaxed">
@@ -258,15 +236,15 @@ export default async function HomePage() {
             </div>
 
             {/* AI Prompts */}
-            <div className="md:col-span-4 rounded-2xl border border-white/6 bg-[#0D0D0F] p-6 group hover:border-purple-500/30 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4 group-hover:bg-purple-500/15 transition-colors">
-                <Sparkles className="w-5 h-5 text-purple-400" />
+            <div className="md:col-span-4 rounded-2xl border border-white/6 bg-[#0D0D0F] p-6 group hover:border-white/12 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-white/6 flex items-center justify-center mb-4 group-hover:bg-white/8 transition-colors">
+                <Sparkles className="w-5 h-5 text-white/60" />
               </div>
               <h3 className="font-semibold text-white/85 mb-1.5">AI Prompts</h3>
               <p className="text-sm text-white/35 leading-relaxed mb-4">
                 Store your best system prompts. Retrieve them instantly.
               </p>
-              <div className="rounded-lg border border-purple-500/15 bg-purple-500/5 p-3 text-xs text-white/40 leading-relaxed font-mono">
+              <div className="rounded-lg border border-white/8 bg-white/3 p-3 text-xs text-white/40 leading-relaxed font-mono">
                 {`You are a senior TypeScript engineer. Review the following code for bugs, performance issues...`}
               </div>
             </div>
@@ -302,21 +280,8 @@ export default async function HomePage() {
       </section>
 
       {/* ── AI Section ─────────────────────────────────────────────── */}
-      <section id="ai" className="py-28 px-6 relative overflow-hidden">
-        {/* Background */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(180deg, transparent 0%, rgba(109,40,217,0.04) 50%, transparent 100%)",
-          }}
-        />
-        <div
-          className="absolute left-1/4 top-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-6 pointer-events-none blur-3xl rounded-full"
-          style={{ background: "#7c3aed" }}
-        />
-
-        <div className="relative max-w-7xl mx-auto">
+      <section id="ai" className="py-28 px-6">
+        <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             {/* Left */}
             <div>
@@ -325,17 +290,7 @@ export default async function HomePage() {
                 Pro Feature
               </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6 tracking-tight">
-                Let AI do the{" "}
-                <span
-                  style={{
-                    background: "linear-gradient(135deg, #a78bfa, #7c3aed)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}
-                >
-                  heavy lifting.
-                </span>
+                Let AI do the heavy lifting.
               </h2>
               <p className="text-white/40 mb-8 leading-relaxed">
                 Powered by GPT-4o-mini, Rongeka can understand your content and help you
@@ -349,8 +304,8 @@ export default async function HomePage() {
                   "Optimize and rewrite your AI prompts",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3 text-sm text-white/50">
-                    <div className="w-5 h-5 rounded-full bg-violet-500/15 flex items-center justify-center shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-violet-400" />
+                    <div className="w-5 h-5 rounded-full bg-white/8 flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-white/60" />
                     </div>
                     {item}
                   </li>
@@ -358,7 +313,7 @@ export default async function HomePage() {
               </ul>
               <Link
                 href="/register"
-                className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-6 py-3 rounded-xl font-medium transition-all hover:shadow-lg hover:shadow-violet-500/25 text-sm"
+                className="inline-flex items-center gap-2 bg-white hover:bg-white/90 text-[#09090B] px-6 py-3 rounded-xl font-medium transition-all text-sm"
               >
                 <Zap className="w-4 h-4" />
                 Unlock AI Features
@@ -377,33 +332,23 @@ export default async function HomePage() {
       {/* ── CTA ────────────────────────────────────────────────────── */}
       <section className="py-28 px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <div className="relative rounded-3xl border border-white/6 bg-[#0D0D0F] p-16 overflow-hidden">
-            {/* Glow */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background:
-                  "radial-gradient(ellipse at center bottom, rgba(124,58,237,0.12) 0%, transparent 70%)",
-              }}
-            />
-            <div className="relative">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center mx-auto mb-6">
-                <Zap className="w-6 h-6 text-white fill-white" />
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-                Stop losing your best work.
-              </h2>
-              <p className="text-white/40 mb-10 max-w-md mx-auto">
-                Join developers who use Rongeka as their second brain. Free to start, no credit card required.
-              </p>
-              <Link
-                href="/register"
-                className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-8 py-3.5 rounded-xl font-medium transition-all hover:shadow-xl hover:shadow-violet-500/30 text-sm"
-              >
-                Start for free
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+          <div className="rounded-3xl border border-white/8 bg-[#0D0D0F] p-16">
+            <div className="w-12 h-12 rounded-2xl bg-white/8 border border-white/10 flex items-center justify-center mx-auto mb-6">
+              <Zap className="w-6 h-6 text-white/70 fill-white/70" />
             </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+              Stop losing your best work.
+            </h2>
+            <p className="text-white/40 mb-10 max-w-md mx-auto">
+              Join developers who use Rongeka as their second brain. Free to start, no credit card required.
+            </p>
+            <Link
+              href="/register"
+              className="inline-flex items-center gap-2 bg-white hover:bg-white/90 text-[#09090B] px-8 py-3.5 rounded-xl font-medium transition-all text-sm"
+            >
+              Start for free
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>
@@ -413,8 +358,8 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-2 md:grid-cols-4 gap-10">
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="inline-flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center">
-                <Zap className="w-4 h-4 text-white fill-white" />
+              <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center">
+                <Zap className="w-4 h-4 text-white/70 fill-white/70" />
               </div>
               <span className="font-semibold">Rongeka</span>
             </Link>

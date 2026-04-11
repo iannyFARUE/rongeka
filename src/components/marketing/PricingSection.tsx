@@ -39,7 +39,7 @@ export default function PricingSection() {
     <section id="pricing" className="py-24 bg-white/[0.02]">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-12">
-          <span className="text-xs font-semibold uppercase tracking-widest text-violet-400 mb-3 block">
+          <span className="text-xs font-semibold uppercase tracking-widest text-white/35 mb-3 block">
             Pricing
           </span>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -99,11 +99,11 @@ export default function PricingSection() {
           </div>
 
           {/* Pro */}
-          <div className="rounded-xl border-2 border-violet-500/50 bg-background p-8 flex flex-col relative shadow-lg shadow-violet-500/10">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-600 to-violet-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+          <div className="rounded-xl border border-white/15 bg-background p-8 flex flex-col relative shadow-lg shadow-black/30">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-[#09090B] text-xs font-semibold px-3 py-1 rounded-full">
               ✦ Most Popular
             </div>
-            <div className="text-lg font-semibold text-violet-400 mb-1">Pro</div>
+            <div className="text-lg font-semibold text-white/85 mb-1">Pro</div>
             <div className="flex items-end gap-1 mb-1">
               <span className="text-4xl font-bold">${proMonthly}</span>
               <span className="text-muted-foreground mb-1">/mo</span>
@@ -118,7 +118,7 @@ export default function PricingSection() {
                 </li>
               ))}
             </ul>
-            <Link href="/register" className={cn(buttonVariants(), "w-full justify-center bg-gradient-to-r from-violet-600 to-violet-500 text-white border-0 hover:opacity-90")}>
+            <Link href="/register" className={cn(buttonVariants(), "w-full justify-center bg-white text-[#09090B] border-0 hover:bg-white/90")}>
               Get Pro
             </Link>
           </div>

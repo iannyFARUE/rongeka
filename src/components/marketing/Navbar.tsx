@@ -50,8 +50,8 @@ export default function Navbar({ hideLinks = false }: { hideLinks?: boolean }) {
             href="/"
             className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-white/5 transition-colors"
           >
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center">
-              <Zap className="w-3.5 h-3.5 text-white fill-white" />
+            <div className="w-6 h-6 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center">
+              <Zap className="w-3.5 h-3.5 text-white/70 fill-white/70" />
             </div>
             <span className="font-semibold text-sm text-white/90">Rongeka</span>
           </Link>
@@ -83,7 +83,7 @@ export default function Navbar({ hideLinks = false }: { hideLinks?: boolean }) {
             </Link>
             <Link
               href="/register"
-              className="text-sm bg-violet-600 hover:bg-violet-500 text-white px-4 py-1.5 rounded-xl transition-colors font-medium"
+              className="text-sm bg-white hover:bg-white/90 text-[#09090B] px-4 py-1.5 rounded-xl transition-colors font-medium"
             >
               Get Started
             </Link>
@@ -123,7 +123,7 @@ export default function Navbar({ hideLinks = false }: { hideLinks?: boolean }) {
             </Link>
             <Link
               href="/register"
-              className="text-sm bg-violet-600 hover:bg-violet-500 text-white px-4 py-2.5 rounded-xl transition-colors font-medium text-center"
+              className="text-sm bg-white hover:bg-white/90 text-[#09090B] px-4 py-2.5 rounded-xl transition-colors font-medium text-center"
             >
               Get Started Free
             </Link>
