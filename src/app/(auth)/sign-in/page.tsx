@@ -58,21 +58,19 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="w-full max-w-sm space-y-6 px-4">
+    <div className="space-y-5">
       <Suspense>
         <StatusBanner />
       </Suspense>
 
-      <div className="space-y-1 text-center">
-        <h1 className="text-2xl font-bold">Sign in</h1>
-        <p className="text-sm text-muted-foreground">
-          Welcome back to Rongeka
-        </p>
+      <div className="space-y-1">
+        <h1 className="text-xl font-semibold text-white/90">Sign in</h1>
+        <p className="text-sm text-white/35">Welcome back to Rongeka</p>
       </div>
 
       <form onSubmit={handleCredentials} className="space-y-3">
-        <div className="space-y-1">
-          <label htmlFor="email" className="text-sm font-medium">Email</label>
+        <div className="space-y-1.5">
+          <label htmlFor="email" className="text-xs font-medium text-white/50 uppercase tracking-wide">Email</label>
           <Input
             id="email"
             type="email"
@@ -81,10 +79,19 @@ export default function SignInPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
+            className="bg-white/4 border-white/10 text-white/80 placeholder:text-white/20 focus-visible:ring-white/20 focus-visible:border-white/20"
           />
         </div>
-        <div className="space-y-1">
-          <label htmlFor="password" className="text-sm font-medium">Password</label>
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label htmlFor="password" className="text-xs font-medium text-white/50 uppercase tracking-wide">Password</label>
+            <Link
+              href="/forgot-password"
+              className="text-xs text-white/30 hover:text-white/60 transition-colors"
+            >
+              Forgot password?
+            </Link>
+          </div>
           <Input
             id="password"
             type="password"
@@ -93,45 +100,38 @@ export default function SignInPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
+            className="bg-white/4 border-white/10 text-white/80 placeholder:text-white/20 focus-visible:ring-white/20 focus-visible:border-white/20"
           />
         </div>
-        <div className="text-right">
-          <Link
-            href="/forgot-password"
-            className="text-xs text-muted-foreground underline hover:text-foreground"
-          >
-            Forgot password?
-          </Link>
-        </div>
         {error && (
-          <p role="alert" className="text-sm text-destructive">{error}</p>
+          <p role="alert" className="text-xs text-destructive">{error}</p>
         )}
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button type="submit" className="w-full bg-white hover:bg-white/90 text-[#09090B] font-medium mt-1" disabled={loading}>
           {loading ? "Signing in…" : "Sign in"}
         </Button>
       </form>
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-border" />
+          <span className="w-full border-t border-white/8" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">or</span>
+          <span className="bg-[#0D0D0F] px-2 text-white/25">or</span>
         </div>
       </div>
 
       <Button
         type="button"
         variant="outline"
-        className="w-full"
+        className="w-full border-white/10 bg-white/4 text-white/60 hover:bg-white/8 hover:text-white/80"
         onClick={handleGitHub}
       >
         Sign in with GitHub
       </Button>
 
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-center text-sm text-white/30">
         No account?{" "}
-        <Link href="/register" className="underline hover:text-foreground">
+        <Link href="/register" className="text-white/60 hover:text-white/90 transition-colors">
           Register
         </Link>
       </p>
