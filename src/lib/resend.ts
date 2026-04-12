@@ -56,7 +56,7 @@ export async function sendVerificationEmail(email: string, token: string) {
   `;
 
   await resend.emails.send({
-    from: "onboarding@resend.dev",
+    from: "noreply@rongeka.io",
     to: email,
     subject: "Verify your Rongeka account",
     html: emailWrapper(content),
@@ -83,7 +83,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   `;
 
   await resend.emails.send({
-    from: "onboarding@resend.dev",
+    from: "noreply@rongeka.io",
     to: email,
     subject: "Reset your Rongeka password",
     html: emailWrapper(content),
