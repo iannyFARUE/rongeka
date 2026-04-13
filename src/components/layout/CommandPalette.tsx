@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
-import { Folder, Search } from "lucide-react";
+import { Folder } from "lucide-react";
 import { ICON_MAP } from "@/lib/item-icons";
 import {
   Command,
@@ -62,13 +62,7 @@ export default function CommandPalette({ open, onClose, searchData }: CommandPal
       {/* Panel */}
       <div className="relative w-full max-w-lg mx-4 rounded-xl border border-border bg-popover shadow-2xl overflow-hidden">
         <Command>
-          <div className="flex items-center border-b border-border px-3">
-            <Search className="h-4 w-4 shrink-0 text-muted-foreground mr-2" />
-            <CommandInput
-              placeholder="Search items and collections..."
-              className="border-0 bg-transparent shadow-none focus-visible:ring-0 h-11 text-sm"
-            />
-          </div>
+          <CommandInput placeholder="Search items and collections..." />
           <CommandList className="max-h-80">
             <CommandEmpty>No results found.</CommandEmpty>
 
