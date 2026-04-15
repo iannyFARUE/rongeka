@@ -5,6 +5,9 @@ import {
   Star,
   BookMarked,
   ArrowRight,
+  LayoutGrid,
+  Pin,
+  Clock,
 } from "lucide-react";
 import { FREE_TIER_ITEM_LIMIT } from "@/lib/constants";
 import { auth } from "@/auth";
@@ -87,13 +90,13 @@ export default async function DashboardPage() {
       {/* Collections */}
       <section>
         <div className="flex items-center justify-between mb-5">
-          <div>
-            <h2 className="text-base font-semibold text-white/85">Collections</h2>
-            <p className="text-xs text-white/35 mt-0.5">Your organized resource groups</p>
+          <div className="flex items-center gap-2.5">
+            <LayoutGrid className="h-3.5 w-3.5 text-white/25" />
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/25">Collections</p>
           </div>
           <Link
             href="/dashboard/collections"
-            className="flex items-center gap-1 text-xs text-white/35 hover:text-white/60 transition-colors group"
+            className="flex items-center gap-1 text-xs text-white/30 hover:text-white/60 transition-colors group"
           >
             View all
             <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
@@ -117,9 +120,9 @@ export default async function DashboardPage() {
       {/* Pinned Items */}
       {pinnedItems.length > 0 && (
         <section>
-          <div className="mb-5">
-            <h2 className="text-base font-semibold text-white/85">Pinned</h2>
-            <p className="text-xs text-white/35 mt-0.5">Your most important items</p>
+          <div className="flex items-center gap-2.5 mb-5">
+            <Pin className="h-3.5 w-3.5 text-white/25" />
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/25">Pinned</p>
           </div>
           <ItemsWithDrawer items={pinnedItems} className="space-y-2" isPro={isPro} />
         </section>
@@ -128,9 +131,9 @@ export default async function DashboardPage() {
       {/* Recent Items */}
       {recentItems.length > 0 && (
         <section>
-          <div className="mb-5">
-            <h2 className="text-base font-semibold text-white/85">Recent Items</h2>
-            <p className="text-xs text-white/35 mt-0.5">Items you've used lately</p>
+          <div className="flex items-center gap-2.5 mb-5">
+            <Clock className="h-3.5 w-3.5 text-white/25" />
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/25">Recent</p>
           </div>
           <ItemsWithDrawer items={recentItems} className="space-y-2" isPro={isPro} />
         </section>
