@@ -45,25 +45,42 @@ export default function CollectionCard({
           </p>
         )}
 
+        {/* Recent item titles */}
+        {collection.recentItemTitles.length > 0 && (
+          <ul className="mb-3 space-y-1">
+            {collection.recentItemTitles.map((title) => (
+              <li
+                key={title}
+                className="text-[11px] text-white/30 truncate leading-tight pl-1 border-l border-white/8"
+              >
+                {title}
+              </li>
+            ))}
+          </ul>
+        )}
+
         {/* Footer */}
         <div className="flex items-center justify-between mt-auto pt-3 border-t border-white/5">
-          <div className="flex items-center gap-1">
-            {collection.types.slice(0, 5).map((type) => {
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {collection.types.slice(0, 4).map((type) => {
               const Icon = ICON_MAP[type.icon];
               if (!Icon) return null;
               return (
                 <div
                   key={type.id}
-                  className="w-5 h-5 rounded-md flex items-center justify-center"
-                  style={{ backgroundColor: `${type.color}18` }}
-                  title={type.name}
+                  className="flex items-center gap-1 rounded-md px-1.5 py-0.5"
+                  style={{ backgroundColor: `${type.color}15` }}
+                  title={`${type.count} ${type.name}${type.count !== 1 ? "s" : ""}`}
                 >
-                  <Icon className="h-3 w-3" style={{ color: type.color }} />
+                  <Icon className="h-2.5 w-2.5 shrink-0" style={{ color: type.color }} />
+                  <span className="text-[10px] tabular-nums font-medium" style={{ color: type.color }}>
+                    {type.count}
+                  </span>
                 </div>
               );
             })}
           </div>
-          <span className="text-[11px] text-white/30 tabular-nums font-medium">
+          <span className="text-[11px] text-white/30 tabular-nums font-medium shrink-0">
             {pluralise(collection.itemCount, "item")}
           </span>
         </div>

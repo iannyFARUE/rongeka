@@ -6,6 +6,7 @@ export type CollectionType = {
   name: string;
   icon: string;
   color: string;
+  count: number;
 };
 
 export type CollectionWithMeta = {
@@ -16,6 +17,7 @@ export type CollectionWithMeta = {
   itemCount: number;
   types: CollectionType[];
   dominantColor: string;
+  recentItemTitles: string[];
 };
 
 export type DashboardStats = {
@@ -30,9 +32,15 @@ function mapCollectionWithMeta(col: {
   name: string;
   description: string | null;
   isFavorite: boolean;
-  itemCollections: { item: { itemType: { id: string; name: string; icon: string; color: string } } }[];
+  itemCollections: {
+    item: {
+      title: string;
+      createdAt: Date;
+      itemType: { id: string; name: string; icon: string; color: string };
+    };
+  }[];
 }): CollectionWithMeta {
-  const typeCount = new Map<string, CollectionType & { count: number }>();
+  const typeCount = new Map<string, CollectionType>();
   for (const ic of col.itemCollections) {
     const { id, name, icon, color } = ic.item.itemType;
     const existing = typeCount.get(id);
@@ -40,20 +48,30 @@ function mapCollectionWithMeta(col: {
     else typeCount.set(id, { id, name, icon, color, count: 1 });
   }
   const sortedTypes = Array.from(typeCount.values()).sort((a, b) => b.count - a.count);
+  const recentItemTitles = col.itemCollections
+    .slice()
+    .sort((a, b) => b.item.createdAt.getTime() - a.item.createdAt.getTime())
+    .slice(0, 3)
+    .map((ic) => ic.item.title);
   return {
     id: col.id,
     name: col.name,
     description: col.description,
     isFavorite: col.isFavorite,
     itemCount: col.itemCollections.length,
-    types: sortedTypes.map(({ id, name, icon, color }) => ({ id, name, icon, color })),
+    types: sortedTypes,
     dominantColor: sortedTypes[0]?.color ?? "#6b7280",
+    recentItemTitles,
   };
 }
 
 const collectionWithMetaInclude = {
   itemCollections: {
-    include: { item: { include: { itemType: true } } },
+    include: {
+      item: {
+        select: { title: true, createdAt: true, itemType: true },
+      },
+    },
   },
 } as const;
 
