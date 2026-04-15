@@ -12,6 +12,7 @@ import { getPinnedItems, getRecentItems } from "@/lib/db/items";
 import { DASHBOARD_COLLECTIONS_LIMIT, DASHBOARD_RECENT_ITEMS_LIMIT } from "@/lib/constants";
 import CollectionCard from "@/components/collections/CollectionCard";
 import ItemsWithDrawer from "@/components/items/ItemsWithDrawer";
+import QuickActions from "@/components/dashboard/QuickActions";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -33,6 +34,9 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-6 md:p-8 max-w-6xl mx-auto space-y-10">
+
+      {/* Quick Actions */}
+      <QuickActions />
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
