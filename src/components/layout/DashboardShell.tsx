@@ -41,6 +41,7 @@ export default function DashboardShell({
           onToggle={() => setSidebarOpen((prev) => !prev)}
           data={sidebarData}
           user={user}
+          isPro={isPro}
         />
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>

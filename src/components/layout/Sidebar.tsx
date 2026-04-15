@@ -12,8 +12,9 @@ import {
   Settings,
   User,
   Zap,
-  Clock,
+  Sparkles,
 } from "lucide-react";
+import { FREE_TIER_ITEM_LIMIT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/layout/UserAvatar";
@@ -42,6 +43,7 @@ interface SidebarProps {
   onToggle: () => void;
   data: SidebarData;
   user: SidebarUser;
+  isPro: boolean;
 }
 
 function SectionLabel({ label }: { label: string }) {
@@ -52,11 +54,13 @@ function SectionLabel({ label }: { label: string }) {
   );
 }
 
-export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) {
+export default function Sidebar({ isOpen, onToggle, data, user, isPro }: SidebarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const { itemTypes, collections, recentItems } = data;
+  const totalItems = itemTypes.reduce((sum, t) => sum + t.itemCount, 0);
+  const usagePct = Math.min((totalItems / FREE_TIER_ITEM_LIMIT) * 100, 100);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -272,6 +276,34 @@ export default function Sidebar({ isOpen, onToggle, data, user }: SidebarProps) 
               </section>
             )}
           </div>
+
+          {/* Usage bar (free users only) */}
+          {!isPro && (
+            <div className="mx-3 mb-2 rounded-xl border border-white/6 bg-white/3 p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-white/40 font-medium">
+                  {totalItems} / {FREE_TIER_ITEM_LIMIT} items
+                </span>
+                <span className="text-[11px] text-white/25">Free</span>
+              </div>
+              <div className="h-1 w-full rounded-full bg-white/8 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${usagePct}%`,
+                    backgroundColor: usagePct >= 80 ? "#f97316" : "#8b5cf6",
+                  }}
+                />
+              </div>
+              <a
+                href="/dashboard/settings#billing"
+                className="flex items-center justify-center gap-1.5 w-full rounded-lg py-1.5 text-[11px] font-medium text-violet-400 hover:text-violet-300 bg-violet-500/10 hover:bg-violet-500/15 transition-colors"
+              >
+                <Sparkles className="h-3 w-3" />
+                Upgrade to Pro
+              </a>
+            </div>
+          )}
 
           {/* User area */}
           <div className="border-t border-white/5 p-3 shrink-0 relative" ref={menuRef}>

@@ -6,6 +6,7 @@ import {
   BookMarked,
   ArrowRight,
 } from "lucide-react";
+import { FREE_TIER_ITEM_LIMIT } from "@/lib/constants";
 import { auth } from "@/auth";
 import { getCollections, getDashboardStats } from "@/lib/db/collections";
 import { getPinnedItems, getRecentItems } from "@/lib/db/items";
@@ -40,23 +41,47 @@ export default async function DashboardPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {statCards.map(({ label, value, icon: Icon, color }) => (
-          <div
-            key={label}
-            className="rounded-xl border border-white/6 bg-[#111113] p-5 flex flex-col gap-3 hover:border-white/10 transition-colors"
-          >
+        {statCards.map(({ label, value, icon: Icon, color }) => {
+          const isItemsCard = label === "Total Items";
+          const usagePct = isItemsCard
+            ? Math.min((value / FREE_TIER_ITEM_LIMIT) * 100, 100)
+            : null;
+          return (
             <div
-              className="w-9 h-9 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: `${color}15` }}
+              key={label}
+              className="rounded-xl border border-white/6 bg-[#111113] p-5 flex flex-col gap-3 hover:border-white/10 transition-colors"
             >
-              <Icon className="h-4 w-4" style={{ color }} />
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: `${color}15` }}
+              >
+                <Icon className="h-4 w-4" style={{ color }} />
+              </div>
+              <div className="space-y-2">
+                <div>
+                  <p className="text-2xl font-bold tracking-tight text-white/90">{value}</p>
+                  <p className="text-xs text-white/35 mt-0.5 font-medium">{label}</p>
+                </div>
+                {isItemsCard && !isPro && usagePct !== null && (
+                  <div className="space-y-1">
+                    <div className="h-1 w-full rounded-full bg-white/8 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${usagePct}%`,
+                          backgroundColor: usagePct >= 80 ? "#f97316" : color,
+                        }}
+                      />
+                    </div>
+                    <p className="text-[10px] text-white/25">
+                      {value} of {FREE_TIER_ITEM_LIMIT} free items used
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-            <div>
-              <p className="text-2xl font-bold tracking-tight text-white/90">{value}</p>
-              <p className="text-xs text-white/35 mt-0.5 font-medium">{label}</p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Collections */}
