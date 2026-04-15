@@ -4,6 +4,7 @@ import { getItemsByType } from "@/lib/db/items";
 import { ITEMS_PER_PAGE } from "@/lib/constants";
 import ItemsWithDrawer from "@/components/items/ItemsWithDrawer";
 import AddItemButton from "@/components/items/AddItemButton";
+import TypeEmptyState from "@/components/items/TypeEmptyState";
 import Pagination from "@/components/ui/Pagination";
 import { TYPE_ICONS } from "@/lib/item-icons";
 import { pluralise } from "@/lib/format";
@@ -51,9 +52,7 @@ export default async function ItemsTypePage({ params, searchParams }: PageProps)
       </div>
 
       {totalCount === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          No {typeName}s yet.
-        </p>
+        <TypeEmptyState typeName={typeName} typeColor={typeColor} />
       ) : (
         <>
           <ItemsWithDrawer
