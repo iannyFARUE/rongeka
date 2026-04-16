@@ -7,6 +7,7 @@ export type SearchItem = {
   typeIcon: string;
   typeColor: string;
   contentPreview: string | null;
+  tags: string[];
 };
 
 export type SearchCollection = {
@@ -29,6 +30,7 @@ export async function getSearchData(userId: string): Promise<SearchData> {
         id: true,
         title: true,
         content: true,
+        tags: { select: { name: true } },
         itemType: { select: { name: true, icon: true, color: true } },
       },
     }),
@@ -51,6 +53,7 @@ export async function getSearchData(userId: string): Promise<SearchData> {
       typeIcon: item.itemType.icon,
       typeColor: item.itemType.color,
       contentPreview: item.content ? item.content.slice(0, 100) : null,
+      tags: item.tags.map((t) => t.name),
     })),
     collections: collections.map((col) => ({
       id: col.id,

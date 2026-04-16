@@ -73,12 +73,19 @@ export default function CommandPalette({ open, onClose, searchData }: CommandPal
                   return (
                     <CommandItem
                       key={item.id}
-                      value={`item ${item.title} ${item.typeName}`}
+                      value={`item ${item.title} ${item.typeName} ${item.tags.join(" ")}`}
                       onSelect={() => handleSelectItem(item.id)}
                     >
                       <Icon className="shrink-0" style={{ color: item.typeColor }} />
-                      <span className="truncate">{item.title}</span>
-                      <span className="ml-auto text-xs text-muted-foreground capitalize shrink-0">
+                      <div className="flex flex-col min-w-0">
+                        <span className="truncate">{item.title}</span>
+                        {item.tags.length > 0 && (
+                          <span className="text-[10px] text-muted-foreground truncate">
+                            {item.tags.map((t) => `#${t}`).join("  ")}
+                          </span>
+                        )}
+                      </div>
+                      <span className="ml-auto text-xs text-muted-foreground capitalize shrink-0 pl-2">
                         {item.typeName}
                       </span>
                     </CommandItem>
