@@ -8,10 +8,11 @@ const LIMITERS = {
   register:       { requests: 3,  window: "1 h"  },
   forgotPassword: { requests: 3,  window: "1 h"  },
   resetPassword:  { requests: 5,  window: "15 m" },
-  aiSuggestTags:       { requests: 20, window: "1 h"  },
+  aiSuggestTags:         { requests: 20, window: "1 h"  },
   aiGenerateDescription: { requests: 20, window: "1 h"  },
   aiExplainCode:         { requests: 20, window: "1 h"  },
   aiOptimizePrompt:      { requests: 20, window: "1 h"  },
+  aiSmartSearch:         { requests: 20, window: "1 h"  },
 } as const;
 
 type LimiterKey = keyof typeof LIMITERS;

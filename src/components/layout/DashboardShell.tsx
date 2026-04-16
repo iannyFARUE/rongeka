@@ -49,6 +49,7 @@ export default function DashboardShell({
         open={open}
         onClose={() => setOpen(false)}
         searchData={searchData}
+        isPro={isPro}
       />
     </div>
   );
