@@ -391,7 +391,7 @@ export default async function HomePage() {
               title: "Company",
               links: [
                 { label: "About", href: "/about" },
-                { label: "Privacy", href: null },
+                { label: "Privacy", href: "/privacy" },
                 { label: "Terms", href: null },
                 { label: "Contact", href: null },
               ],
