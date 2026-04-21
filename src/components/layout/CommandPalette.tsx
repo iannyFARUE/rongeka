@@ -137,14 +137,14 @@ export default function CommandPalette({ open, onClose, searchData, isPro }: Com
       {/* Panel */}
       <div className="relative w-full max-w-lg mx-4 rounded-xl border border-border bg-popover shadow-2xl overflow-hidden">
         <Command shouldFilter={!aiEnabled}>
-          <div className="flex items-center border-b border-border px-3">
+          <div className="relative">
             <CommandInput
               placeholder={aiEnabled ? "Ask anything… e.g. Redis caching snippet from last week" : "Search items and collections..."}
               value={query}
               onValueChange={setQuery}
-              className="flex-1 border-0 focus:ring-0 px-0"
+              className={aiEnabled ? "pr-16" : "pr-12"}
             />
-            <div className="flex items-center gap-1 pl-2 shrink-0">
+            <div className="absolute inset-y-0 right-2 flex items-center gap-1">
               {aiEnabled && aiLoading && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
               {aiToggle}
             </div>
