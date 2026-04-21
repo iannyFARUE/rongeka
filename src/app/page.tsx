@@ -392,7 +392,7 @@ export default async function HomePage() {
               links: [
                 { label: "About", href: "/about" },
                 { label: "Privacy", href: "/privacy" },
-                { label: "Terms", href: null },
+                { label: "Terms", href: "/terms" },
                 { label: "Contact", href: null },
               ],
             },
